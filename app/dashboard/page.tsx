@@ -1,14 +1,14 @@
 "use client"
 
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { StatCard } from "@/components/shared/stat-card"
-import { ActivityFeed } from "@/components/activity-feed"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, Users, BookOpen, Award } from "lucide-react"
 import Link from "next/link"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { ActivityFeed } from "@/components/sections/activity-feed"
+import { StatCard } from "@/components/shared/stat-card"
 
 export default function DashboardPage() {
   return (

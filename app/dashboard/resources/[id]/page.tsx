@@ -1,12 +1,12 @@
 "use client"
 
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Star, Users, Clock, CheckCircle } from "lucide-react"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 export default function ResourceDetailPage({ params }: { params: { id: string } }) {
   const [isEnrolled, setIsEnrolled] = useState(false)
@@ -167,7 +167,7 @@ export default function ResourceDetailPage({ params }: { params: { id: string } 
                         </p>
                         <p className="text-sm text-muted-foreground">{module.lessons} lessons</p>
                       </div>
-                      <Badge variant="outline" className="text-xs flex-shrink-0">
+                      <Badge variant="default" className="text-xs flex-shrink-0">
                         {module.duration}
                       </Badge>
                     </div>

@@ -1,13 +1,12 @@
 "use client"
 
 import type React from "react"
-
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Bell, Lock, Eye, Database } from "lucide-react"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 interface SettingsSection {
   icon: React.ReactNode
@@ -207,13 +206,13 @@ export default function SettingsPage() {
             <p className="text-sm text-muted-foreground mb-4">Irreversible actions</p>
             <div className="space-y-2">
               <Button
-                variant="outline"
+                variant="primary"
                 className="w-full justify-start text-destructive hover:text-destructive bg-transparent"
               >
                 Download My Data
               </Button>
               <Button
-                variant="outline"
+                variant="accent"
                 className="w-full justify-start text-destructive hover:text-destructive bg-transparent"
               >
                 Delete Account

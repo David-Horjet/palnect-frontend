@@ -1,7 +1,7 @@
 "use client"
 
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { ResourceCard } from "@/components/shared/resource-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -142,7 +142,7 @@ export default function ResourcesPage() {
                   {categories.map((cat) => (
                     <Badge
                       key={cat}
-                      variant={selectedCategory === cat ? "default" : "outline"}
+                      variant={selectedCategory === cat ? "default" : "primary"}
                       className="cursor-pointer"
                       onClick={() => setSelectedCategory(cat === "All" ? null : cat)}
                     >
@@ -159,7 +159,7 @@ export default function ResourcesPage() {
                   {levels.map((level) => (
                     <Badge
                       key={level}
-                      variant={selectedLevel === level ? "default" : "outline"}
+                      variant={selectedLevel === level ? "default" : "primary"}
                       className="cursor-pointer"
                       onClick={() => setSelectedLevel(level === "All" ? null : level)}
                     >

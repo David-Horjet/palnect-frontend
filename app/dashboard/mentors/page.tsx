@@ -1,7 +1,6 @@
 "use client"
-
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { MentorCard } from "@/components/shared/mentor-card"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -162,7 +161,7 @@ export default function MentorsPage() {
                     {allSkills.map((skill) => (
                       <Badge
                         key={skill}
-                        variant={selectedSkills.includes(skill) ? "default" : "outline"}
+                        variant={selectedSkills.includes(skill) ? "default" : "primary"}
                         className="cursor-pointer"
                         onClick={() => toggleSkill(skill)}
                       >
@@ -183,7 +182,7 @@ export default function MentorsPage() {
                     ].map((option) => (
                       <Badge
                         key={option.label}
-                        variant={availability === option.id ? "default" : "outline"}
+                        variant={availability === option.id ? "default" : "primary"}
                         className="cursor-pointer"
                         onClick={() => setAvailability(option.id)}
                       >
