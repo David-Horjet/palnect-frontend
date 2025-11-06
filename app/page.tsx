@@ -6,6 +6,7 @@ import Link from "next/link"
 import { SectionHeader } from "@/components/shared/section-header"
 import { MentorCard } from "@/components/shared/mentor-card"
 import { ResourceCard } from "@/components/shared/resource-card"
+import { Navbar } from "@/components/layout/navbar"
 
 export default function Home() {
   return (

@@ -38,7 +38,7 @@ export function ResourceCard({
         {/* Icon and Category */}
         <div className="flex items-start justify-between">
           <div className="p-2 rounded-lg bg-primary/10">{icon}</div>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="accent" className="text-xs">
             {category}
           </Badge>
         </div>
@@ -51,7 +51,7 @@ export function ResourceCard({
 
         {/* Level */}
         <div className="flex items-center gap-2">
-          <Badge className={`text-xs ${levelColors[level]}`} variant="outline">
+          <Badge className={`text-xs ${levelColors[level]}`}>
             {level.charAt(0).toUpperCase() + level.slice(1)}
           </Badge>
         </div>

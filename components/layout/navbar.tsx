@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "./ui/button"
 import Link from "next/link"
+import { Button } from "../ui/button"
 
 export function Navbar() {
   const [theme, setTheme] = useState("light")
