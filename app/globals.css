@@ -1,105 +1,107 @@
 @import "tailwindcss";
-@import "tw-animate-css";
+/* @import "tw-animate-css"; */
 
 @custom-variant dark (&:is(.dark *));
 
+/* Converting all oklch colors to hex format for better compatibility and readability */
 :root {
   /* Updated color palette to match Palnect: Indigo, Purple, Pink with soft gradients */
-  --background: oklch(0.98 0.01 234.35);
-  --foreground: oklch(0.15 0.02 234.35);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 234.35);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 234.35);
+  --background: #faf8fc;
+  --foreground: #1a1429;
+  --card: #ffffff;
+  --card-foreground: #1a1429;
+  --popover: #ffffff;
+  --popover-foreground: #1a1429;
 
   /* Primary: Indigo */
-  --primary: oklch(0.55 0.21 263.5);
-  --primary-foreground: oklch(1 0 0);
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
 
   /* Secondary: Purple */
-  --secondary: oklch(0.58 0.19 286);
-  --secondary-foreground: oklch(1 0 0);
+  --secondary: #a855f7;
+  --secondary-foreground: #ffffff;
 
   /* Muted: Light gray */
-  --muted: oklch(0.93 0.01 234.35);
-  --muted-foreground: oklch(0.4 0.05 234.35);
+  --muted: #f0edff;
+  --muted-foreground: #6b7280;
 
   /* Accent: Pink */
-  --accent: oklch(0.62 0.21 328);
-  --accent-foreground: oklch(1 0 0);
+  --accent: #ec4899;
+  --accent-foreground: #ffffff;
 
-  --destructive: oklch(0.58 0.25 27.3);
-  --destructive-foreground: oklch(1 0 0);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
 
   /* Status colors */
-  --success: oklch(0.65 0.19 142.5);
-  --warning: oklch(0.73 0.2 68);
-  --info: oklch(0.55 0.21 263.5);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --info: #6366f1;
 
-  --border: oklch(0.93 0.01 234.35);
-  --input: oklch(0.96 0.01 234.35);
-  --ring: oklch(0.55 0.21 263.5);
+  --border: #f0edff;
+  --input: #f5f3ff;
+  --ring: #6366f1;
 
-  --chart-1: oklch(0.55 0.21 263.5);
-  --chart-2: oklch(0.58 0.19 286);
-  --chart-3: oklch(0.62 0.21 328);
-  --chart-4: oklch(0.65 0.19 142.5);
-  --chart-5: oklch(0.73 0.2 68);
+  --chart-1: #6366f1;
+  --chart-2: #a855f7;
+  --chart-3: #ec4899;
+  --chart-4: #10b981;
+  --chart-5: #f59e0b;
 
   --radius: 0.75rem;
-  --sidebar: oklch(0.98 0.01 234.35);
-  --sidebar-foreground: oklch(0.15 0.02 234.35);
-  --sidebar-primary: oklch(0.55 0.21 263.5);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.62 0.21 328);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.93 0.01 234.35);
-  --sidebar-ring: oklch(0.55 0.21 263.5);
+  --sidebar: #faf8fc;
+  --sidebar-foreground: #1a1429;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ec4899;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #f0edff;
+  --sidebar-ring: #6366f1;
 }
 
+/* Dark mode colors converted to hex format */
 .dark {
-  --background: oklch(0.12 0.02 263.5);
-  --foreground: oklch(0.96 0.01 234.35);
-  --card: oklch(0.17 0.02 263.5);
-  --card-foreground: oklch(0.96 0.01 234.35);
-  --popover: oklch(0.17 0.02 263.5);
-  --popover-foreground: oklch(0.96 0.01 234.35);
+  --background: #0f0a1a;
+  --foreground: #f5f3ff;
+  --card: #1a1429;
+  --card-foreground: #f5f3ff;
+  --popover: #1a1429;
+  --popover-foreground: #f5f3ff;
 
   /* Primary: Indigo (lighter for dark mode) */
-  --primary: oklch(0.7 0.18 263.5);
-  --primary-foreground: oklch(0.12 0.02 263.5);
+  --primary: #8b5cf6;
+  --primary-foreground: #0f0a1a;
 
   /* Secondary: Purple (lighter for dark mode) */
-  --secondary: oklch(0.72 0.16 286);
-  --secondary-foreground: oklch(0.12 0.02 263.5);
+  --secondary: #c084fc;
+  --secondary-foreground: #0f0a1a;
 
   /* Muted: Dark gray */
-  --muted: oklch(0.28 0.02 263.5);
-  --muted-foreground: oklch(0.68 0.04 263.5);
+  --muted: #49454e;
+  --muted-foreground: #b3adb8;
 
   /* Accent: Pink (lighter for dark mode) */
-  --accent: oklch(0.75 0.18 328);
-  --accent-foreground: oklch(0.12 0.02 263.5);
+  --accent: #f472b6;
+  --accent-foreground: #0f0a1a;
 
-  --destructive: oklch(0.62 0.22 25.7);
-  --destructive-foreground: oklch(0.96 0.01 234.35);
+  --destructive: #f87171;
+  --destructive-foreground: #f5f3ff;
 
-  --success: oklch(0.72 0.17 142.5);
-  --warning: oklch(0.78 0.18 68);
-  --info: oklch(0.7 0.18 263.5);
+  --success: #34d399;
+  --warning: #fbbf24;
+  --info: #8b5cf6;
 
-  --border: oklch(0.28 0.02 263.5);
-  --input: oklch(0.22 0.02 263.5);
-  --ring: oklch(0.7 0.18 263.5);
+  --border: #49454e;
+  --input: #2d263a;
+  --ring: #8b5cf6;
 
-  --sidebar: oklch(0.17 0.02 263.5);
-  --sidebar-foreground: oklch(0.96 0.01 234.35);
-  --sidebar-primary: oklch(0.7 0.18 263.5);
-  --sidebar-primary-foreground: oklch(0.12 0.02 263.5);
-  --sidebar-accent: oklch(0.75 0.18 328);
-  --sidebar-accent-foreground: oklch(0.12 0.02 263.5);
-  --sidebar-border: oklch(0.28 0.02 263.5);
-  --sidebar-ring: oklch(0.7 0.18 263.5);
+  --sidebar: #1a1429;
+  --sidebar-foreground: #f5f3ff;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #0f0a1a;
+  --sidebar-accent: #f472b6;
+  --sidebar-accent-foreground: #0f0a1a;
+  --sidebar-border: #49454e;
+  --sidebar-ring: #8b5cf6;
 }
 
 @theme inline {
@@ -146,30 +148,95 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+/* Replaced @layer base with pure CSS selectors */
+* {
+  border-color: var(--border);
+  outline-color: rgba(99, 102, 241, 0.5);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Replaced @layer utilities with pure CSS keyframes and classes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  body {
-    @apply bg-background text-foreground;
+  to {
+    opacity: 1;
   }
 }
 
-/* Added animation utilities for smooth microinteractions */
-@layer utilities {
-  .animate-fade-in {
-    @apply animate-in fade-in duration-300;
+@keyframes fadeOut {
+  from {
+    opacity: 1;
   }
-  .animate-fade-out {
-    @apply animate-out fade-out duration-300;
+  to {
+    opacity: 0;
   }
-  .animate-slide-in-from-bottom {
-    @apply animate-in slide-in-from-bottom-4 duration-300;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(1rem);
+    opacity: 0;
   }
-  .animate-scale-in {
-    @apply animate-in zoom-in-95 duration-200;
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
-  .skeleton {
-    @apply relative overflow-hidden rounded-md bg-muted before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-background/10 before:to-transparent;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
   }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 300ms ease-in-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut 300ms ease-in-out;
+}
+
+.animate-slide-in-from-bottom {
+  animation: slideInFromBottom 300ms ease-in-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 200ms ease-in-out;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  background-color: var(--muted);
+}
+
+.skeleton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
 }

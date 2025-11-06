@@ -41,6 +41,7 @@ export function ToastContainer() {
     toastStore.listeners.add(handleUpdate)
     return () => toastStore.listeners.delete(handleUpdate)
   }, [])
+  
 
   const typeStyles = {
     success: "bg-success text-white",
