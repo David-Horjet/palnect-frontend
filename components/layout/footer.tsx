@@ -1,74 +1,129 @@
 "use client"
 
 import Link from "next/link"
+import { Facebook, Twitter, Github } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-muted/50">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
-          <div className="space-y-4">
-            <h3 className="font-bold text-lg">Palnect</h3>
-            <p className="text-sm text-muted-foreground">Connecting mentors and learners to unlock potential.</p>
-          </div>
+    <footer className="relative z-10 pb-20 lg:pb-28 xl:pb-36 px-4 sm:px-8 xl:px-0">
+      <div className="absolute bottom-0 left-0 -z-1 flex w-full flex-col gap-3 opacity-20">
+        <div
+          className="h-[1.24px] w-full"
+          style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.5), transparent)" }}
+        />
+        <div
+          className="h-[2.47px] w-full"
+          style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.5), transparent)" }}
+        />
+        <div
+          className="h-[3.71px] w-full"
+          style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.5), transparent)" }}
+        />
+      </div>
 
-          {/* Product */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm">Product</h4>
-            <ul className="space-y-2 text-sm">
-              {["Features", "Pricing", "Security", "Roadmap"].map((link) => (
-                <li key={link}>
-                  <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                    {link}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+      <div className="relative mx-auto max-w-[1170px]">
+        {/* Top border */}
+        <div
+          className="absolute left-0 top-0 h-[1px] w-full"
+          style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.3), transparent)" }}
+        />
 
-          {/* Company */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm">Company</h4>
-            <ul className="space-y-2 text-sm">
-              {["About", "Blog", "Careers", "Contact"].map((link) => (
-                <li key={link}>
-                  <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                    {link}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm">Legal</h4>
-            <ul className="space-y-2 text-sm">
-              {["Privacy", "Terms", "Cookies", "Compliance"].map((link) => (
-                <li key={link}>
-                  <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                    {link}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom */}
-        <div className="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between">
-          <p className="text-sm text-muted-foreground">&copy; 2025 Palnect. All rights reserved.</p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            {["Twitter", "LinkedIn", "GitHub"].map((social) => (
-              <Link
-                key={social}
-                href="#"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {social}
+        <div className="pt-20 lg:pt-28">
+          <div className="flex flex-col lg:flex-row lg:justify-between gap-12 mb-12">
+            {/* Brand section */}
+            <div className="max-w-[520px]">
+              <Link href="/" className="mb-8.5 inline-block">
+                <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
+                  Palnect
+                </span>
               </Link>
-            ))}
+              <p className="mb-12 text-gray-400 xl:w-4/5">
+                Build your mentorship network and unlock your potential. Connect with expert mentors, access premium
+                resources, and accelerate your growth.
+              </p>
+              <div className="flex items-center gap-5">
+                <Link
+                  href="#"
+                  aria-label="facebook"
+                  className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
+                >
+                  <Facebook size={24} />
+                </Link>
+                <Link
+                  href="#"
+                  aria-label="twitter"
+                  className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
+                >
+                  <Twitter size={24} />
+                </Link>
+                <Link
+                  href="#"
+                  aria-label="github"
+                  className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
+                >
+                  <Github size={24} />
+                </Link>
+              </div>
+            </div>
+
+            {/* Links columns */}
+            <div className="flex gap-8 sm:gap-12 flex-wrap">
+              {/* Products */}
+              <div>
+                <h4 className="mb-6 font-semibold text-white text-sm">Products</h4>
+                <ul className="space-y-4">
+                  {["Features", "Integrations", "Pricing", "Changes log", "Roadmap"].map((link) => (
+                    <li key={link}>
+                      <Link
+                        href="#"
+                        className="text-gray-400 hover:text-purple-400 transition-colors duration-300 text-sm"
+                      >
+                        {link}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Company */}
+              <div>
+                <h4 className="mb-6 font-semibold text-white text-sm">Company</h4>
+                <ul className="space-y-4">
+                  {["Privacy Policy", "Refund Policy", "Support", "Community"].map((link) => (
+                    <li key={link}>
+                      <Link
+                        href="#"
+                        className="text-gray-400 hover:text-purple-400 transition-colors duration-300 text-sm"
+                      >
+                        {link}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Support */}
+              <div>
+                <h4 className="mb-6 font-semibold text-white text-sm">Support</h4>
+                <ul className="space-y-4">
+                  {["Features", "Integrations", "Pricing", "Changes log", "Roadmap"].map((link) => (
+                    <li key={link}>
+                      <Link
+                        href="#"
+                        className="text-gray-400 hover:text-purple-400 transition-colors duration-300 text-sm"
+                      >
+                        {link}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom */}
+          <div className="border-t border-white/10 pt-8">
+            <p className="text-sm text-gray-400">Palnect, LLC. All rights reserved.</p>
           </div>
         </div>
       </div>

@@ -2,50 +2,69 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Button } from "../ui/button"
+import { Menu, X } from "lucide-react"
 
-export function Navbar() {
-  const [theme, setTheme] = useState("light")
-
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light"
-    setTheme(newTheme)
-    document.documentElement.classList.toggle("dark")
-  }
+export function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
-            <span className="font-bold text-lg text-foreground">Palnect</span>
+    <header className="fixed left-0 top-0 z-50 w-full py-7 lg:py-0 bg-black/80 backdrop-blur-md border-b border-white/10">
+      <div className="relative mx-auto max-w-[1170px] items-center justify-between px-4 sm:px-8 lg:flex xl:px-0">
+        {/* Logo */}
+        <div className="flex w-full items-center justify-between lg:w-1/4">
+          <Link href="/" className="text-2xl font-bold">
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
+              Palnect
+            </span>
           </Link>
 
-          {/* Center Navigation (for authenticated users - will be added later) */}
-          <div className="hidden md:flex items-center gap-8" />
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="block lg:hidden text-white hover:text-purple-400 transition-colors"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
-              aria-label="Toggle theme"
+        {/* Navigation */}
+        <div
+          className={`${
+            isMenuOpen ? "block" : "hidden"
+          } invisible h-0 w-full items-center justify-between lg:visible lg:flex lg:h-auto lg:w-3/4`}
+        >
+          <nav className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8 lg:pl-12">
+            <Link href="/#home" className="text-white/90 hover:text-white transition-colors text-sm font-medium">
+              Home
+            </Link>
+            <Link href="/#features" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
+              About
+            </Link>
+            <Link href="/#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
+              Blog
+            </Link>
+            <Link href="/#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
+              Docs
+            </Link>
+            <Link href="/#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
+              Pages
+            </Link>
+          </nav>
+
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-4 lg:ml-auto pt-4 lg:pt-0">
+            <Link href="/signin" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
+              Sign In
+            </Link>
+            <Link
+              href="/signup"
+              className="rounded-lg border border-purple-500/50 bg-purple-500/10 px-6 py-2.5 text-white text-sm font-medium hover:bg-purple-500/20 transition-colors"
             >
-              {theme === "light" ? "🌙" : "☀️"}
-            </button>
-            <Button variant="ghost" size="sm">
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button variant="primary" size="sm">
-              <Link href="/signup">Join Now</Link>
-            </Button>
+              Sign up
+            </Link>
           </div>
         </div>
       </div>
-    </nav>
+    </header>
   )
 }
