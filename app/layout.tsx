@@ -1,11 +1,14 @@
 "use client"
 
-import { Inter } from "next/font/google"
+import { Poppins } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "next-themes"
 import type { ReactNode } from "react"
+import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 
-const inter = Inter({ subsets: ["latin"] })
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: "400"
+})
 
 export default function RootLayout({
   children,
@@ -17,8 +20,8 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#6366F1" />
       </head>
-      <body className={`${inter.className} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <body className={`${poppins.className} antialiased`}>
+        <ThemeProvider>
           {children}
         </ThemeProvider>
       </body>

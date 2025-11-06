@@ -1,7 +1,7 @@
 "use client"
 
 import { Footer } from "@/components/layout/footer"
-import { Header } from "@/components/layout/navbar"
+import { Navbar } from "@/components/layout/navbar"
 import { CtaSection } from "@/components/sections/cta"
 import { FeaturesSection } from "@/components/sections/features"
 import { HeroSection } from "@/components/sections/hero"
@@ -10,9 +10,20 @@ import { NewsletterSection } from "@/components/sections/newsletter"
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black">
-      <Header />
-      <HeroSection />
+    <div className="min-h-screen dark:bg-black">
+      <section
+        className=" text-white h-screen overflow-hidden bg-slate-800"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8)), url(/images/herobg.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <Navbar />
+        <HeroSection />
+      </section>
       <FeaturesSection />
       <CtaSection />
       <NewsletterSection />
