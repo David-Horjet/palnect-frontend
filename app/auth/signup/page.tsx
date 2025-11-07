@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/shared/form-field"
 import Link from "next/link"
+import Logo from "@/components/shared/logo"
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -46,16 +47,11 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <span className="text-white font-bold">P</span>
-            </div>
-            <span className="font-bold text-xl text-foreground">Palnect</span>
-          </Link>
+          <div className="flex justify-center mb-5"><Logo /></div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Create Account</h1>
           <p className="text-muted-foreground">Join our community and start learning</p>
         </div>
@@ -118,8 +114,8 @@ export default function SignUpPage() {
         </div>
 
         {/* Link to Sign In */}
-        <Button variant="secondary" size="lg" className="w-full" asChild>
-          <Link href="/signin">Sign In Instead</Link>
+        <Button variant="outline" size="lg" className="w-full">
+          <Link href="/auth/signin">Sign In Instead</Link>
         </Button>
       </div>
     </div>

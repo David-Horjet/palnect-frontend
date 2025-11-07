@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <section
-        className=" text-white h-screen overflow-hidden bg-slate-800"
+        className=" text-white h-screen overflow-hidden bg-foreground/5"
         style={{
           backgroundImage:
             "linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8)), url(/images/herobg.png)",

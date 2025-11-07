@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/shared/form-field"
 import Link from "next/link"
+import Logo from "@/components/shared/logo"
 
 export default function SignInPage() {
   const [formData, setFormData] = useState({
@@ -41,16 +42,11 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <span className="text-white font-bold">P</span>
-            </div>
-            <span className="font-bold text-xl text-foreground">Palnect</span>
-          </Link>
+          <div className="flex justify-center mb-5"><Logo /></div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
           <p className="text-muted-foreground">Sign in to your account</p>
         </div>
@@ -80,7 +76,7 @@ export default function SignInPage() {
 
           {/* Forgot Password Link */}
           <div className="text-right">
-            <Link href="/forgot-password" className="text-sm text-primary hover:text-primary/80 transition-colors">
+            <Link href="/auth/forgot-password" className="text-sm text-primary hover:text-primary/80 transition-colors">
               Forgot password?
             </Link>
           </div>
@@ -101,8 +97,8 @@ export default function SignInPage() {
         </div>
 
         {/* Link to Sign Up */}
-        <Button variant="secondary" size="lg" className="w-full" asChild>
-          <Link href="/signup">Create Account</Link>
+        <Button variant="outline" size="lg" className="w-full">
+          <Link href="/auth/signup">Create Account</Link>
         </Button>
       </div>
     </div>

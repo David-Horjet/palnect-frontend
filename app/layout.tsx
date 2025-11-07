@@ -1,14 +1,18 @@
-"use client"
-
 import { Poppins } from "next/font/google"
 import "./globals.css"
 import type { ReactNode } from "react"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
+import type { Metadata } from "next"
 
 const poppins = Poppins({
   subsets: ["latin"],
   weight: "400"
 })
+
+export const metadata: Metadata = {
+  title: "Palnect",
+  description: "Your Gateway to Seamless Learning and Collaboration",
+}
 
 export default function RootLayout({
   children,

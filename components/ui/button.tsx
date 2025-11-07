@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "accent" | "ghost" | "destructive"
+  variant?: "primary" | "secondary" | "accent" | "ghost" | "destructive" | "outline"
   size?: "sm" | "md" | "lg"
   isLoading?: boolean
   children: ReactNode
@@ -24,6 +24,7 @@ export function Button({
   const variants = {
     primary: "button-gradient text-white hover:shadow-lg hover:scale-105 active:scale-95",
     secondary: "bg-secondary text-secondary-foreground hover:shadow-md hover:scale-105 active:scale-95",
+    outline: "border border-primary text-foreground hover:shadow-md hover:scale-105 active:scale-95",
     accent: "bg-accent text-accent-foreground hover:shadow-md hover:scale-105 active:scale-95",
     ghost: "bg-transparent text-foreground hover:bg-muted border border-border hover:border-primary",
     destructive: "bg-destructive text-destructive-foreground hover:shadow-md active:scale-95",

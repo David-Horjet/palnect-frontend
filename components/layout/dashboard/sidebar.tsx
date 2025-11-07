@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Home, BookOpen, Users, Settings, LogOut, Menu, X } from "lucide-react"
 import { useState } from "react"
+import Logo from "@/components/shared/logo"
 
 interface DashboardSidebarProps {
   activeTab?: string
@@ -38,12 +39,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6 border-b border-border">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-white font-bold">P</span>
-              </div>
-              <span className="font-bold text-lg">Palnect</span>
-            </Link>
+            <div className="flex justify-center"><Logo /></div>
           </div>
 
           {/* Navigation */}
@@ -57,7 +53,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-white"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >

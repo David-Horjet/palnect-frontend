@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/shared/form-field"
 import Link from "next/link"
+import Logo from "@/components/shared/logo"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
@@ -40,7 +41,7 @@ export default function ForgotPasswordPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
           {/* Success Icon */}
           <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
@@ -55,8 +56,8 @@ export default function ForgotPasswordPage() {
             Click the link in your email to reset your password. If you don't see it, check your spam folder.
           </p>
 
-          <Button variant="primary" size="lg" className="w-full mb-3" asChild>
-            <Link href="/signin">Back to Sign In</Link>
+          <Button variant="primary" size="lg" className="w-full mb-3">
+            <Link href="/auth/signin">Back to Sign In</Link>
           </Button>
           <Button variant="ghost" size="lg" className="w-full" onClick={() => setIsSubmitted(false)}>
             Try Different Email
@@ -67,16 +68,11 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <span className="text-white font-bold">P</span>
-            </div>
-            <span className="font-bold text-xl text-foreground">Palnect</span>
-          </Link>
+          <div className="flex justify-center mb-5"><Logo /></div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Reset Password</h1>
           <p className="text-muted-foreground">Enter your email address to receive a password reset link</p>
         </div>
@@ -101,7 +97,7 @@ export default function ForgotPasswordPage() {
 
         {/* Back to Sign In */}
         <div className="text-center mt-6">
-          <Link href="/signin" className="text-sm text-primary hover:text-primary/80 transition-colors">
+          <Link href="/auth/signin" className="text-sm text-primary hover:text-primary/80 transition-colors">
             Back to Sign In
           </Link>
         </div>
