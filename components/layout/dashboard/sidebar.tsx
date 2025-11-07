@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Home, BookOpen, Users, Settings, LogOut, Menu, X } from "lucide-react"
+import { Home, BookOpen, Users, Settings, LogOut, Menu, X, Zap } from "lucide-react"
 import { useState } from "react"
 import Logo from "@/components/shared/logo"
 
@@ -17,6 +17,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
     { id: "home", label: "Dashboard", icon: Home, href: "/dashboard" },
     { id: "resources", label: "Resources", icon: BookOpen, href: "/dashboard/resources" },
     { id: "mentors", label: "Find Mentors", icon: Users, href: "/dashboard/mentors" },
+    { id: "points", label: "Points", icon: Zap, href: "/dashboard/points" },
   ]
 
   return (
