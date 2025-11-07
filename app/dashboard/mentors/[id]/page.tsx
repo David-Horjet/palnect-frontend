@@ -1,16 +1,16 @@
 "use client"
 
-
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Star, Users, Clock, Calendar, MessageSquare, Award } from "lucide-react"
+import { ArrowLeft, Star, Users, Clock, Calendar, Award } from "lucide-react"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 export default function MentorDetailPage({ params }: { params: { id: string } }) {
   const [isConnected, setIsConnected] = useState(false)
+  const [selectedDuration, setSelectedDuration] = useState<"daily" | "weekly" | "monthly" | null>(null)
 
   // Mock mentor data
   const mentor = {
@@ -27,7 +27,9 @@ export default function MentorDetailPage({ params }: { params: { id: string } })
     timezone: "PST",
     availability: "available",
     responseTime: "< 2 hours",
-    hourlyRate: 75,
+    dailyRate: 500,
+    weeklyRate: 2500,
+    monthlyRate: 8000,
     bio_full: `I'm a senior frontend engineer at Google with over 10 years of experience building large-scale React applications. Throughout my career, I've worked with teams at startups and Fortune 500 companies, and I'm passionate about sharing my knowledge with the next generation of developers.
 
 My expertise spans modern frontend development, performance optimization, and mentoring. I've helped dozens of junior developers transition into senior roles and have a track record of helping teams improve their engineering practices.`,
@@ -79,7 +81,7 @@ My expertise spans modern frontend development, performance optimization, and me
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <DashboardSidebar />
+      <DashboardSidebar activeTab="mentors" />
 
       <main className="flex-1 overflow-auto">
         {/* Header with Back Button */}
@@ -97,12 +99,12 @@ My expertise spans modern frontend development, performance optimization, and me
 
         <div className="p-6 space-y-6">
           {/* Hero Section */}
-          <Card className="bg-gradient-to-br from-primary/10 to-accent/10">
+          <Card className="bg-linear-to-br from-primary/10 to-accent/10">
             <div className="grid md:grid-cols-3 gap-6 items-start">
               <div className="md:col-span-2">
                 {/* Avatar and Name */}
                 <div className="flex gap-4 mb-6">
-                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary to-accent flex-shrink-0" />
+                  <div className="h-24 w-24 rounded-full bg-linear-to-br from-primary to-accent shrink-0" />
                   <div className="flex-1">
                     <h1 className="text-3xl font-bold text-foreground">{mentor.name}</h1>
                     <p className="text-muted-foreground mb-3">{mentor.title}</p>
@@ -142,27 +144,20 @@ My expertise spans modern frontend development, performance optimization, and me
                     <Calendar className="h-4 w-4 text-primary" />
                     <span>Available now</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Award className="h-4 w-4 text-primary" />
-                    <span>{mentor.hourlyRate}/hour</span>
+                </div>
+
+                <div className="space-y-2 mb-4 p-3 bg-muted/50 rounded-lg">
+                  <p className="text-xs font-semibold text-foreground">Subscription Rates (points)</p>
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    <p>Daily: {mentor.dailyRate} pts</p>
+                    <p>Weekly: {mentor.weeklyRate} pts</p>
+                    <p>Monthly: {mentor.monthlyRate} pts</p>
                   </div>
                 </div>
 
-                {isConnected ? (
-                  <>
-                    <Button variant="secondary" className="w-full mb-2">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Message
-                    </Button>
-                    <Button variant="accent" className="w-full bg-transparent" onClick={() => setIsConnected(false)}>
-                      Disconnect
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="primary" className="w-full" onClick={() => setIsConnected(true)}>
-                    Connect
-                  </Button>
-                )}
+                <Button variant="primary" className="w-full" >
+                  <Link href={`/dashboard/mentors/${mentor.id}/subscribe`}>Subscribe Now</Link>
+                </Button>
               </Card>
             </div>
           </Card>
@@ -247,7 +242,7 @@ My expertise spans modern frontend development, performance optimization, and me
                 <ul className="space-y-2">
                   {mentor.achievements.map((achievement, i) => (
                     <li key={i} className="flex gap-2 text-sm text-muted-foreground">
-                      <Award className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
+                      <Award className="h-4 w-4 text-accent shrink-0 mt-0.5" />
                       <span>{achievement}</span>
                     </li>
                   ))}
