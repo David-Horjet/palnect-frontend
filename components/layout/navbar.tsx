@@ -11,10 +11,10 @@ import Logo from "../shared/logo";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/pools", label: "Pools" },
-  { href: "/predictions", label: "My Predictions" },
-  { href: "/leaderboard", label: "Leaderboard" },
-  { href: "/profile", label: "Profile" },
+  { href: "/about", label: "About" },
+  { href: "/features", label: "Features" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -36,7 +36,7 @@ export function Navbar() {
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className={`flex items-center justify-between bg-background/10 backdrop-blur-xl px-4 sm:px-6 lg:px-8 py-4 shadow-lg pointer-events-auto border border-black
+          className={`flex items-center justify-between bg-foreground/10 backdrop-blur-xl px-4 sm:px-6 lg:px-8 py-4 shadow-lg pointer-events-auto border
           transition-all duration-500 ease-in-out
           ${
             scrolled
@@ -65,7 +65,7 @@ export function Navbar() {
                   {isActive && (
                     <motion.div
                       layoutId="navbar-indicator"
-                      className="absolute inset-0 bg-primary/10 rounded-lg border border-primary/20"
+                      className="absolute inset-0"
                       transition={{
                         type: "spring",
                         bounce: 0.2,

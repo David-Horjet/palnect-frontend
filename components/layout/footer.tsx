@@ -2,10 +2,12 @@
 
 import Link from "next/link"
 import { Facebook, Twitter, Github } from "lucide-react"
+import Logo from "../shared/logo"
 
 export function Footer() {
   return (
     <footer className="relative z-10 pb-20 lg:pb-28 xl:pb-36 px-4 sm:px-8 xl:px-0">
+      {/* Decorative gradients */}
       <div className="absolute bottom-0 left-0 -z-1 flex w-full flex-col gap-3 opacity-20">
         <div
           className="h-[1.24px] w-full"
@@ -13,7 +15,7 @@ export function Footer() {
         />
         <div
           className="h-[2.47px] w-full"
-          style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.5), transparent)" }}
+          style={{ background: "linear-gradient(to right, transparent, rgba(99, 96, 224, 0.5), transparent)" }}
         />
         <div
           className="h-[3.71px] w-full"
@@ -22,7 +24,7 @@ export function Footer() {
       </div>
 
       <div className="relative mx-auto max-w-[1170px]">
-        {/* Top border */}
+        {/* Top gradient border */}
         <div
           className="absolute left-0 top-0 h-px w-full"
           style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.3), transparent)" }}
@@ -30,100 +32,80 @@ export function Footer() {
 
         <div className="pt-20 lg:pt-28">
           <div className="flex flex-col lg:flex-row lg:justify-between gap-12 mb-12">
-            {/* Brand section */}
+            {/* Brand Section */}
             <div className="max-w-[520px]">
-              <Link href="/" className="mb-8.5 inline-block">
-                <span className="text-2xl font-bold bg-linear-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
-                  Palnect
-                </span>
-              </Link>
-              <p className="mb-12 text-gray-400 xl:w-4/5">
-                Build your mentorship network and unlock your potential. Connect with expert mentors, access premium
-                resources, and accelerate your growth.
+              <Logo />
+              <p className="my-5 mb-12 text-foreground/80 xl:w-4/5">
+                Palnect helps students connect with mentors and peers, share study resources, and learn smarter with
+                AI-powered insights. Join a supportive community built to elevate your academic journey.
               </p>
               <div className="flex items-center gap-5">
                 <Link
-                  href="#"
+                  href="https://facebook.com/palnect"
                   aria-label="facebook"
-                  className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
+                  className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
                 >
                   <Facebook size={24} />
                 </Link>
                 <Link
-                  href="#"
+                  href="https://x.com/palnect"
                   aria-label="twitter"
-                  className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
+                  className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
                 >
                   <Twitter size={24} />
                 </Link>
                 <Link
-                  href="#"
+                  href="https://github.com/palnect"
                   aria-label="github"
-                  className="text-gray-400 hover:text-purple-400 transition-colors duration-300"
+                  className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
                 >
                   <Github size={24} />
                 </Link>
               </div>
             </div>
 
-            {/* Links columns */}
+            {/* Links Section */}
             <div className="flex gap-8 sm:gap-12 flex-wrap">
-              {/* Products */}
+              {/* Platform */}
               <div>
-                <h4 className="mb-6 font-semibold text-white text-sm">Products</h4>
+                <h4 className="mb-6 font-semibold text-foreground text-sm">Platform</h4>
                 <ul className="space-y-4">
-                  {["Features", "Integrations", "Pricing", "Changes log", "Roadmap"].map((link) => (
-                    <li key={link}>
-                      <Link
-                        href="#"
-                        className="text-gray-400 hover:text-purple-400 transition-colors duration-300 text-sm"
-                      >
-                        {link}
-                      </Link>
-                    </li>
-                  ))}
+                  <li><Link href="/features" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Features</Link></li>
+                  <li><Link href="/mentorship" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Find a Mentor</Link></li>
+                  <li><Link href="/resources" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Resources</Link></li>
+                  <li><Link href="/pricing" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Pricing</Link></li>
                 </ul>
               </div>
 
               {/* Company */}
               <div>
-                <h4 className="mb-6 font-semibold text-white text-sm">Company</h4>
+                <h4 className="mb-6 font-semibold text-foreground text-sm">Company</h4>
                 <ul className="space-y-4">
-                  {["Privacy Policy", "Refund Policy", "Support", "Community"].map((link) => (
-                    <li key={link}>
-                      <Link
-                        href="#"
-                        className="text-gray-400 hover:text-purple-400 transition-colors duration-300 text-sm"
-                      >
-                        {link}
-                      </Link>
-                    </li>
-                  ))}
+                  <li><Link href="/about" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">About</Link></li>
+                  <li><Link href="/blog" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Blog</Link></li>
+                  <li><Link href="/careers" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Careers</Link></li>
+                  <li><Link href="/contact" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Contact</Link></li>
                 </ul>
               </div>
 
-              {/* Support */}
+              {/* Legal */}
               <div>
-                <h4 className="mb-6 font-semibold text-white text-sm">Support</h4>
+                <h4 className="mb-6 font-semibold text-foreground text-sm">Legal</h4>
                 <ul className="space-y-4">
-                  {["Features", "Integrations", "Pricing", "Changes log", "Roadmap"].map((link) => (
-                    <li key={link}>
-                      <Link
-                        href="#"
-                        className="text-gray-400 hover:text-purple-400 transition-colors duration-300 text-sm"
-                      >
-                        {link}
-                      </Link>
-                    </li>
-                  ))}
+                  <li><Link href="/privacy" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Privacy Policy</Link></li>
+                  <li><Link href="/terms" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Terms of Service</Link></li>
+                  <li><Link href="/support" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Support</Link></li>
+                  <li><Link href="/community" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Community</Link></li>
                 </ul>
               </div>
             </div>
           </div>
 
           {/* Bottom */}
-          <div className="border-t border-white/10 pt-8">
-            <p className="text-sm text-gray-400">Palnect, LLC. All rights reserved.</p>
+          <div className="border-t border-white/10 pt-8 text-center lg:text-left">
+            <p className="text-sm text-foreground/80">
+              © {new Date().getFullYear()} Palnect. All rights reserved. Built by Horjet.
+            </p>
           </div>
         </div>
       </div>

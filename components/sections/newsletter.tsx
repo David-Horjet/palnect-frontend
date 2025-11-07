@@ -33,7 +33,7 @@ export function NewsletterSection() {
                 <div className="w-full max-w-[395px] relative">
                   <Mail
                     size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none"
                   />
                   <input
                     id="newsletterEmail"
@@ -43,7 +43,7 @@ export function NewsletterSection() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full rounded-lg border border-white/15 bg-white/5 px-6 pl-12 py-3.5 text-white placeholder-gray-500 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all duration-200"
+                    className="w-full rounded-lg border border-foreground/15 bg-foreground/5 px-6 pl-12 py-3.5 text-foreground placeholder-gray-500 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200"
                   />
                 </div>
                 <Button size="lg">
