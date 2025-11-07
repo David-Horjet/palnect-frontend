@@ -24,7 +24,7 @@ export function Footer() {
       <div className="relative mx-auto max-w-[1170px]">
         {/* Top border */}
         <div
-          className="absolute left-0 top-0 h-[1px] w-full"
+          className="absolute left-0 top-0 h-px w-full"
           style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.3), transparent)" }}
         />
 
@@ -33,7 +33,7 @@ export function Footer() {
             {/* Brand section */}
             <div className="max-w-[520px]">
               <Link href="/" className="mb-8.5 inline-block">
-                <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-2xl font-bold bg-linear-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
                   Palnect
                 </span>
               </Link>

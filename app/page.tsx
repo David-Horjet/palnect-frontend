@@ -10,7 +10,7 @@ import { NewsletterSection } from "@/components/sections/newsletter"
 
 export default function Home() {
   return (
-    <div className="min-h-screen dark:bg-black">
+    <div className="min-h-screen">
       <section
         className=" text-white h-screen overflow-hidden bg-slate-800"
         style={{
