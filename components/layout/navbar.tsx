@@ -36,13 +36,12 @@ export function Navbar() {
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className={`flex items-center justify-between bg-foreground/10 backdrop-blur-xl px-4 sm:px-6 lg:px-8 py-4 shadow-lg pointer-events-auto border
+          className={`flex items-center justify-between bg-foreground/5 backdrop-blur-xl px-4 sm:px-6 lg:px-8 py-4 shadow-lg pointer-events-auto border border-border/10
           transition-all duration-500 ease-in-out
-          ${
-            scrolled
+          ${scrolled
               ? "w-full max-w-full rounded-none shadow-md translate-y-0"
               : "w-[95%] max-w-6xl mt-6 rounded-2xl shadow-xl"
-          }`}
+            }`}
         >
           {/* Logo */}
           <Logo />
@@ -55,11 +54,10 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-4 py-2 text-sm font-medium transition-smooth rounded-lg ${
-                    isActive
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`relative px-4 py-2 text-sm font-medium transition-smooth rounded-lg ${isActive
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   {link.label}
                   {isActive && (
@@ -82,7 +80,7 @@ export function Navbar() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2.5 rounded-xl border border-border transition-smooth"
+              className="p-2.5 rounded-xl border border-border/30 transition-smooth"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? (
@@ -115,11 +113,11 @@ export function Navbar() {
                 </svg>
               )}
             </button>
-            <Button size="md">Sign In <ArrowRight className="ml-1" size={16} /></Button>
+            <Button size="md"><Link href="/auth/signin" className="flex items-center">Sign In <ArrowRight className="ml-1" size={16} /></Link></Button>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2.5 rounded-xl border border-border transition-smooth"
+              className="md:hidden p-2.5 rounded-xl border border-border/30 transition-smooth"
               aria-label="Toggle menu"
             >
               <svg
@@ -162,11 +160,10 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`block px-4 py-2.5 text-sm font-medium transition-smooth rounded-lg ${
-                      isActive
-                        ? "text-primary bg-primary/10 border border-primary/20"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
+                    className={`block px-4 py-2.5 text-sm font-medium transition-smooth rounded-lg ${isActive
+                      ? "text-primary bg-primary/10 border border-primary/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      }`}
                   >
                     {link.label}
                   </Link>

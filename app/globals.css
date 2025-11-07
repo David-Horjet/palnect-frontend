@@ -150,7 +150,7 @@
 
 /* Replaced @layer base with pure CSS selectors */
 * {
-  border-color: var(--border);
+  /* border-color: var(--border); */
   outline-color: rgba(99, 102, 241, 0.5);
 }
 

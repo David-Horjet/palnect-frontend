@@ -8,7 +8,7 @@ export function CtaSection() {
   return (
     <section className="px-4 sm:px-8 xl:px-0">
       <div className="mx-auto max-w-[1170px]">
-        <div className="relative z-20 overflow-hidden rounded-[30px] px-4 py-20 lg:py-25 border border-blue-500">
+        <div className="relative z-20 overflow-hidden rounded-[30px] px-4 py-20 lg:py-25 border border-border/30">
 
           {/* Grid background */}
           <div
