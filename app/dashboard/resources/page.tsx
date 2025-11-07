@@ -7,109 +7,128 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
-import { Search, BookOpen } from "lucide-react"
+import { Search, BookOpen, Download, Eye } from "lucide-react"
 import Link from "next/link"
+import { Card } from "@/components/ui/card"
 
 interface Resource {
   id: string
   title: string
   description: string
-  category: string
-  level: "beginner" | "intermediate" | "advanced"
-  tags: string[]
-  rating: number
-  students: number
-  duration: string
+  category: "Past Questions" | "Lecture Notes" | "Assignments" | "Study Guides"
+  subject: string
+  year: string
+  school: string
+  uploader: string
+  downloaders: number
+  createdAt: string
+  fileSize: string
 }
 
 export default function ResourcesPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
+  const [selectedSchool, setSelectedSchool] = useState<string | null>(null)
+  const [selectedYear, setSelectedYear] = useState<string | null>(null)
 
   const resources: Resource[] = [
     {
       id: "1",
-      title: "React Fundamentals",
-      description: "Learn the basics of React including components, hooks, and state management",
-      category: "Development",
-      level: "beginner",
-      tags: ["React", "JavaScript"],
-      rating: 4.8,
-      students: 2341,
-      duration: "6 weeks",
+      title: "Physics Lecture Notes - Chapter 5: Thermodynamics",
+      description: "Comprehensive lecture notes covering heat transfer, entropy, and thermodynamic laws",
+      category: "Lecture Notes",
+      subject: "Physics",
+      year: "100",
+      school: "University of Lagos",
+      uploader: "Sarah Chen",
+      downloaders: 342,
+      createdAt: "2 days ago",
+      fileSize: "2.4 MB",
     },
     {
       id: "2",
-      title: "Advanced TypeScript Patterns",
-      description: "Master advanced TypeScript concepts and design patterns for enterprise applications",
-      category: "Development",
-      level: "advanced",
-      tags: ["TypeScript", "JavaScript"],
-      rating: 4.9,
-      students: 1203,
-      duration: "8 weeks",
+      title: "Calculus Past Questions 2023",
+      description: "Past exam questions from 2023 with solutions and explanations",
+      category: "Past Questions",
+      subject: "Mathematics",
+      year: "100",
+      school: "University of Lagos",
+      uploader: "Marcus Johnson",
+      downloaders: 521,
+      createdAt: "5 days ago",
+      fileSize: "1.8 MB",
     },
     {
       id: "3",
-      title: "Web Design Principles",
-      description: "Understand the fundamentals of web design and user experience",
-      category: "Design",
-      level: "beginner",
-      tags: ["Design", "UX"],
-      rating: 4.7,
-      students: 1856,
-      duration: "4 weeks",
+      title: "Biology Study Guide - Cell Division",
+      description: "Visual study guide with diagrams and key concepts for cell division",
+      category: "Study Guides",
+      subject: "Biology",
+      year: "100",
+      school: "University of Lagos",
+      uploader: "Emma Thompson",
+      downloaders: 218,
+      createdAt: "1 week ago",
+      fileSize: "3.1 MB",
     },
     {
       id: "4",
-      title: "Node.js & Express",
-      description: "Build scalable backend applications with Node.js and Express",
-      category: "Development",
-      level: "intermediate",
-      tags: ["Node.js", "Backend"],
-      rating: 4.8,
-      students: 1567,
-      duration: "6 weeks",
+      title: "Chemistry Assignment Solutions",
+      description: "Complete solutions for chemistry assignments with step-by-step explanations",
+      category: "Assignments",
+      subject: "Chemistry",
+      year: "100",
+      school: "University of Ibadan",
+      uploader: "James Wilson",
+      downloaders: 156,
+      createdAt: "1 week ago",
+      fileSize: "1.5 MB",
     },
     {
       id: "5",
-      title: "Database Design",
-      description: "Learn database design principles, SQL, and optimization techniques",
-      category: "Development",
-      level: "intermediate",
-      tags: ["Database", "SQL"],
-      rating: 4.6,
-      students: 987,
-      duration: "5 weeks",
+      title: "English Literature Past Questions",
+      description: "Past exam papers for literature studies with model answers",
+      category: "Past Questions",
+      subject: "English",
+      year: "100",
+      school: "University of Lagos",
+      uploader: "Priya Sharma",
+      downloaders: 289,
+      createdAt: "2 weeks ago",
+      fileSize: "2.7 MB",
     },
     {
       id: "6",
-      title: "UI Animation Masterclass",
-      description: "Create beautiful animations and interactions for web applications",
-      category: "Design",
-      level: "advanced",
-      tags: ["Animation", "Design"],
-      rating: 4.9,
-      students: 1421,
-      duration: "7 weeks",
+      title: "Data Structures Lecture Notes",
+      description: "Complete lecture notes covering arrays, linked lists, trees, and graphs",
+      category: "Lecture Notes",
+      subject: "Computer Science",
+      year: "200",
+      school: "University of Ibadan",
+      uploader: "Robert Chen",
+      downloaders: 412,
+      createdAt: "3 days ago",
+      fileSize: "2.2 MB",
     },
   ]
 
-  const categories = ["All", "Development", "Design", "Product", "Business"]
-  const levels = ["All", "Beginner", "Intermediate", "Advanced"]
+  const categories = ["All", "Past Questions", "Lecture Notes", "Assignments", "Study Guides"]
+  const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
+  const schools = ["All", "University of Lagos", "University of Ibadan", "OAU"]
+  const years = ["All", "100", "200", "300", "400"]
 
   const filteredResources = resources.filter((resource) => {
     const matchesSearch =
       resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       resource.description.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesLevel =
-      !selectedLevel || selectedLevel === "All" || resource.level.toLowerCase() === selectedLevel.toLowerCase()
-
     const matchesCategory = !selectedCategory || selectedCategory === "All" || resource.category === selectedCategory
+    const matchesSubject = !selectedSubject || selectedSubject === "All" || resource.subject === selectedSubject
+    const matchesSchool = !selectedSchool || selectedSchool === "All" || resource.school === selectedSchool
+    const matchesYear = !selectedYear || selectedYear === "All" || resource.year === selectedYear
 
-    return matchesSearch && matchesLevel && matchesCategory
+    return matchesSearch && matchesCategory && matchesSubject && matchesSchool && matchesYear
   })
 
   return (
@@ -117,34 +136,38 @@ export default function ResourcesPage() {
       <DashboardSidebar activeTab="resources" />
 
       <main className="flex-1 overflow-auto">
-        <DashboardHeader title="Learning Resources" subtitle="Browse and explore curated learning materials" />
+        <DashboardHeader
+          title="Learning Resources"
+          subtitle="Browse and download study materials shared by your peers"
+        />
 
         <div className="p-6">
-          {/* Search and Filter */}
-          <div className="space-y-4 mb-8">
-            {/* Search Bar */}
+          {/* Search Bar */}
+          <div className="mb-6">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <Input
-                placeholder="Search resources..."
+                placeholder="Search resources by title or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
             </div>
+          </div>
 
-            {/* Filters */}
-            <div className="grid md:grid-cols-2 gap-4">
+          {/* Filters */}
+          <Card className="p-6 mb-6">
+            <div className="space-y-6">
               {/* Category Filter */}
               <div>
-                <p className="text-sm font-medium mb-2 text-foreground">Category</p>
+                <p className="text-sm font-semibold mb-3 text-foreground">Category</p>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat) => (
                     <Badge
                       key={cat}
-                      variant={selectedCategory === cat ? "default" : "primary"}
+                      variant={selectedCategory === cat ? "default" : "outline"}
                       className="cursor-pointer"
-                      onClick={() => setSelectedCategory(cat === "All" ? null : cat)}
+                      // onClick={() => setSelectedCategory(cat === "All" ? null : cat)}
                     >
                       {cat}
                     </Badge>
@@ -152,35 +175,110 @@ export default function ResourcesPage() {
                 </div>
               </div>
 
-              {/* Level Filter */}
+              {/* Subject Filter */}
               <div>
-                <p className="text-sm font-medium mb-2 text-foreground">Level</p>
+                <p className="text-sm font-semibold mb-3 text-foreground">Subject</p>
                 <div className="flex flex-wrap gap-2">
-                  {levels.map((level) => (
+                  {subjects.map((subject) => (
                     <Badge
-                      key={level}
-                      variant={selectedLevel === level ? "default" : "primary"}
+                      key={subject}
+                      variant={selectedSubject === subject ? "default" : "outline"}
                       className="cursor-pointer"
-                      onClick={() => setSelectedLevel(level === "All" ? null : level)}
+                      // onClick={() => setSelectedSubject(subject === "All" ? null : subject)}
                     >
-                      {level}
+                      {subject}
                     </Badge>
                   ))}
                 </div>
               </div>
-            </div>
 
-            {/* Results Count */}
-            <p className="text-sm text-muted-foreground">
-              Found {filteredResources.length} resource{filteredResources.length !== 1 ? "s" : ""}
-            </p>
-          </div>
+              {/* School Filter */}
+              <div>
+                <p className="text-sm font-semibold mb-3 text-foreground">School</p>
+                <div className="flex flex-wrap gap-2">
+                  {schools.map((school) => (
+                    <Badge
+                      key={school}
+                      variant={selectedSchool === school ? "default" : "outline"}
+                      className="cursor-pointer"
+                      // onClick={() => setSelectedSchool(school === "All" ? null : school)}
+                    >
+                      {school}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Year Filter */}
+              <div>
+                <p className="text-sm font-semibold mb-3 text-foreground">Year of Study</p>
+                <div className="flex flex-wrap gap-2">
+                  {years.map((year) => (
+                    <Badge
+                      key={year}
+                      variant={selectedYear === year ? "default" : "outline"}
+                      className="cursor-pointer"
+                      // onClick={() => setSelectedYear(year === "All" ? null : year)}
+                    >
+                      {year}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Results Count */}
+              <p className="text-sm text-muted-foreground pt-2 border-t border-border">
+                Showing {filteredResources.length} resource{filteredResources.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+          </Card>
 
           {/* Resources Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredResources.map((resource) => (
               <Link key={resource.id} href={`/dashboard/resources/${resource.id}`}>
-                <ResourceCard {...resource} />
+                <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer p-6">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <Badge className="text-xs">{resource.category}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {resource.fileSize}
+                      </Badge>
+                    </div>
+
+                    <div>
+                      <h3 className="font-bold text-foreground line-clamp-2 mb-2">{resource.title}</h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{resource.description}</p>
+                    </div>
+
+                    <div className="space-y-2 pt-3 border-t border-border/50">
+                      <div className="text-xs text-muted-foreground">
+                        <p>
+                          <span className="font-semibold">{resource.subject}</span> • Year {resource.year}
+                        </p>
+                        <p className="text-xs">{resource.school}</p>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>by {resource.uploader}</span>
+                        <span>{resource.createdAt}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Download className="h-3 w-3" />
+                            <span>{resource.downloaders}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Eye className="h-3 w-3" />
+                            <span>342</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
               </Link>
             ))}
           </div>
@@ -195,11 +293,13 @@ export default function ResourcesPage() {
                 variant="secondary"
                 onClick={() => {
                   setSearchQuery("")
-                  setSelectedLevel(null)
                   setSelectedCategory(null)
+                  setSelectedSubject(null)
+                  setSelectedSchool(null)
+                  setSelectedYear(null)
                 }}
               >
-                Clear Filters
+                Clear All Filters
               </Button>
             </div>
           )}
