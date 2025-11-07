@@ -8,7 +8,7 @@ export function CtaSection() {
   return (
     <section className="px-4 sm:px-8 xl:px-0">
       <div className="mx-auto max-w-[1170px]">
-        <div className="relative z-50 overflow-hidden rounded-[30px] px-4 py-20 lg:py-25 border border-blue-500">
+        <div className="relative z-20 overflow-hidden rounded-[30px] px-4 py-20 lg:py-25 border border-blue-500">
 
           {/* Grid background */}
           <div
@@ -32,16 +32,16 @@ export function CtaSection() {
           </div>
 
           <div className="wow fadeInUp text-center">
-            <span className="dark:bg-white/10 relative mb-10 inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-xs font-medium">
+            <span className="bg-foreground/10 relative mb-10 inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-xs font-medium">
               <GraduationCap size={16} className="text-purple-400" />
-              <span className="text-white/80">Join the Future of Student Learning</span>
+              <span className="text-foreground/80">Join the Future of Student Learning</span>
             </span>
 
-            <h2 className="mb-4.5 text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
+            <h2 className="mb-4.5 text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground">
               Learn Smarter. Connect. Grow.
             </h2>
 
-            <p className="mx-auto mb-10 max-w-[714px] font-medium text-gray-300 leading-loose">
+            <p className="mx-auto mb-10 max-w-[714px] font-medium text-foreground leading-loose">
               Palnect connects students with mentors and peers, helps you access shared study resources,
               and powers your learning with AI insights all in one place.
               Your academic growth starts here.

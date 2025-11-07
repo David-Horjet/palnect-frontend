@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Mail } from "lucide-react"
+import { Button } from "../ui/button"
 
 export function NewsletterSection() {
   const [email, setEmail] = useState("")
@@ -21,8 +22,8 @@ export function NewsletterSection() {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10">
           {/* Left side */}
           <div className="w-full lg:max-w-[352px]">
-            <h3 className="mb-2 text-2xl lg:text-3xl font-semibold text-white">News & Update</h3>
-            <p className="font-medium text-gray-400">Keep up to date with everything about our tool</p>
+            <h3 className="mb-2 text-2xl lg:text-3xl font-semibold text-foreground">News & Update</h3>
+            <p className="font-medium text-foreground/80">Keep up to date with everything about Palnect</p>
           </div>
 
           {/* Right side - Form */}
@@ -45,12 +46,9 @@ export function NewsletterSection() {
                     className="w-full rounded-lg border border-white/15 bg-white/5 px-6 pl-12 py-3.5 text-white placeholder-gray-500 outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400 transition-all duration-200"
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="button-border-gradient relative flex items-center gap-1.5 rounded-lg px-7 py-3.5 text-sm text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl whitespace-nowrap"
-                >
+                <Button size="lg">
                   Subscribe
-                </button>
+                </Button>
               </div>
             </form>
           </div>
