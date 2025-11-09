@@ -1,69 +1,97 @@
 "use client"
 
 import type React from "react"
-
+import { useEffect, useState } from "react"
+import { useAuth } from "@/hooks/useAuth"
+import { updateProfile, uploadAvatar } from "@/store/slices/authSlice"
+import type { AppDispatch } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/shared/form-field"
 import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
-import { Star, Mail, GraduationCap, BookOpen } from "lucide-react"
+import { Mail, GraduationCap, BookOpen } from "lucide-react"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 export default function ProfilePage() {
+  const { user, dispatch: dispatchAuth } = useAuth()
+  console.log("User data in ProfilePage:", user)
+  const dispatch = dispatchAuth as AppDispatch
   const [isEditing, setIsEditing] = useState(false)
-  const [profile, setProfile] = useState({
-    name: "Alex Johnson",
-    email: "alex@example.com",
-    school: "University of Lagos",
-    department: "Computer Science",
-    yearOfStudy: "100",
-    bio: "Passionate about learning and sharing knowledge with peers. Always ready to help others succeed.",
-    isMentor: true,
+  const [formData, setFormData] = useState({
+    firstName: user?.first_name || "",
+    lastName: user?.last_name || "",
+    school: user?.school || "",
+    department: user?.department || "",
+    yearOfStudy: user?.year_of_study || "",
+    bio: user?.bio || "",
   })
 
-  const [formData, setFormData] = useState(profile)
-  const [mentorProfile, setMentorProfile] = useState({
-    expertise: ["Mathematics", "Physics", "Computer Science"],
-    dailyRate: 500,
-    weeklyRate: 2500,
-    monthlyRate: 8000,
-    bio: "10+ years of tutoring experience. Specialized in mathematics and physics.",
-    rating: 4.9,
-    totalStudents: 156,
-  })
-  const [mentorFormData, setMentorFormData] = useState(mentorProfile)
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+        school: user.school || "",
+        department: user.department || "",
+        yearOfStudy: user.year_of_study || "",
+        bio: user.bio || "",
+      })
+    }
+  }, [user])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleMentorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setMentorFormData((prev) => ({ ...prev, [name]: value }))
+  const handleSave = async () => {
+    const result = await dispatch(
+      updateProfile({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        school: formData.school,
+        department: formData.department,
+        yearOfStudy: formData.yearOfStudy,
+        bio: formData.bio,
+      }),
+    )
+
+    if (result.type === updateProfile.fulfilled.type) {
+      setIsEditing(false)
+    }
   }
 
-  const handleSave = () => {
-    setProfile(formData)
-    if (profile.isMentor) {
-      setMentorProfile(mentorFormData)
+  const handleCancel = () => {
+    if (user) {
+      setFormData({
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+        school: user.school || "",
+        department: user.department || "",
+        yearOfStudy: user.year_of_study || "",
+        bio: user.bio || "",
+      })
     }
     setIsEditing(false)
   }
 
-  const handleCancel = () => {
-    setFormData(profile)
-    setMentorFormData(mentorProfile)
-    setIsEditing(false)
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      dispatch(uploadAvatar(file))
+    }
   }
 
-  const removeSkill = (skill: string) => {
-    setMentorFormData((prev) => ({
-      ...prev,
-      expertise: prev.expertise.filter((s) => s !== skill),
-    }))
+  if (!user) {
+    return (
+      <div className="flex h-screen overflow-hidden">
+        <DashboardSidebar activeTab="profile" />
+        <main className="flex-1 overflow-auto">
+          <DashboardHeader title="Loading..." />
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -78,28 +106,36 @@ export default function ProfilePage() {
           <Card>
             <div className="flex flex-col md:flex-row gap-6 items-start justify-between md:items-center">
               <div className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-primary-foreground">
-                    {profile.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </div>
+                <div className="shrink-0">
+                  {user.avatar_url ? (
+                    <img
+                      src={user.avatar_url || "/placeholder.svg"}
+                      alt="Avatar"
+                      className="h-24 w-24 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-24 w-24 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-primary-foreground">
+                      {user.first_name[0]}
+                      {user.last_name[0]}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-foreground mb-2">{profile.name}</h1>
+                  <h1 className="text-2xl font-bold text-foreground mb-2">{`${user.first_name} ${user.last_name}`}</h1>
                   <div className="space-y-2 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4" />
-                      <span>{profile.email}</span>
+                      <span>{user.email}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4" />
-                      <span>
-                        {profile.school} • Year {profile.yearOfStudy} • {profile.department}
-                      </span>
-                    </div>
+                    {user.school && (
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="h-4 w-4" />
+                        <span>
+                          {user.school} • {user.year_of_study && `Year ${user.year_of_study}`} • {user.department}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -110,6 +146,18 @@ export default function ProfilePage() {
                 </Button>
               )}
             </div>
+
+            {isEditing && (
+              <div className="mt-6 pt-6 border-t border-border">
+                <label className="block text-sm font-medium text-foreground mb-2">Upload Avatar</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="block w-full text-sm text-muted-foreground"
+                />
+              </div>
+            )}
           </Card>
 
           {/* Bio */}
@@ -127,7 +175,7 @@ export default function ProfilePage() {
                 />
               </div>
             ) : (
-              <p className="text-muted-foreground">{profile.bio}</p>
+              <p className="text-muted-foreground">{formData.bio || "No bio added yet"}</p>
             )}
           </Card>
 
@@ -136,6 +184,22 @@ export default function ProfilePage() {
             <h2 className="text-lg font-bold mb-4 text-foreground">Educational Information</h2>
             {isEditing ? (
               <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    label="First Name"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="Your first name"
+                  />
+                  <FormField
+                    label="Last Name"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Your last name"
+                  />
+                </div>
                 <FormField
                   label="School/University"
                   name="school"
@@ -162,157 +226,19 @@ export default function ProfilePage() {
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm font-semibold text-muted-foreground mb-1">School</p>
-                  <p className="text-foreground">{profile.school}</p>
+                  <p className="text-foreground">{formData.school || "-"}</p>
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-muted-foreground mb-1">Department</p>
-                  <p className="text-foreground">{profile.department}</p>
+                  <p className="text-foreground">{formData.department || "-"}</p>
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-muted-foreground mb-1">Year of Study</p>
-                  <p className="text-foreground">Year {profile.yearOfStudy}</p>
+                  <p className="text-foreground">{formData.yearOfStudy ? `Year ${formData.yearOfStudy}` : "-"}</p>
                 </div>
               </div>
             )}
           </Card>
-
-          {/* Mentor Profile (if applicable) */}
-          {profile.isMentor && (
-            <>
-              <Card>
-                <h2 className="text-lg font-bold mb-4 text-foreground">Mentorship Profile</h2>
-
-                {!isEditing && (
-                  <div className="space-y-4">
-                    {/* Stats */}
-                    <div className="grid md:grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
-                      <div>
-                        <p className="text-sm font-semibold text-muted-foreground mb-1">Rating</p>
-                        <div className="flex items-center gap-1">
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < Math.floor(mentorProfile.rating) ? "fill-accent text-accent" : "text-muted"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-lg font-bold text-foreground">{mentorProfile.rating}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-muted-foreground mb-1">Total Students</p>
-                        <p className="text-2xl font-bold text-foreground">{mentorProfile.totalStudents}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-muted-foreground mb-1">Active Status</p>
-                        <p className="text-lg font-bold text-primary">Active</p>
-                      </div>
-                    </div>
-
-                    {/* Expertise */}
-                    <div>
-                      <p className="text-sm font-semibold text-muted-foreground mb-3">Expertise Areas</p>
-                      <div className="flex flex-wrap gap-2">
-                        {mentorProfile.expertise.map((skill) => (
-                          <div
-                            key={skill}
-                            className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium"
-                          >
-                            {skill}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Bio */}
-                    <div>
-                      <p className="text-sm font-semibold text-muted-foreground mb-2">Mentorship Bio</p>
-                      <p className="text-muted-foreground">{mentorProfile.bio}</p>
-                    </div>
-
-                    {/* Rates */}
-                    <div className="grid md:grid-cols-3 gap-3 pt-3 border-t border-border/50">
-                      <div className="bg-muted/50 p-3 rounded-lg">
-                        <p className="text-xs text-muted-foreground mb-1">Daily Rate</p>
-                        <p className="text-xl font-bold text-foreground">{mentorProfile.dailyRate}</p>
-                        <p className="text-xs text-muted-foreground">points/day</p>
-                      </div>
-                      <div className="bg-muted/50 p-3 rounded-lg">
-                        <p className="text-xs text-muted-foreground mb-1">Weekly Rate</p>
-                        <p className="text-xl font-bold text-foreground">{mentorProfile.weeklyRate}</p>
-                        <p className="text-xs text-muted-foreground">points/week</p>
-                      </div>
-                      <div className="bg-muted/50 p-3 rounded-lg">
-                        <p className="text-xs text-muted-foreground mb-1">Monthly Rate</p>
-                        <p className="text-xl font-bold text-foreground">{mentorProfile.monthlyRate}</p>
-                        <p className="text-xs text-muted-foreground">points/month</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {isEditing && (
-                  <div className="space-y-4">
-                    <FormField
-                      label="Expertise Areas (comma separated)"
-                      name="expertise"
-                      placeholder="Mathematics, Physics, etc."
-                    />
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {mentorFormData.expertise.map((skill) => (
-                        <div
-                          key={skill}
-                          className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2"
-                        >
-                          {skill}
-                          <button onClick={() => removeSkill(skill)} className="ml-1 hover:opacity-70">
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-
-                    <FormField
-                      label="Mentorship Bio"
-                      name="bio"
-                      value={mentorFormData.bio}
-                      onChange={handleMentorChange}
-                      placeholder="Tell students about your mentoring approach"
-                      multiline
-                      rows={4}
-                    />
-
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <FormField
-                        label="Daily Rate (points)"
-                        name="dailyRate"
-                        type="number"
-                        // value={mentorFormData.dailyRate}
-                        onChange={handleMentorChange}
-                      />
-                      <FormField
-                        label="Weekly Rate (points)"
-                        name="weeklyRate"
-                        type="number"
-                        // value={mentorFormData.weeklyRate}
-                        onChange={handleMentorChange}
-                      />
-                      <FormField
-                        label="Monthly Rate (points)"
-                        name="monthlyRate"
-                        type="number"
-                        // value={mentorFormData.monthlyRate}
-                        onChange={handleMentorChange}
-                      />
-                    </div>
-                  </div>
-                )}
-              </Card>
-            </>
-          )}
 
           {/* Resources Uploaded */}
           <Card>
@@ -321,21 +247,7 @@ export default function ProfilePage() {
               Resources Uploaded
             </h2>
             <div className="space-y-3">
-              {[
-                { title: "Physics Lecture Notes - Chapter 5", downloads: 342, date: "2 days ago" },
-                { title: "Mathematics Study Guide", downloads: 218, date: "1 week ago" },
-                { title: "Chemistry Assignment Solutions", downloads: 156, date: "2 weeks ago" },
-              ].map((resource, i) => (
-                <div
-                  key={i}
-                  className="p-3 bg-muted/50 rounded-lg border border-border/50 hover:bg-muted/70 transition-colors"
-                >
-                  <p className="font-semibold text-foreground text-sm">{resource.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {resource.downloads} downloads • {resource.date}
-                  </p>
-                </div>
-              ))}
+              <p className="text-sm text-muted-foreground">Your uploaded resources will appear here</p>
             </div>
           </Card>
 
