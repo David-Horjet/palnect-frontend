@@ -22,7 +22,7 @@ const initialState: ResourcesState = {
     currentResource: null,
     loading: false,
     error: null,
-    pagination: {
+    paginationInfo: {
         total: 0,
         page: 1,
         limit: 20,

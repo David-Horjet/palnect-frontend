@@ -10,9 +10,9 @@ import { Search, BookOpen, Download, Plus, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { listResources, getUserResources } from "@/store/slices/resourcesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
+import type { Resource } from "@/services/api/resources"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
-import { Resource } from "@/services/api/resources"
 
 const CATEGORIES = ["Past Questions", "Lecture Notes", "Assignments", "Study Guides"]
 const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
@@ -21,7 +21,7 @@ const YEARS = ["100", "200", "300", "400"]
 
 export default function ResourcesPage() {
   const dispatch = useDispatch<AppDispatch>()
-  const { resources, myResources, loading } = useSelector((state: RootState) => state.resources)
+  const { resources, myResources, loading, pagination: paginationInfo } = useSelector((state: RootState) => state.resources)
 
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -30,6 +30,7 @@ export default function ResourcesPage() {
   const [selectedYear, setSelectedYear] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<"all" | "my">("all")
   const [currentPage, setCurrentPage] = useState(1)
+  const [pagination, setPagination] = useState({ total: 0, pages: 1 })
 
   useEffect(() => {
     if (viewMode === "all") {
@@ -49,6 +50,15 @@ export default function ResourcesPage() {
     }
   }, [dispatch, viewMode, selectedCategory, selectedSubject, selectedSchool, selectedYear, searchQuery, currentPage])
 
+  useEffect(() => {
+    if (paginationInfo) {
+      setPagination({
+        total: paginationInfo.total,
+        pages: paginationInfo.page,
+      })
+    }
+  }, [paginationInfo])
+
   const displayedResources = viewMode === "my" ? myResources : resources
   const filteredResources = displayedResources.filter((resource: Resource) => {
     if (viewMode === "my") return true
@@ -57,6 +67,11 @@ export default function ResourcesPage() {
       resource.description.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesSearch
   })
+
+  const handleDeleteResource = (resourceId: string) => {
+    // Implement delete functionality here
+    console.log(`Deleting resource with ID: ${resourceId}`)
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -235,6 +250,11 @@ export default function ResourcesPage() {
                               <span>{resource.downloads}</span>
                             </div>
                           </div>
+                          {viewMode === "my" && (
+                            <Button variant="outline" size="sm" onClick={() => handleDeleteResource(resource.id)}>
+                              Delete
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -263,11 +283,39 @@ export default function ResourcesPage() {
                     setSelectedSubject(null)
                     setSelectedSchool(null)
                     setSelectedYear(null)
+                    setCurrentPage(1)
                   }}
                 >
                   Clear All Filters
                 </Button>
               )}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {!loading && filteredResources.length > 0 && (
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+              <p className="text-sm text-muted-foreground">
+                Page {currentPage} of {pagination.pages}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  disabled={currentPage >= pagination.pages}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
           )}
         </div>

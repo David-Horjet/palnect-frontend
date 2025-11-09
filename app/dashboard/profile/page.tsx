@@ -3,7 +3,7 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/hooks/useAuth"
-import { updateProfile, uploadAvatar } from "@/store/slices/authSlice"
+import { getProfile, updateProfile, uploadAvatar } from "@/store/slices/authSlice"
 import type { AppDispatch } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,7 @@ import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 export default function ProfilePage() {
-  const { user, dispatch: dispatchAuth } = useAuth()
+  const { user, dispatch: dispatchAuth, loading } = useAuth()
   console.log("User data in ProfilePage:", user)
   const dispatch = dispatchAuth as AppDispatch
   const [isEditing, setIsEditing] = useState(false)
@@ -83,7 +83,11 @@ export default function ProfilePage() {
     }
   }
 
-  if (!user) {
+  useEffect(() => {
+    dispatch(getProfile())
+  }, [dispatch])
+
+  if (loading) {
     return (
       <div className="flex h-screen overflow-hidden">
         <DashboardSidebar activeTab="profile" />

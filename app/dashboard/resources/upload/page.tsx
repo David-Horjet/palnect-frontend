@@ -1,21 +1,28 @@
 "use client"
 
 import type React from "react"
-
+import { useDispatch, useSelector } from "react-redux"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { Upload, FileText, AlertCircle } from "lucide-react"
-import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { uploadResource } from "@/store/slices/resourcesSlice"
+import type { AppDispatch, RootState } from "@/store/store"
+import { toast } from "@/lib/toast"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 export default function UploadResourcePage() {
+  const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
+  const { loading } = useSelector((state: RootState) => state.resources)
+
   const [file, setFile] = useState<File | null>(null)
   const [dragActive, setDragActive] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [isUploading, setIsUploading] = useState(false)
 
   const [formData, setFormData] = useState({
     title: "",
@@ -50,6 +57,8 @@ export default function UploadResourcePage() {
       const droppedFile = e.dataTransfer.files[0]
       if (droppedFile.type === "application/pdf") {
         setFile(droppedFile)
+      } else {
+        toast.error("Please drop a PDF file")
       }
     }
   }
@@ -65,18 +74,26 @@ export default function UploadResourcePage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleUpload = () => {
-    setIsUploading(true)
-    for (let i = 0; i <= 100; i += 10) {
-      setTimeout(() => {
-        setUploadProgress(i)
-      }, i * 50)
+  const handleUpload = async () => {
+    if (!file || !isFormValid) {
+      toast.error("Please fill all required fields and select a file")
+      return
     }
 
-    setTimeout(() => {
-      setIsUploading(false)
-      setUploadProgress(0)
-      alert("Resource uploaded successfully!")
+    try {
+      await dispatch(
+        uploadResource({
+          file,
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          subject: formData.subject,
+          year: formData.year,
+          school: formData.school,
+        }),
+      ).unwrap()
+
+      // Reset form
       setFile(null)
       setFormData({
         title: "",
@@ -86,7 +103,13 @@ export default function UploadResourcePage() {
         year: "100",
         school: "",
       })
-    }, 1500)
+
+      // Redirect to resources page
+      router.push("/dashboard/resources?view=my")
+    } catch (error) {
+      // Error handled by Redux and toast
+      console.error("Upload failed:", error)
+    }
   }
 
   const isFormValid = file && formData.title && formData.description && formData.subject && formData.school
@@ -247,28 +270,12 @@ export default function UploadResourcePage() {
                 </div>
               </Card>
 
-              {/* Upload Progress */}
-              {isUploading && (
-                <Card className="p-6">
-                  <div className="space-y-3">
-                    <p className="text-sm font-medium text-foreground">Uploading...</p>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground text-right">{uploadProgress}%</p>
-                  </div>
-                </Card>
-              )}
-
               {/* Action Buttons */}
               <div className="flex gap-3 pt-4">
-                <Button onClick={handleUpload} disabled={!isFormValid || isUploading} size="lg" className="flex-1">
-                  {isUploading ? "Uploading..." : "Upload Resource"}
+                <Button onClick={handleUpload} disabled={!isFormValid || loading} size="lg" className="flex-1">
+                  {loading ? "Uploading..." : "Upload Resource"}
                 </Button>
-                <Button variant="secondary" size="lg">
+                <Button variant="secondary" size="lg" onClick={() => router.back()}>
                   Cancel
                 </Button>
               </div>
