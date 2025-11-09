@@ -76,7 +76,7 @@ export const authService = {
   },
 
   async changePassword(token: string, currentPassword: string, newPassword: string) {
-    return apiClient.post<{ success: boolean; message: string; data: { message: string } }>(
+    return apiClient.put<{ success: boolean; message: string; data: { message: string } }>(
       "/auth/change-password",
       {
         currentPassword,

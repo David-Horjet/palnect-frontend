@@ -9,7 +9,7 @@ import Link from "next/link"
 import Logo from "@/components/shared/logo"
 import { login } from "@/store/slices/authSlice"
 import { AppDispatch, RootState } from "@/store/store"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { useDispatch, useSelector } from "react-redux"
 
 export default function SignInPage() {

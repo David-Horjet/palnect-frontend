@@ -7,6 +7,10 @@ import { useState } from "react"
 import { Bell, Lock, Eye, Database } from "lucide-react"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { useAuth } from "@/hooks/useAuth"
+import { AppDispatch } from "@/store/store"
+import { FormField } from "@/components/shared/form-field"
+import { changePassword } from "@/store/slices/authSlice"
 
 interface SettingsSection {
   icon: React.ReactNode
@@ -22,6 +26,9 @@ interface SettingToggle {
 }
 
 export default function SettingsPage() {
+
+  const { dispatch: dispatchAuth } = useAuth()
+  const dispatch = dispatchAuth as AppDispatch
   const [notifications, setNotifications] = useState<SettingToggle[]>([
     {
       id: "email-resources",
@@ -70,6 +77,11 @@ export default function SettingsPage() {
     },
   ])
 
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({})
+
   const toggleNotification = (id: string) => {
     setNotifications((prev) => prev.map((item) => (item.id === id ? { ...item, enabled: !item.enabled } : item)))
   }
@@ -100,6 +112,36 @@ export default function SettingsPage() {
       description: "Download or delete your data",
     },
   ]
+
+  const validatePasswordForm = () => {
+    const errors: Record<string, string> = {}
+    if (!currentPassword) errors.currentPassword = "Current password is required"
+    if (!newPassword) errors.newPassword = "New password is required"
+    if (newPassword.length < 8) errors.newPassword = "Password must be at least 8 characters"
+    if (newPassword !== confirmPassword) errors.confirmPassword = "Passwords do not match"
+    return errors
+  }
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const errors = validatePasswordForm()
+    setPasswordErrors(errors)
+
+    if (Object.keys(errors).length === 0) {
+      const result = await dispatch(
+        changePassword({
+          currentPassword,
+          newPassword,
+        }),
+      )
+
+      if (result.type === changePassword.fulfilled.type) {
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+      }
+    }
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -135,7 +177,7 @@ export default function SettingsPage() {
                       onChange={() => toggleNotification(item.id)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+                    <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
                   </label>
                 </div>
               ))}
@@ -168,7 +210,7 @@ export default function SettingsPage() {
                       onChange={() => togglePrivacy(item.id)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+                    <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
                   </label>
                 </div>
               ))}
@@ -188,13 +230,43 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-4 border-t border-border pt-4">
-              <Button variant="secondary" className="w-full justify-start">
-                Change Password
-              </Button>
-              <Button variant="secondary" className="w-full justify-start">
+              <form onSubmit={handlePasswordChange} className="space-y-3">
+                <FormField
+                  label="Current Password"
+                  name="currentPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  error={passwordErrors.currentPassword}
+                />
+                <FormField
+                  label="New Password"
+                  name="newPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  error={passwordErrors.newPassword}
+                />
+                <FormField
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  error={passwordErrors.confirmPassword}
+                />
+                <Button type="submit" variant="secondary" className="w-full justify-start">
+                  Change Password
+                </Button>
+              </form>
+
+              <Button variant="secondary" className="w-full justify-start" disabled>
                 Enable Two-Factor Authentication
               </Button>
-              <Button variant="secondary" className="w-full justify-start">
+              <Button variant="secondary" className="w-full justify-start" disabled>
                 View Active Sessions
               </Button>
             </div>
@@ -208,23 +280,19 @@ export default function SettingsPage() {
               <Button
                 variant="primary"
                 className="w-full justify-start text-destructive hover:text-destructive bg-transparent"
+                disabled
               >
                 Download My Data
               </Button>
               <Button
                 variant="accent"
                 className="w-full justify-start text-destructive hover:text-destructive bg-transparent"
+                disabled
               >
                 Delete Account
               </Button>
             </div>
           </Card>
-
-          {/* Save Button */}
-          <div className="flex gap-3">
-            <Button variant="primary">Save Changes</Button>
-            <Button variant="secondary">Cancel</Button>
-          </div>
         </div>
       </main>
     </div>
