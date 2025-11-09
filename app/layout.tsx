@@ -4,6 +4,8 @@ import type { ReactNode } from "react"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import type { Metadata } from "next"
 import { store } from "@/store/store"
+import { Provider } from "react-redux"
+import { ToastProvider } from "@/components/providers/toast-provider"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,6 +31,7 @@ export default function RootLayout({
         <Provider store={store}>
           <ThemeProvider>
             {children}
+            <ToastProvider />
           </ThemeProvider>
         </Provider>
       </body>
