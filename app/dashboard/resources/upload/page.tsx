@@ -34,9 +34,9 @@ export default function UploadResourcePage() {
   })
 
   const categories = ["Past Questions", "Lecture Notes", "Assignments", "Study Guides"]
-  const subjects = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
-  const schools = ["University of Lagos", "University of Ibadan", "OAU"]
-  const years = ["100", "200", "300", "400"]
+  const subjects = ["Mathematics", "OPT423", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
+  const schools = ["University of Lagos", "University of Benin", "University of Ibadan", "OAU"]
+  const years = ["100", "200", "300", "400", "500", "600"]
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()

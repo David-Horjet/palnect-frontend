@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
@@ -13,7 +13,8 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { toast } from "@/lib/toast"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
-export default function ResourceDetailPage({ params }: { params: { id: string } }) {
+export default function ResourceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params); 
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const { currentResource, loading } = useSelector((state: RootState) => state.resources)
@@ -25,12 +26,12 @@ export default function ResourceDetailPage({ params }: { params: { id: string } 
   const [isSaved, setIsSaved] = useState(false)
 
   useEffect(() => {
-    dispatch(getResource(params.id))
+    dispatch(getResource(id))
 
     return () => {
       dispatch(clearCurrentResource())
     }
-  }, [params.id, dispatch])
+  }, [id, dispatch])
 
   const handleGetSummary = async () => {
     if (dailyLimit <= 0) {
@@ -65,7 +66,7 @@ export default function ResourceDetailPage({ params }: { params: { id: string } 
 
   const handleDownload = async () => {
     try {
-      await dispatch(downloadResource(params.id)).unwrap()
+      await dispatch(downloadResource(id)).unwrap()
       if (currentResource?.file_url) {
         const link = document.createElement("a")
         link.href = currentResource.file_url
@@ -82,7 +83,7 @@ export default function ResourceDetailPage({ params }: { params: { id: string } 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this resource?")) {
       try {
-        await dispatch(deleteResource(params.id)).unwrap()
+        await dispatch(deleteResource(id)).unwrap()
         router.push("/dashboard/resources")
       } catch (error) {
         toast.error("Failed to delete resource")
@@ -141,7 +142,7 @@ export default function ResourceDetailPage({ params }: { params: { id: string } 
         </div>
 
         <div className="p-6 space-y-8">
-          <Card className="bg-gradient-to-br from-primary/10 to-accent/10 p-8">
+          <Card className="bg-linear-to-br from-primary/10 to-accent/10 p-8">
             <div className="grid md:grid-cols-3 gap-6 items-start">
               <div className="md:col-span-2">
                 <div className="flex items-center gap-2 mb-4">

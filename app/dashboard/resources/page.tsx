@@ -64,7 +64,7 @@ export default function ResourcesPage() {
     if (viewMode === "my") return true
     const matchesSearch =
       resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.description.toLowerCase().includes(searchQuery.toLowerCase())
+      (resource.description && resource.description.toLowerCase().includes(searchQuery.toLowerCase()))
     return matchesSearch
   })
 
@@ -118,7 +118,7 @@ export default function ResourcesPage() {
             <Card className="p-6 mb-6">
               <div className="space-y-6">
                 {/* Category Filter */}
-                <div>
+                {/* <div>
                   <p className="text-sm font-semibold mb-3 text-foreground">Category</p>
                   <div className="flex flex-wrap gap-2">
                     {["All", ...CATEGORIES].map((cat) => (
@@ -134,10 +134,10 @@ export default function ResourcesPage() {
                       </Badge>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Subject Filter */}
-                <div>
+                {/* <div>
                   <p className="text-sm font-semibold mb-3 text-foreground">Subject</p>
                   <div className="flex flex-wrap gap-2">
                     {["All", ...SUBJECTS].map((subject) => (
@@ -153,10 +153,10 @@ export default function ResourcesPage() {
                       </Badge>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 {/* School Filter */}
-                <div>
+                {/* <div>
                   <p className="text-sm font-semibold mb-3 text-foreground">School</p>
                   <div className="flex flex-wrap gap-2">
                     {["All", ...SCHOOLS].map((school) => (
@@ -172,10 +172,10 @@ export default function ResourcesPage() {
                       </Badge>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Year Filter */}
-                <div>
+                {/* <div>
                   <p className="text-sm font-semibold mb-3 text-foreground">Year of Study</p>
                   <div className="flex flex-wrap gap-2">
                     {["All", ...YEARS].map((year) => (
@@ -189,10 +189,11 @@ export default function ResourcesPage() {
                       </Badge>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Results Count */}
-                <p className="text-sm text-muted-foreground pt-2 border-t border-border">
+                <p className="text-sm text-muted-foreground">
+                   {/* pt-2 border-t border-border */}
                   Showing {filteredResources.length} resource{filteredResources.length !== 1 ? "s" : ""}
                 </p>
               </div>

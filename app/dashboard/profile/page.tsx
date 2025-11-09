@@ -87,7 +87,7 @@ export default function ProfilePage() {
     dispatch(getProfile())
   }, [dispatch])
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="flex h-screen overflow-hidden">
         <DashboardSidebar activeTab="profile" />
