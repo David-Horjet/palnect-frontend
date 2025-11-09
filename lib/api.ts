@@ -1,3 +1,4 @@
+// Base API service configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 
 export const apiClient = {
@@ -43,6 +44,10 @@ export const apiClient = {
       body: body ? JSON.stringify(body) : undefined,
       token,
     })
+  },
+
+  async delete<T>(endpoint: string, token?: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "DELETE", token })
   },
 
   async postFormData<T>(endpoint: string, formData: FormData, token?: string): Promise<T> {

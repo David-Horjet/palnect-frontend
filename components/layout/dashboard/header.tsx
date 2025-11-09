@@ -1,7 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { getProfile } from "@/store/slices/authSlice"
 import { Bell, Search } from "lucide-react"
+import { useEffect } from "react"
 
 interface DashboardHeaderProps {
   title: string
@@ -9,6 +11,10 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
+  useEffect(() => {
+    getProfile()
+  }, [])
+
   return (
     <div className="border-b border-border bg-background/50 backdrop-blur-sm sticky top-0 z-20">
       <div className="px-6 py-4">
