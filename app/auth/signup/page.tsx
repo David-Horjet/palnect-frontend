@@ -9,14 +9,18 @@ import Link from "next/link"
 import Logo from "@/components/shared/logo"
 
 export default function SignUpPage() {
+  const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
+  const { loading, error } = useSelector((state: RootState) => state.auth)
+
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [isLoading, setIsLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -25,7 +29,8 @@ export default function SignUpPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
-    if (!formData.name) newErrors.name = "Name is required"
+    if (!formData.firstName) newErrors.firstName = "First name is required"
+    if (!formData.lastName) newErrors.lastName = "Last name is required"
     if (!formData.email) newErrors.email = "Email is required"
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Invalid email"
     if (!formData.password) newErrors.password = "Password is required"
@@ -40,9 +45,18 @@ export default function SignUpPage() {
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length === 0) {
-      setIsLoading(true)
-      // API call would go here
-      setTimeout(() => setIsLoading(false), 1000)
+      const result = await dispatch(
+        signup({
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }),
+      )
+
+      if (result.type === signup.fulfilled.type) {
+        router.push("/dashboard")
+      }
     }
   }
 
@@ -56,17 +70,36 @@ export default function SignUpPage() {
           <p className="text-muted-foreground">Join our community and start learning</p>
         </div>
 
+{/* Error Alert */}
+        {error && (
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
+            {error}
+          </div>
+        )}
+        {/* Form */}
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <FormField
-            label="Full Name"
-            name="name"
-            placeholder="John Doe"
-            value={formData.name}
-            onChange={handleChange}
-            error={errors.name}
-            required
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <FormField
+              label="First Name"
+              name="firstName"
+              placeholder="John"
+              value={formData.firstName}
+              onChange={handleChange}
+              error={errors.firstName}
+              required
+            />
+            <FormField
+              label="Last Name"
+              name="lastName"
+              placeholder="Doe"
+              value={formData.lastName}
+              onChange={handleChange}
+              error={errors.lastName}
+              required
+            />
+          </div>
+
           <FormField
             label="Email Address"
             name="email"
@@ -98,8 +131,8 @@ export default function SignUpPage() {
             required
           />
 
-          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isLoading}>
-            {isLoading ? "Creating Account..." : "Create Account"}
+          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
+            {loading ? "Creating Account..." : "Create Account"}
           </Button>
         </form>
 
