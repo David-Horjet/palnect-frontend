@@ -1,10 +1,9 @@
-// Base API service configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 
 export const apiClient = {
   async request<T>(endpoint: string, options: RequestInit & { token?: string } = {}): Promise<T> {
     const { token, ...fetchOptions } = options
-    const headers: HeadersInit = {
+    const headers: any = {
       "Content-Type": "application/json",
       ...fetchOptions.headers,
     }

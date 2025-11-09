@@ -31,7 +31,7 @@ export function HeroSection() {
 
             {/* CTA Button */}
             <Button size="lg">
-              <Link href={""}>
+              <Link href={"/auth/signup"}>
                 Join now
               </Link>
             </Button>
