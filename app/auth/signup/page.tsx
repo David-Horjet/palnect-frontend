@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/shared/form-field"
 import Link from "next/link"
 import Logo from "@/components/shared/logo"
+import { signup } from "@/store/slices/authSlice"
+import { AppDispatch, RootState } from "@/store/store"
+import { useRouter } from "next/router"
+import { useDispatch, useSelector } from "react-redux"
 
 export default function SignUpPage() {
   const dispatch = useDispatch<AppDispatch>()
