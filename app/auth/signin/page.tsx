@@ -7,14 +7,20 @@ import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/shared/form-field"
 import Link from "next/link"
 import Logo from "@/components/shared/logo"
+import { login } from "@/store/slices/authSlice"
+import { AppDispatch, RootState } from "@/store/store"
+import { useRouter } from "next/router"
+import { useDispatch, useSelector } from "react-redux"
 
 export default function SignInPage() {
+  const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
+  const { loading, error } = useSelector((state: RootState) => state.auth)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [isLoading, setIsLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -35,9 +41,16 @@ export default function SignInPage() {
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length === 0) {
-      setIsLoading(true)
-      // API call would go here
-      setTimeout(() => setIsLoading(false), 1000)
+      const result = await dispatch(
+        login({
+          email: formData.email,
+          password: formData.password,
+        }),
+      )
+
+      if (result.type === login.fulfilled.type) {
+        router.push("/dashboard")
+      }
     }
   }
 
@@ -50,6 +63,13 @@ export default function SignInPage() {
           <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
           <p className="text-muted-foreground">Sign in to your account</p>
         </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,8 +101,8 @@ export default function SignInPage() {
             </Link>
           </div>
 
-          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isLoading}>
-            {isLoading ? "Signing In..." : "Sign In"}
+          <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
 
