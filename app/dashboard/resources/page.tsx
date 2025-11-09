@@ -12,7 +12,7 @@ import { listResources, getUserResources } from "@/store/slices/resourcesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
-import { Resource } from "@/services/api/resource"
+import { Resource } from "@/services/api/resources"
 
 const CATEGORIES = ["Past Questions", "Lecture Notes", "Assignments", "Study Guides"]
 const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
