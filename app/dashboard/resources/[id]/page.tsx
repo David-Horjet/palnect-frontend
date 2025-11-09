@@ -1,77 +1,132 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Download, Eye, Lock, Globe, Loader2 } from "lucide-react"
+import { ArrowLeft, Download, Loader2, Trash2 } from "lucide-react"
+import { getResource, downloadResource, deleteResource, clearCurrentResource } from "@/store/slices/resourcesSlice"
+import type { AppDispatch, RootState } from "@/store/store"
+import { toast } from "@/lib/toast"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 export default function ResourceDetailPage({ params }: { params: { id: string } }) {
+  const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
+  const { currentResource, loading } = useSelector((state: RootState) => state.resources)
+  const { user } = useSelector((state: RootState) => state.auth)
+
   const [isSummaryLoading, setIsSummaryLoading] = useState(false)
   const [summary, setSummary] = useState<string | null>(null)
   const [dailyLimit, setDailyLimit] = useState(2)
   const [isSaved, setIsSaved] = useState(false)
 
-  // Mock resource data matching Palnect schema
-  const resource = {
-    id: params.id,
-    title: "Physics Lecture Notes - Chapter 5: Thermodynamics",
-    description: "Comprehensive lecture notes covering heat transfer, entropy, and thermodynamic laws",
-    category: "Lecture Notes",
-    subject: "Physics",
-    year: "100",
-    school: "University of Lagos",
-    uploader: "Sarah Chen",
-    uploaderAvatar: "SC",
-    downloaders: 342,
-    views: 1250,
-    createdAt: "2 days ago",
-    fileSize: "2.4 MB",
-    isPrivate: false,
-    isOwner: true,
-  }
+  useEffect(() => {
+    dispatch(getResource(params.id))
 
-  // Mock summary data
-  const mockSummary = `📚 Main Topics
-- Heat Transfer: Conduction, convection, and radiation mechanisms
-- Entropy: Concept of disorder and reversibility
-- Thermodynamic Laws: First, second, and third laws explained
-
-🔑 Key Concepts
-- Enthalpy: Measure of total heat content in a system
-- Gibbs Free Energy: Determines spontaneity of reactions
-- Heat Capacity: Ability to store thermal energy
-
-💡 Study Tips
-- Practice solving numerical problems on heat transfer
-- Memorize thermodynamic laws and their applications
-- Draw diagrams for different heat transfer methods
-
-⏱️ Estimated Study Time: 2-3 hours`
+    return () => {
+      dispatch(clearCurrentResource())
+    }
+  }, [params.id, dispatch])
 
   const handleGetSummary = async () => {
     if (dailyLimit <= 0) {
-      alert("Daily limit reached (3/3). Try again tomorrow!")
+      toast.info("Daily limit reached (3/3). Try again tomorrow!")
       return
     }
 
     setIsSummaryLoading(true)
-    // Simulate API call
     setTimeout(() => {
+      const mockSummary = `📚 Main Topics
+- ${currentResource?.title}: Overview and key concepts
+- Critical areas: Essential points to focus on
+- Practice areas: Common problem types
+
+🔑 Key Concepts
+- Core theory and principles
+- Application methods
+- Problem-solving approaches
+
+💡 Study Tips
+- Review key concepts first
+- Practice with examples
+- Test your understanding with problems
+
+⏱️ Estimated Study Time: 2-3 hours`
       setSummary(mockSummary)
       setDailyLimit(dailyLimit - 1)
+      toast.success("Summary generated successfully")
       setIsSummaryLoading(false)
-    }, 2000)
+    }, 2500)
   }
+
+  const handleDownload = async () => {
+    try {
+      await dispatch(downloadResource(params.id)).unwrap()
+      if (currentResource?.file_url) {
+        const link = document.createElement("a")
+        link.href = currentResource.file_url
+        link.download = currentResource.file_name || "resource.pdf"
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    } catch (error) {
+      toast.error("Failed to download resource")
+    }
+  }
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this resource?")) {
+      try {
+        await dispatch(deleteResource(params.id)).unwrap()
+        router.push("/dashboard/resources")
+      } catch (error) {
+        toast.error("Failed to delete resource")
+      }
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-screen overflow-hidden">
+        <DashboardSidebar activeTab="resources" />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-2" />
+            <p className="text-muted-foreground">Loading resource...</p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!currentResource) {
+    return (
+      <div className="flex h-screen overflow-hidden">
+        <DashboardSidebar activeTab="resources" />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-muted-foreground mb-4">Resource not found</p>
+            <Link href="/dashboard/resources">
+              <Button>Back to Resources</Button>
+            </Link>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  const isOwner = user?.id === currentResource.uploader.id
 
   return (
     <div className="flex h-screen overflow-hidden">
       <DashboardSidebar activeTab="resources" />
 
       <main className="flex-1 overflow-auto">
-        {/* Header */}
         <div className="border-b border-border bg-background/50 backdrop-blur-sm sticky top-0 z-20">
           <div className="px-6 py-4">
             <Link
@@ -81,93 +136,73 @@ export default function ResourceDetailPage({ params }: { params: { id: string } 
               <ArrowLeft className="h-4 w-4" />
               Back to Resources
             </Link>
-            <h1 className="text-2xl font-bold text-foreground">{resource.title}</h1>
+            <h1 className="text-2xl font-bold text-foreground">{currentResource.title}</h1>
           </div>
         </div>
 
         <div className="p-6 space-y-8">
-          {/* Hero Section */}
-          <Card className="bg-linear-to-br from-primary/10 to-accent/10 p-8">
+          <Card className="bg-gradient-to-br from-primary/10 to-accent/10 p-8">
             <div className="grid md:grid-cols-3 gap-6 items-start">
               <div className="md:col-span-2">
                 <div className="flex items-center gap-2 mb-4">
-                  <Badge>{resource.category}</Badge>
-                  <Badge variant="outline">{resource.subject}</Badge>
-                  <Badge variant="outline">Year {resource.year}</Badge>
+                  <Badge>{currentResource.category}</Badge>
+                  <Badge variant="outline">{currentResource.subject}</Badge>
+                  <Badge variant="outline">Year {currentResource.year}</Badge>
                 </div>
-                <p className="text-muted-foreground mb-4">{resource.description}</p>
+                <p className="text-muted-foreground mb-4">{currentResource.description}</p>
 
-                {/* Stats */}
                 <div className="flex flex-wrap gap-6 text-sm">
                   <div className="flex items-center gap-2">
                     <Download className="h-5 w-5" />
-                    <span>{resource.downloaders} downloads</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Eye className="h-5 w-5" />
-                    <span>{resource.views} views</span>
+                    <span>{currentResource.downloads} downloads</span>
                   </div>
                   <div className="text-muted-foreground">
-                    <span>{resource.fileSize}</span>
+                    <span>
+                      {currentResource.file_size
+                        ? `${(currentResource.file_size / 1024 / 1024).toFixed(2)} MB`
+                        : "Unknown"}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Info Card */}
               <Card className="p-6 h-fit">
                 <div className="space-y-4 text-sm">
                   <div>
                     <p className="text-muted-foreground mb-1">Uploaded by</p>
-                    <p className="font-semibold">{resource.uploader}</p>
+                    <p className="font-semibold">
+                      {currentResource.uploader.first_name} {currentResource.uploader.last_name}
+                    </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground mb-1">School</p>
-                    <p className="font-semibold">{resource.school}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground mb-1">Visibility</p>
-                    <div className="flex items-center gap-2">
-                      {resource.isPrivate ? (
-                        <>
-                          <Lock className="h-4 w-4" />
-                          <span>Private</span>
-                        </>
-                      ) : (
-                        <>
-                          <Globe className="h-4 w-4" />
-                          <span>Public</span>
-                        </>
-                      )}
-                    </div>
+                    <p className="font-semibold">{currentResource.school}</p>
                   </div>
                 </div>
               </Card>
             </div>
           </Card>
 
-          {/* Two Column Layout */}
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Resource Info */}
               <Card className="p-6">
                 <h2 className="text-lg font-bold mb-4">Resource Details</h2>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Category</span>
-                    <span className="font-medium">{resource.category}</span>
+                    <span className="font-medium">{currentResource.category}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subject</span>
-                    <span className="font-medium">{resource.subject}</span>
+                    <span className="font-medium">{currentResource.subject}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Year of Study</span>
-                    <span className="font-medium">Year {resource.year}</span>
+                    <span className="font-medium">Year {currentResource.year}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Uploaded</span>
-                    <span className="font-medium">{resource.createdAt}</span>
+                    <span className="font-medium">{new Date(currentResource.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
               </Card>
@@ -218,26 +253,29 @@ export default function ResourceDetailPage({ params }: { params: { id: string } 
                   </div>
                 )}
               </Card>
-              {/* End AI Summary */}
             </div>
 
-            {/* Sidebar */}
             <div className="space-y-6">
-              {/* Download */}
-              <Card className="p-6">
-                <Button variant="primary" size="lg" className="w-full">
+              <Card className="p-6 space-y-3">
+                <Button onClick={handleDownload} size="lg" className="w-full">
                   <Download className="h-4 w-4 mr-2" />
                   Download Resource
                 </Button>
+
+                {isOwner && (
+                  <Button onClick={handleDelete} variant="destructive" size="lg" className="w-full">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Resource
+                  </Button>
+                )}
               </Card>
 
-              {/* About Section */}
               <Card className="p-6">
                 <h3 className="font-bold mb-4">About This Resource</h3>
                 <div className="space-y-3 text-sm">
                   <div>
                     <p className="text-muted-foreground mb-1">Type</p>
-                    <p className="font-medium">{resource.category}</p>
+                    <p className="font-medium">{currentResource.category}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground mb-1">Quality</p>
