@@ -1,15 +1,14 @@
 "use client"
 
-import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
-import { DashboardHeader } from "@/components/layout/dashboard/header"
-import { ResourceCard } from "@/components/shared/resource-card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
-import { Search, BookOpen, Download, Eye } from "lucide-react"
+import { Search, BookOpen, Download, Eye, Plus } from "lucide-react"
 import Link from "next/link"
-import { Card } from "@/components/ui/card"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 interface Resource {
   id: string
@@ -31,8 +30,9 @@ export default function ResourcesPage() {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
   const [selectedSchool, setSelectedSchool] = useState<string | null>(null)
   const [selectedYear, setSelectedYear] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<"all" | "my">("all") // add toggle between all resources and user's resources
 
-  const resources: Resource[] = [
+  const allResources: Resource[] = [
     {
       id: "1",
       title: "Physics Lecture Notes - Chapter 5: Thermodynamics",
@@ -113,6 +113,24 @@ export default function ResourcesPage() {
     },
   ]
 
+  const myResources: Resource[] = [
+    {
+      id: "7",
+      title: "My Chemistry Notes - Chapter 3",
+      description: "Personal study notes on organic chemistry reactions",
+      category: "Lecture Notes",
+      subject: "Chemistry",
+      year: "100",
+      school: "University of Lagos",
+      uploader: "You",
+      downloaders: 45,
+      createdAt: "3 days ago",
+      fileSize: "1.2 MB",
+    },
+  ]
+
+  const resources = viewMode === "my" ? myResources : allResources
+
   const categories = ["All", "Past Questions", "Lecture Notes", "Assignments", "Study Guides"]
   const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
   const schools = ["All", "University of Lagos", "University of Ibadan", "OAU"]
@@ -142,6 +160,21 @@ export default function ResourcesPage() {
         />
 
         <div className="p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <Button variant={viewMode === "all" ? "primary" : "secondary"} onClick={() => setViewMode("all")}>
+              All Resources
+            </Button>
+            <Button variant={viewMode === "my" ? "primary" : "secondary"} onClick={() => setViewMode("my")}>
+              My Resources
+            </Button>
+            <Link href="/dashboard/resources/upload" className="ml-auto">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Upload Resource
+              </Button>
+            </Link>
+          </div>
+
           {/* Search Bar */}
           <div className="mb-6">
             <div className="relative">
@@ -288,7 +321,11 @@ export default function ResourcesPage() {
             <div className="text-center py-12">
               <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No resources found</h3>
-              <p className="text-muted-foreground mb-4">Try adjusting your filters or search query</p>
+              <p className="text-muted-foreground mb-4">
+                {viewMode === "my"
+                  ? "You haven't uploaded any resources yet"
+                  : "Try adjusting your filters or search query"}
+              </p>
               <Button
                 variant="secondary"
                 onClick={() => {

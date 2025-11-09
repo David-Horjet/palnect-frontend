@@ -3,6 +3,7 @@ import "./globals.css"
 import type { ReactNode } from "react"
 import { ThemeProvider } from "@/lib/contexts/ThemeContext"
 import type { Metadata } from "next"
+import { store } from "@/store/store"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,9 +26,11 @@ export default function RootLayout({
         <meta name="theme-color" content="#6366F1" />
       </head>
       <body className={`${poppins.className} antialiased`}>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <Provider store={store}>
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </Provider>
       </body>
     </html>
   )
