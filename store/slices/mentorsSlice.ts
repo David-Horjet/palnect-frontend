@@ -79,7 +79,7 @@ export const fetchMentors = createAsyncThunk(
   ) => {
     try {
       const response = await mentorsService.list(token, { page, limit, expertise, search })
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch mentors"
       showToast("error", message)
