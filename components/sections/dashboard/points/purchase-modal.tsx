@@ -1,6 +1,6 @@
 "use client"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { DialogContent, DialogHeader, DialogProvider, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ExternalLink, Copy, CheckCircle } from "lucide-react"
@@ -33,7 +33,7 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference }: Pur
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogProvider open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Complete Your Payment</DialogTitle>
@@ -43,7 +43,7 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference }: Pur
           <div className="space-y-4">
             <Card className="p-4 bg-primary/5 border-primary/20">
               <div className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-foreground mb-1">Payment Link Ready</p>
                   <p className="text-sm text-muted-foreground">
@@ -104,6 +104,6 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference }: Pur
           </div>
         )}
       </DialogContent>
-    </Dialog>
+    </DialogProvider>
   )
 }

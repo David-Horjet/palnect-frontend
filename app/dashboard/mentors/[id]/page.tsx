@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import { fetchMentorDetail } from "@/store/slices/mentorsSlice"
@@ -13,7 +13,8 @@ import { ArrowLeft, Star, Users, Clock, Calendar, Loader2 } from "lucide-react"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { SubscribeModal } from "@/components/sections/dashboard/subscriptions/subscribe-modal"
 
-export default function MentorDetailPage({ params }: { params: { id: string } }) {
+export default function MentorDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params); 
   const dispatch = useDispatch() as AppDispatch
   const { token } = useAuth()
   const { selectedMentor: mentor, loading } = useSelector((state: RootState) => state.mentors)
@@ -21,9 +22,9 @@ export default function MentorDetailPage({ params }: { params: { id: string } })
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchMentorDetail({ token, id: params.id }))
+      dispatch(fetchMentorDetail({ token, id: id }))
     }
-  }, [dispatch, token, params.id])
+  }, [dispatch, token, id])
 
   if (loading || !mentor) {
     return (

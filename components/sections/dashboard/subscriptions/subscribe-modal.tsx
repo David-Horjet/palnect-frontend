@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import { subscribe } from "@/store/slices/subscriptionsSlice"
 import { useAuth } from "@/hooks/useAuth"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { DialogProvider, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
@@ -58,7 +58,7 @@ export function SubscribeModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogProvider open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Subscribe to {mentorName}</DialogTitle>
@@ -99,6 +99,6 @@ export function SubscribeModal({
           </div>
         </div>
       </DialogContent>
-    </Dialog>
+    </DialogProvider>
   )
 }
