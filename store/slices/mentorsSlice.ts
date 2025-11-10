@@ -93,7 +93,7 @@ export const fetchMentorDetail = createAsyncThunk(
   async ({ token, id }: { token: string; id: string }, { rejectWithValue }) => {
     try {
       const response = await mentorsService.getDetail(token, id)
-      return response.data.data
+      return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch mentor details"
       showToast("error", message)

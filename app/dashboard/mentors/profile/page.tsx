@@ -4,13 +4,13 @@ import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import { useAuth } from "@/hooks/useAuth"
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { MentorUpdateModal } from "@/components/mentors/mentor-update-modal"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Loader2 } from "lucide-react"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { MentorUpdateModal } from "@/components/sections/dashboard/mentor/mentor-update-modal"
 
 export default function MentorProfilePage() {
   const dispatch = useDispatch() as AppDispatch
@@ -35,7 +35,7 @@ export default function MentorProfilePage() {
           <div className="p-6">
             <Card className="p-6 text-center">
               <p className="text-muted-foreground mb-4">You are not currently a mentor</p>
-              <Button asChild>
+              <Button>
                 <a href="/dashboard/mentors/apply">Apply to Become a Mentor</a>
               </Button>
             </Card>

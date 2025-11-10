@@ -24,8 +24,6 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
     }
   }, [dispatch, token, id])
 
-  console.log("Mentor detail data:", mentor, loading)
-
   if (loading || !mentor) {
     return (
       <div className="flex h-screen overflow-hidden">
