@@ -47,6 +47,7 @@ export default function PointsPage() {
   ]
 
   const handlePurchase = () => {
+    console.log("Selected package:", selectedPackage, token, user?.email)
     if (selectedPackage && token && user?.email) {
       const pkg = packages.find((p) => p.id === selectedPackage)
       if (pkg) {

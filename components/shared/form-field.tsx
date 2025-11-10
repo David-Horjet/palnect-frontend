@@ -13,9 +13,20 @@ interface FormFieldProps {
   value?: string
   onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   error?: string
+  helperText?: string
   required?: boolean
   multiline?: boolean
   rows?: number
+  disabled?: boolean
+  min?: string | number
+  max?: string | number
+  minLength?: number
+  maxLength?: number
+  pattern?: string
+  step?: string | number
+  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  inputClassName?: string
 }
 
 export function FormField({
@@ -26,9 +37,20 @@ export function FormField({
   value,
   onChange,
   error,
+  helperText,
   required = false,
   multiline = false,
   rows = 4,
+  disabled = false,
+  min,
+  max,
+  minLength,
+  maxLength,
+  pattern,
+  step,
+  onBlur,
+  onFocus,
+  inputClassName,
 }: FormFieldProps) {
   return (
     <div className="space-y-2">
@@ -43,8 +65,19 @@ export function FormField({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
+          onFocus={onFocus}
           rows={rows}
-          className={error ? "border-destructive" : ""}
+          disabled={disabled}
+          minLength={minLength}
+          maxLength={maxLength}
+          className={
+            inputClassName && error
+              ? `border-destructive ${inputClassName}`
+              : error
+                ? "border-destructive"
+                : inputClassName
+          }
         />
       ) : (
         <Input
@@ -54,10 +87,26 @@ export function FormField({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className={error ? "border-destructive" : ""}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          disabled={disabled}
+          min={min}
+          max={max}
+          minLength={minLength}
+          maxLength={maxLength}
+          pattern={pattern}
+          step={step}
+          className={
+            inputClassName && error
+              ? `border-destructive ${inputClassName}`
+              : error
+                ? "border-destructive"
+                : inputClassName
+          }
         />
       )}
       {error && <p className="text-xs text-destructive">{error}</p>}
+      {helperText && !error && <p className="text-xs text-muted-foreground">{helperText}</p>}
     </div>
   )
 }
