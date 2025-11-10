@@ -3,17 +3,25 @@
 import type React from "react"
 
 import { useEffect } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { useRouter } from "next/navigation"
-import type { RootState } from "@/store/store"
+import type { AppDispatch, RootState } from "@/store/store"
+import { getProfile } from "@/store/slices/authSlice"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const dispatch = useDispatch() as AppDispatch
   const router = useRouter()
-  const { isAuthenticated, user, loading } = useSelector((state: RootState) => state.auth)
+  const { isAuthenticated, token, loading } = useSelector((state: RootState) => state.auth)
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getProfile())
+    }
+  }, [dispatch, token])
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {

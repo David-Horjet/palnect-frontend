@@ -83,10 +83,6 @@ export default function ProfilePage() {
     }
   }
 
-  useEffect(() => {
-    dispatch(getProfile())
-  }, [dispatch])
-
   if (loading || !user) {
     return (
       <div className="flex h-screen overflow-hidden">
