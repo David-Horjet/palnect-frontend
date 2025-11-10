@@ -8,60 +8,40 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ArrowLeft, Download, Loader2, Trash2 } from "lucide-react"
-import { getResource, downloadResource, deleteResource, clearCurrentResource } from "@/store/slices/resourcesSlice"
+import {
+  getResource,
+  downloadResource,
+  deleteResource,
+  clearCurrentResource,
+  generateAISummary,
+  clearAISummary,
+} from "@/store/slices/resourcesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
 import { toast } from "@/lib/toast"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { SummaryRenderer } from "@/components/sections/dashboard/resources/summary-renderer"
 
 export default function ResourceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params); 
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
-  const { currentResource, loading } = useSelector((state: RootState) => state.resources)
+  const { currentResource, loading, aiSummary, aiSummaryLoading } = useSelector((state: RootState) => state.resources)
   const { user } = useSelector((state: RootState) => state.auth)
 
-  const [isSummaryLoading, setIsSummaryLoading] = useState(false)
-  const [summary, setSummary] = useState<string | null>(null)
-  const [dailyLimit, setDailyLimit] = useState(2)
   const [isSaved, setIsSaved] = useState(false)
+  const POINTS_PER_SUMMARY = 800
 
   useEffect(() => {
     dispatch(getResource(id))
 
     return () => {
       dispatch(clearCurrentResource())
+      dispatch(clearAISummary())
     }
   }, [id, dispatch])
 
   const handleGetSummary = async () => {
-    if (dailyLimit <= 0) {
-      toast.info("Daily limit reached (3/3). Try again tomorrow!")
-      return
-    }
-
-    setIsSummaryLoading(true)
-    setTimeout(() => {
-      const mockSummary = `📚 Main Topics
-- ${currentResource?.title}: Overview and key concepts
-- Critical areas: Essential points to focus on
-- Practice areas: Common problem types
-
-🔑 Key Concepts
-- Core theory and principles
-- Application methods
-- Problem-solving approaches
-
-💡 Study Tips
-- Review key concepts first
-- Practice with examples
-- Test your understanding with problems
-
-⏱️ Estimated Study Time: 2-3 hours`
-      setSummary(mockSummary)
-      setDailyLimit(dailyLimit - 1)
-      toast.success("Summary generated successfully")
-      setIsSummaryLoading(false)
-    }, 2500)
+    await dispatch(generateAISummary(id)).unwrap()
   }
 
   const handleDownload = async () => {
@@ -212,20 +192,18 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                 <div className="flex items-start justify-between mb-4">
                   <h2 className="text-lg font-bold">AI Summary</h2>
                   <Badge variant="outline" className="text-xs">
-                    {dailyLimit}/3 used today
+                    {POINTS_PER_SUMMARY} points
                   </Badge>
                 </div>
 
-                {summary ? (
+                {aiSummary ? (
                   <div className="space-y-4">
-                    <div className="bg-muted/50 rounded-lg p-4 whitespace-pre-wrap text-sm text-muted-foreground font-mono">
-                      {summary}
-                    </div>
+                    <SummaryRenderer summary={aiSummary.summary} isLoading={aiSummaryLoading} />
                     <div className="flex gap-2">
                       <Button size="sm" variant="secondary" onClick={() => setIsSaved(!isSaved)}>
                         {isSaved ? "Saved" : "Save Summary"}
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => setSummary(null)}>
+                      <Button size="sm" variant="outline" onClick={() => dispatch(clearAISummary())}>
                         Clear
                       </Button>
                     </div>
@@ -233,20 +211,14 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                 ) : (
                   <div className="space-y-4">
                     <p className="text-sm text-muted-foreground">
-                      Get an AI-powered summary of this resource to study faster
+                      Get an AI-powered summary of this resource to study faster. Uses {POINTS_PER_SUMMARY} points.
                     </p>
-                    <Button
-                      onClick={handleGetSummary}
-                      disabled={isSummaryLoading || dailyLimit <= 0}
-                      className="w-full"
-                    >
-                      {isSummaryLoading ? (
+                    <Button onClick={handleGetSummary} disabled={aiSummaryLoading} className="w-full">
+                      {aiSummaryLoading ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Generating Summary (30-60s)...
+                          AI is thinking...
                         </>
-                      ) : dailyLimit <= 0 ? (
-                        "Daily Limit Reached"
                       ) : (
                         "Get AI Summary"
                       )}
