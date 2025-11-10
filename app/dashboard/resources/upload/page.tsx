@@ -127,10 +127,10 @@ export default function UploadResourcePage() {
             className={`border-2 border-dashed p-12 text-center transition-colors ${
               dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
             }`}
-            // onDragEnter={handleDrag}
-            // onDragLeave={handleDrag}
-            // onDragOver={handleDrag}
-            // onDrop={handleDrop}
+            onDragEnd={handleDrag}
+            onDragStart={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
           >
             {!file ? (
               <div className="space-y-4">

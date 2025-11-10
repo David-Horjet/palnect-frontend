@@ -12,8 +12,7 @@ export interface AISummarizeResponse {
 }
 
 export const aiService = {
-  // Generate AI summary for a resource
   async summarizeResource(token: string, resourceId: string, provider = "chatgpt") {
-    return apiClient.get<AISummarizeResponse>(`/ai/summarize/${resourceId}?provider=${provider}`, token)
+    return apiClient.post<AISummarizeResponse>(`/ai/summarize/${resourceId}?provider=${provider}`, {}, token)
   },
 }

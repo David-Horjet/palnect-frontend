@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { resourcesService, type Resource } from "@/services/api/resources"
 import { toast } from "@/lib/toast"
+import { aiService } from "@/services/api/ai"
 
 interface ResourcesState {
     resources: Resource[]
@@ -163,8 +164,6 @@ export const generateAISummary = createAsyncThunk(
         try {
             const token = localStorage.getItem("token")
             if (!token) return rejectWithValue("No token found")
-
-            const { aiService } = await import("@/services/api/ai")
             const response = await aiService.summarizeResource(token, resourceId, "chatgpt")
             toast.success("AI summary generated successfully")
             return response.data
