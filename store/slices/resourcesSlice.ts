@@ -14,6 +14,8 @@ interface ResourcesState {
         limit: number
         totalPages: number
     }
+    aiSummary: { summary: string; provider: string } | null
+    aiSummaryLoading: boolean
 }
 
 const initialState: ResourcesState = {
@@ -22,12 +24,14 @@ const initialState: ResourcesState = {
     currentResource: null,
     loading: false,
     error: null,
-    paginationInfo: {
+    pagination: {
         total: 0,
         page: 1,
         limit: 20,
         totalPages: 0,
     },
+    aiSummary: null,
+    aiSummaryLoading: false,
 }
 
 export const listResources = createAsyncThunk(
@@ -153,6 +157,25 @@ export const deleteResource = createAsyncThunk("resources/delete", async (id: st
     }
 })
 
+export const generateAISummary = createAsyncThunk(
+    "resources/generateAISummary",
+    async (resourceId: string, { rejectWithValue }) => {
+        try {
+            const token = localStorage.getItem("token")
+            if (!token) return rejectWithValue("No token found")
+
+            const { aiService } = await import("@/services/api/ai")
+            const response = await aiService.summarizeResource(token, resourceId, "chatgpt")
+            toast.success("AI summary generated successfully")
+            return response.data
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to generate summary"
+            toast.error(message)
+            return rejectWithValue(message)
+        }
+    },
+)
+
 const resourcesSlice = createSlice({
     name: "resources",
     initialState,
@@ -162,6 +185,9 @@ const resourcesSlice = createSlice({
         },
         clearError: (state) => {
             state.error = null
+        },
+        clearAISummary: (state) => {
+            state.aiSummary = null
         },
     },
     extraReducers: (builder) => {
@@ -225,8 +251,21 @@ const resourcesSlice = createSlice({
         builder.addCase(deleteResource.fulfilled, (state, action) => {
             state.myResources = state.myResources.filter((r: Resource) => r.id !== (action.payload as string))
         })
+
+        // Generate AI Summary
+        builder.addCase(generateAISummary.pending, (state) => {
+            state.aiSummaryLoading = true
+        })
+        builder.addCase(generateAISummary.fulfilled, (state, action) => {
+            state.aiSummaryLoading = false
+            state.aiSummary = action.payload
+        })
+        builder.addCase(generateAISummary.rejected, (state) => {
+            state.aiSummaryLoading = false
+        })
+
     },
 })
 
-export const { clearCurrentResource, clearError } = resourcesSlice.actions
+export const { clearCurrentResource, clearError, clearAISummary } = resourcesSlice.actions
 export default resourcesSlice.reducer
