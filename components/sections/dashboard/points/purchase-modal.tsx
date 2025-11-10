@@ -15,6 +15,7 @@ interface PurchaseModalProps {
 }
 
 export function PurchaseModal({ open, onOpenChange, paymentUrl, reference }: PurchaseModalProps) {
+  console.log("Payment URL:", paymentUrl, reference)
   const [copied, setCopied] = useState(false)
 
   const handleCopyReference = () => {

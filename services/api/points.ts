@@ -17,7 +17,7 @@ export interface PointsBalanceResponse {
 }
 
 export interface PaymentInitiation {
-  authorization_url: string
+  authorizationUrl: string
   access_code: string
   reference: string
 }

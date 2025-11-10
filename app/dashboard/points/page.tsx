@@ -245,7 +245,7 @@ export default function PointsPage() {
                   </div>
 
                   {/* Pagination */}
-                  {pagination.totalPages > 1 && (
+                  {pagination?.totalPages > 1 && (
                     <div className="p-4 border-t border-border/50 flex items-center justify-between">
                       <p className="text-sm text-muted-foreground">
                         Showing {(currentPage - 1) * pagination.limit + 1} to{" "}
