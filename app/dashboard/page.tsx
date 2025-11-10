@@ -1,27 +1,76 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Users, BookOpen, Award, Gift, Upload, Zap } from "lucide-react"
+import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock } from "lucide-react"
 import Link from "next/link"
+import { fetchBalance } from "@/store/slices/pointsSlice"
+import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
+import { listResources } from "@/store/slices/resourcesSlice"
+import { fetchMentors } from "@/store/slices/mentorsSlice"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ActivityFeed } from "@/components/sections/activity-feed"
 import { StatCard } from "@/components/shared/stat-card"
 
 export default function DashboardPage() {
+  const dispatch = useDispatch<AppDispatch>()
+  const [isLoading, setIsLoading] = useState(true)
+
+  const pointsBalance = useSelector((state: RootState) => state.points.balance)
+  const pointsLoading = useSelector((state: RootState) => state.points.loading)
+
+  const studentSubscriptions = useSelector((state: RootState) => state.subscriptions.studentSubscriptions)
+  const subscriptionsLoading = useSelector((state: RootState) => state.subscriptions.loading)
+
+  const mentors = useSelector((state: RootState) => state.mentors.mentors)
+  const mentorsLoading = useSelector((state: RootState) => state.mentors.loading)
+
+  const resources = useSelector((state: RootState) => state.resources.resources)
+  const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (!token) return
+
+    const loadDashboardData = async () => {
+      setIsLoading(true)
+      try {
+        await Promise.all([
+          dispatch(fetchBalance({ token })),
+          dispatch(fetchStudentSubscriptions({ token, page: 1, limit: 5 })),
+          dispatch(listResources({ page: 1, limit: 3 })),
+          dispatch(fetchMentors({ token, page: 1, limit: 2 })),
+        ])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [dispatch])
+
+  const getStatValue = (label: string): string => {
+    if (label === "Resources Completed" && resources.length > 0) {
+      return resources.length.toString()
+    }
+    if (label === "Mentors Connected" && studentSubscriptions.length > 0) {
+      return studentSubscriptions.length.toString()
+    }
+    return "0"
+  }
+
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
       <DashboardSidebar activeTab="home" />
 
-      {/* Main Content */}
       <main className="flex-1 overflow-auto">
-        {/* Header */}
         <DashboardHeader title="Welcome back!" subtitle="Continue your learning journey with Palnect" />
 
-        {/* Content */}
         <div className="p-6 space-y-8">
           {/* Welcome Banner */}
           <Card className="bg-linear-to-r from-primary/20 via-accent/20 to-primary/10 border-primary/30 p-8">
@@ -33,8 +82,10 @@ export default function DashboardPage() {
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button variant="primary" size="sm">
-                    <Gift className="h-4 w-4 mr-2" />
-                    Claim 10 Welcome Points
+                    <Link href="/dashboard/points">
+                      <Gift className="h-4 w-4 mr-2" />
+                      Claim 10 Welcome Points
+                    </Link>
                   </Button>
                   <Button variant="secondary" size="sm">
                     <BookOpen className="h-4 w-4 mr-2" />
@@ -53,7 +104,7 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 className="h-auto p-4 justify-start flex-col items-start hover:bg-primary/5 bg-transparent"
-                
+               
               >
                 <Link href="/dashboard/resources/upload">
                   <Upload className="h-5 w-5 mb-2" />
@@ -65,7 +116,7 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 className="h-auto p-4 justify-start flex-col items-start hover:bg-accent/5 bg-transparent"
-                
+               
               >
                 <Link href="/dashboard/mentors">
                   <Users className="h-5 w-5 mb-2" />
@@ -77,7 +128,7 @@ export default function DashboardPage() {
               <Button
                 variant="outline"
                 className="h-auto p-4 justify-start flex-col items-start hover:bg-primary/5 bg-transparent"
-                
+               
               >
                 <Link href="/dashboard/points">
                   <Zap className="h-5 w-5 mb-2" />
@@ -92,8 +143,8 @@ export default function DashboardPage() {
           <div className="grid md:grid-cols-4 gap-4">
             <StatCard
               label="Resources Completed"
-              value="12"
-              change="+2 this week"
+              value={getStatValue("Resources Completed")}
+              change={resources.length > 0 ? `+${resources.length} available` : "No resources yet"}
               trend="up"
               icon={<BookOpen className="h-8 w-8" />}
             />
@@ -106,38 +157,25 @@ export default function DashboardPage() {
             />
             <StatCard
               label="Mentors Connected"
-              value="3"
-              change="1 new this month"
+              value={studentSubscriptions.length.toString()}
+              change={studentSubscriptions.length > 0 ? `${studentSubscriptions.length} active` : "No mentors yet"}
               trend="up"
               icon={<Users className="h-8 w-8" />}
             />
-            <StatCard label="Achievements" value="8" change="2 new" trend="up" icon={<Award className="h-8 w-8" />} />
+            <StatCard
+              label="Points Balance"
+              value={pointsBalance.toString()}
+              change={pointsBalance > 0 ? "Ready to use" : "Buy more points"}
+              trend={pointsBalance > 0 ? "up" : "neutral"}
+              icon={<Zap className="h-8 w-8" />}
+            />
           </div>
 
           {/* Two Column Layout */}
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Feed */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Continue Learning */}
-              <div>
-                <h2 className="text-xl font-bold mb-4">Continue Learning</h2>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground mb-1">React Advanced Patterns</h3>
-                      <p className="text-sm text-muted-foreground mb-3">Module 3 of 5</p>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div className="bg-primary h-2 rounded-full" style={{ width: "60%" }} />
-                      </div>
-                    </div>
-                    <Button variant="primary" size="sm">
-                      Continue
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-
-              {/* Recent Activity */}
+              {/* Activity Feed */}
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold">Recent Activity</h2>
@@ -156,42 +194,32 @@ export default function DashboardPage() {
                     View All
                   </Link>
                 </div>
-                <div className="space-y-3">
-                  {[
-                    {
-                      title: "Physics Lecture Notes - Chapter 5",
-                      uploader: "Sarah Chen",
-                      downloads: 342,
-                      date: "2 days ago",
-                    },
-                    {
-                      title: "Calculus Past Questions 2023",
-                      uploader: "Marcus Johnson",
-                      downloads: 521,
-                      date: "5 days ago",
-                    },
-                    {
-                      title: "Biology Study Guide - Cell Division",
-                      uploader: "Emma Thompson",
-                      downloads: 218,
-                      date: "1 week ago",
-                    },
-                  ].map((resource, i) => (
-                    <Card key={i} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground mb-1">{resource.title}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            by {resource.uploader} • {resource.downloads} downloads • {resource.date}
-                          </p>
-                        </div>
-                        <Button variant="secondary" size="sm">
-                          Download
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+                {resourcesLoading ? (
+                  <Card className="p-8 text-center text-muted-foreground">Loading resources...</Card>
+                ) : resources.length > 0 ? (
+                  <div className="space-y-3">
+                    {resources.slice(0, 3).map((resource: any) => (
+                      <Card key={resource.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+                        <Link href={`/dashboard/resources/${resource.id}`}>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-foreground mb-1">{resource.title}</h3>
+                              <p className="text-xs text-muted-foreground">
+                                by {resource.uploaded_by || "Unknown"} • {resource.download_count || 0} downloads •{" "}
+                                {new Date(resource.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Badge variant="secondary">{resource.category}</Badge>
+                          </div>
+                        </Link>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="p-8 text-center text-muted-foreground">
+                    No resources available. Start by exploring or uploading resources.
+                  </Card>
+                )}
               </div>
             </div>
 
@@ -200,25 +228,32 @@ export default function DashboardPage() {
               {/* Recommended Mentors */}
               <div>
                 <h3 className="font-bold mb-4">Recommended Mentors</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Sarah Chen", role: "React Expert", match: "95%" },
-                    { name: "Alex Rodriguez", role: "Full Stack", match: "88%" },
-                  ].map((mentor, i) => (
-                    <Card key={i} className="hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-sm">{mentor.name}</p>
-                          <p className="text-xs text-muted-foreground">{mentor.role}</p>
-                        </div>
-                        <Badge className="text-xs">{mentor.match}</Badge>
-                      </div>
-                      <Button variant="secondary" size="sm" className="w-full mt-3">
-                        View Profile
-                      </Button>
-                    </Card>
-                  ))}
-                </div>
+                {mentorsLoading ? (
+                  <Card className="p-4 text-center text-muted-foreground text-sm">Loading mentors...</Card>
+                ) : mentors.length > 0 ? (
+                  <div className="space-y-3">
+                    {mentors.slice(0, 2).map((mentor: any) => (
+                      <Card key={mentor.id} className="hover:shadow-md transition-shadow">
+                        <Link href={`/dashboard/mentors/${mentor.id}`}>
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="font-semibold text-sm">
+                                {mentor.mentor_profile?.user?.first_name || "Unknown"}{" "}
+                                {mentor.mentor_profile?.user?.last_name || ""}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {mentor.mentor_profile?.expertise?.slice(0, 2).join(", ") || "Expert"}
+                              </p>
+                            </div>
+                            <Badge className="text-xs">View</Badge>
+                          </div>
+                        </Link>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="p-4 text-center text-muted-foreground text-sm">No mentors available yet</Card>
+                )}
               </div>
 
               {/* Points Widget */}
@@ -226,7 +261,7 @@ export default function DashboardPage() {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Your Points Balance</p>
-                    <p className="text-3xl font-bold text-foreground">420</p>
+                    <p className="text-3xl font-bold text-foreground">{pointsLoading ? "..." : pointsBalance}</p>
                   </div>
                   <Zap className="h-8 w-8 text-primary opacity-50" />
                 </div>
@@ -234,59 +269,48 @@ export default function DashboardPage() {
                   Use points to subscribe to mentors and unlock premium resources
                 </p>
                 <Button size="sm" className="w-full">
-                  Buy More Points
+                  <Link href="/dashboard/points">Buy More Points</Link>
                 </Button>
               </Card>
 
               {/* Active Subscriptions */}
               <Card>
                 <h3 className="font-bold mb-4">Active Subscriptions</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Sarah Chen", type: "Weekly Mentorship", expires: "3 days" },
-                    { name: "Alex Rodriguez", type: "Daily Support", expires: "12 hours" },
-                  ].map((sub, i) => (
-                    <div
-                      key={i}
-                      className="p-3 bg-muted/50 rounded-lg border border-border/50 hover:bg-muted/70 transition-colors"
-                    >
-                      <p className="font-semibold text-sm text-foreground">{sub.name}</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-muted-foreground">{sub.type}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {sub.expires}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Suggested Mentors */}
-              <Card>
-                <h3 className="font-bold mb-4">Suggested Mentors</h3>
-                <div className="space-y-3">
-                  {[
-                    { name: "Dr. Priya Sharma", role: "Mathematics Expert", match: "95%" },
-                    { name: "James Wilson", role: "Biology Specialist", match: "88%" },
-                  ].map((mentor, i) => (
-                    <div
-                      key={i}
-                      className="p-3 bg-muted/50 rounded-lg border border-border/50 hover:bg-muted/70 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div>
-                          <p className="font-semibold text-sm text-foreground">{mentor.name}</p>
-                          <p className="text-xs text-muted-foreground">{mentor.role}</p>
-                        </div>
-                        <Badge className="text-xs">{mentor.match}</Badge>
-                      </div>
-                      <Button variant="secondary" size="sm" className="w-full text-xs">
-                        View Profile
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                {subscriptionsLoading ? (
+                  <div className="text-center text-muted-foreground text-sm py-4">Loading...</div>
+                ) : studentSubscriptions.length > 0 ? (
+                  <div className="space-y-3">
+                    {studentSubscriptions.slice(0, 2).map((sub: any) => {
+                      const daysLeft = Math.ceil(
+                        (new Date(sub.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
+                      )
+                      return (
+                        <Link
+                          key={sub.id}
+                          href={`/dashboard/mentors/${sub.mentor_profile?.id}`}
+                          className="p-3 bg-muted/50 rounded-lg border border-border/50 hover:bg-muted/70 transition-colors block"
+                        >
+                          <p className="font-semibold text-sm text-foreground">
+                            {sub.mentor?.first_name} {sub.mentor?.last_name}
+                          </p>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs text-muted-foreground capitalize">
+                              {sub.duration} subscription
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              <Clock className="h-3 w-3 mr-1" />
+                              {daysLeft} days
+                            </Badge>
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground text-sm py-4">
+                    No active subscriptions. Find a mentor to get started.
+                  </p>
+                )}
               </Card>
             </div>
           </div>
