@@ -3,108 +3,81 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
-import { Zap, History, ArrowDown, ArrowUp, CheckCircle } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "@/store/store"
+import { fetchBalance, purchasePoints, fetchTransactions } from "@/store/slices/pointsSlice"
+import { useAuth } from "@/hooks/useAuth"
+import { Zap, History, ArrowDown, ArrowUp, CheckCircle, Loader2 } from "lucide-react"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { PurchaseModal } from "@/components/sections/dashboard/points/purchase-modal"
 
 interface PointsPackage {
   id: string
   naira: number
+  kobo: number
   points: number
   bonus: number
   popular?: boolean
 }
 
-interface Transaction {
-  id: string
-  type: "purchase" | "mentorship_subscription" | "resource_download" | "mentorship_reward"
-  description: string
-  amount: number
-  date: string
-  status: "completed" | "pending"
-}
-
 export default function PointsPage() {
-  const [currentBalance] = useState(420)
+  const dispatch = useDispatch() as AppDispatch
+  const { token, user } = useAuth()
+  const { balance, transactions, loading, pagination, paymentUrl, paymentReference } = useSelector(
+    (state: RootState) => state.points,
+  )
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null)
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchBalance({ token }))
+      dispatch(fetchTransactions({ token, page: currentPage }))
+    }
+  }, [dispatch, token, currentPage])
 
   const packages: PointsPackage[] = [
-    {
-      id: "1",
-      naira: 100,
-      points: 10,
-      bonus: 0,
-    },
-    {
-      id: "2",
-      naira: 500,
-      points: 55,
-      bonus: 5,
-      popular: true,
-    },
-    {
-      id: "3",
-      naira: 1000,
-      points: 115,
-      bonus: 15,
-    },
-    {
-      id: "4",
-      naira: 2000,
-      points: 240,
-      bonus: 40,
-      popular: true,
-    },
-  ]
-
-  const transactions: Transaction[] = [
-    {
-      id: "1",
-      type: "purchase",
-      description: "Points Purchase - 55 points",
-      amount: 55,
-      date: "2 days ago",
-      status: "completed",
-    },
-    {
-      id: "2",
-      type: "mentorship_subscription",
-      description: "Subscription - Sarah Chen (Weekly)",
-      amount: -2500,
-      date: "5 days ago",
-      status: "completed",
-    },
-    {
-      id: "3",
-      type: "resource_download",
-      description: "Resource Download Fee",
-      amount: -50,
-      date: "1 week ago",
-      status: "completed",
-    },
-    {
-      id: "4",
-      type: "mentorship_reward",
-      description: "Mentorship Earnings - 2 student subscriptions",
-      amount: 1500,
-      date: "1 week ago",
-      status: "completed",
-    },
-    {
-      id: "5",
-      type: "purchase",
-      description: "Points Purchase - 115 points",
-      amount: 115,
-      date: "2 weeks ago",
-      status: "completed",
-    },
+    { id: "1", naira: 100, kobo: 10000, points: 10, bonus: 0 },
+    { id: "2", naira: 500, kobo: 50000, points: 55, bonus: 5, popular: true },
+    { id: "3", naira: 1000, kobo: 100000, points: 115, bonus: 15 },
+    { id: "4", naira: 2000, kobo: 200000, points: 240, bonus: 40, popular: true },
   ]
 
   const handlePurchase = () => {
-    if (selectedPackage) {
-      alert("Redirecting to Paystack payment...")
+    if (selectedPackage && token && user?.email) {
+      const pkg = packages.find((p) => p.id === selectedPackage)
+      if (pkg) {
+        dispatch(purchasePoints({ token, amount: pkg.kobo, email: user.email }))
+        setShowPurchaseModal(true)
+      }
     }
+  }
+
+  useEffect(() => {
+    if (paymentUrl) {
+      setShowPurchaseModal(true)
+    }
+  }, [paymentUrl])
+
+  const getTransactionIcon = (type: string, amount: number) => {
+    if (amount > 0) {
+      return <ArrowDown className="h-4 w-4 text-primary" />
+    }
+    return <ArrowUp className="h-4 w-4 text-destructive" />
+  }
+
+  const getTransactionTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      purchase: "Purchase",
+      subscription: "Subscription",
+      mentorship_earning: "Earnings",
+      admin_credit: "Admin Credit",
+      admin_debit: "Admin Debit",
+    }
+    return labels[type] || type
   }
 
   return (
@@ -123,10 +96,10 @@ export default function PointsPage() {
                   <Zap className="h-4 w-4 text-primary" />
                   Your Current Balance
                 </p>
-                <p className="text-4xl font-bold text-foreground mb-2">{currentBalance} Points</p>
+                <p className="text-4xl font-bold text-foreground mb-2">{balance} Points</p>
                 <p className="text-sm text-muted-foreground">Use points to subscribe to mentors and unlock services</p>
               </div>
-              <Button size="lg" className="self-start">
+              <Button size="lg" onClick={() => setSelectedPackage(null)}>
                 Buy More Points
               </Button>
             </div>
@@ -144,7 +117,7 @@ export default function PointsPage() {
                       ? "border-primary bg-primary/5 ring-2 ring-primary"
                       : "hover:border-primary/50"
                   } ${pkg.popular ? "ring-1 ring-accent" : ""}`}
-                //   onClick={() => setSelectedPackage(pkg.id)}
+                  onClick={() => setSelectedPackage(pkg.id)}
                 >
                   {pkg.popular && <Badge className="absolute top-2 right-2 bg-accent text-foreground">Popular</Badge>}
 
@@ -195,8 +168,9 @@ export default function PointsPage() {
                         )}
                       </div>
                     </div>
-                    <Button size="lg" onClick={handlePurchase}>
-                      Proceed to Payment
+                    <Button size="lg" onClick={handlePurchase} disabled={loading}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {loading ? "Processing..." : "Proceed to Payment"}
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -220,56 +194,84 @@ export default function PointsPage() {
             </div>
 
             <Card>
-              <div className="space-y-0">
-                {transactions.map((tx, idx) => (
-                  <div
-                    key={tx.id}
-                    className={`p-4 flex items-start justify-between gap-4 ${
-                      idx !== transactions.length - 1 ? "border-b border-border/50" : ""
-                    } hover:bg-muted/50 transition-colors`}
-                  >
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className={`p-2 rounded-lg ${tx.amount > 0 ? "bg-primary/10" : "bg-destructive/10"}`}>
-                        {tx.amount > 0 ? (
-                          <ArrowDown className={`h-4 w-4 text-primary`} />
-                        ) : (
-                          <ArrowUp className={`h-4 w-4 text-destructive`} />
-                        )}
-                      </div>
+              {loading && !transactions.length ? (
+                <div className="p-12 flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="p-12 text-center text-muted-foreground">
+                  <p>No transactions yet. Buy points to get started!</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-0">
+                    {transactions.map((tx, idx) => (
+                      <div
+                        key={tx.id}
+                        className={`p-4 flex items-start justify-between gap-4 ${
+                          idx !== transactions.length - 1 ? "border-b border-border/50" : ""
+                        } hover:bg-muted/50 transition-colors`}
+                      >
+                        <div className="flex items-start gap-3 flex-1">
+                          <div className={`p-2 rounded-lg ${tx.amount > 0 ? "bg-primary/10" : "bg-destructive/10"}`}>
+                            {getTransactionIcon(tx.type, tx.amount)}
+                          </div>
 
-                      <div className="flex-1">
-                        <p className="font-semibold text-foreground">{tx.description}</p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-2">
-                          {tx.date}
-                          {tx.status === "completed" && (
-                            <>
-                              •
-                              <CheckCircle className="h-3 w-3 text-primary" />
-                              Completed
-                            </>
-                          )}
-                        </p>
-                      </div>
-                    </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-foreground">{tx.description}</p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-2">
+                              {new Date(tx.created_at).toLocaleDateString()}
+                              {tx.status === "completed" && (
+                                <>
+                                  •
+                                  <CheckCircle className="h-3 w-3 text-primary" />
+                                  Completed
+                                </>
+                              )}
+                            </p>
+                          </div>
+                        </div>
 
-                    <div className="text-right shrink-0">
-                      <p className={`text-lg font-bold ${tx.amount > 0 ? "text-primary" : "text-destructive"}`}>
-                        {tx.amount > 0 ? "+" : ""}
-                        {tx.amount}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {tx.type === "purchase"
-                          ? "Purchase"
-                          : tx.type === "mentorship_subscription"
-                            ? "Subscription"
-                            : tx.type === "mentorship_reward"
-                              ? "Earnings"
-                              : "Fee"}
-                      </p>
-                    </div>
+                        <div className="text-right shrink-0">
+                          <p className={`text-lg font-bold ${tx.amount > 0 ? "text-primary" : "text-destructive"}`}>
+                            {tx.amount > 0 ? "+" : ""}
+                            {tx.amount}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{getTransactionTypeLabel(tx.type)}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+
+                  {/* Pagination */}
+                  {pagination.totalPages > 1 && (
+                    <div className="p-4 border-t border-border/50 flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground">
+                        Showing {(currentPage - 1) * pagination.limit + 1} to{" "}
+                        {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage((p) => p - 1)}
+                        >
+                          Previous
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={currentPage === pagination.totalPages}
+                          onClick={() => setCurrentPage((p) => p + 1)}
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </Card>
           </div>
 
@@ -305,6 +307,14 @@ export default function PointsPage() {
           </Card>
         </div>
       </main>
+
+      {/* Payment Modal */}
+      <PurchaseModal
+        open={showPurchaseModal}
+        onOpenChange={setShowPurchaseModal}
+        paymentUrl={paymentUrl}
+        reference={paymentReference}
+      />
     </div>
   )
 }

@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { use, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import { fetchMentorDetail } from "@/store/slices/mentorsSlice"
@@ -11,18 +11,19 @@ import { useAuth } from "@/hooks/useAuth"
 import Link from "next/link"
 import { ArrowLeft, Star, Users, Clock, Calendar, Loader2 } from "lucide-react"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { SubscribeModal } from "@/components/sections/dashboard/subscriptions/subscribe-modal"
 
-export default function MentorDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params); 
+export default function MentorDetailPage({ params }: { params: { id: string } }) {
   const dispatch = useDispatch() as AppDispatch
   const { token } = useAuth()
   const { selectedMentor: mentor, loading } = useSelector((state: RootState) => state.mentors)
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false)
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchMentorDetail({ token, id: id }))
+      dispatch(fetchMentorDetail({ token, id: params.id }))
     }
-  }, [dispatch, token, id])
+  }, [dispatch, token, params.id])
 
   if (loading || !mentor) {
     return (
@@ -129,7 +130,7 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 </div>
 
-                <Button variant="primary" className="w-full">
+                <Button variant="primary" className="w-full" onClick={() => setShowSubscribeModal(true)}>
                   Subscribe Now
                 </Button>
               </Card>
@@ -184,6 +185,19 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
       </main>
+
+      <SubscribeModal
+        open={showSubscribeModal}
+        onOpenChange={setShowSubscribeModal}
+        mentorId={mentor.id}
+        mentorProfileId={mentor.id}
+        mentorName={`${mentor.user.first_name} ${mentor.user.last_name}`}
+        rates={{
+          daily: mentor.daily_rate,
+          weekly: mentor.weekly_rate,
+          monthly: mentor.monthly_rate,
+        }}
+      />
     </div>
   )
 }
