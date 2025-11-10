@@ -119,7 +119,7 @@ const pointsSlice = createSlice({
       })
       .addCase(purchasePoints.fulfilled, (state, action) => {
         state.loading = false
-        state.paymentUrl = action.payload.authorizationUrl
+        state.paymentUrl = action.payload.authorization_url
         state.paymentReference = action.payload.reference
       })
       .addCase(purchasePoints.rejected, (state, action) => {

@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api"
 
 export interface PointsBalance {
+  points: number
   id: string
   user_id: string
   balance: number
@@ -54,6 +55,7 @@ export interface VerifyPaymentResponse {
   success: boolean
   message: string
   data: {
+    points: number
     verified: boolean
     transaction: Transaction
   }
@@ -84,11 +86,10 @@ export const pointsService = {
 
   // Get transaction history
   async getTransactions(
-    token: string,
-    options?: {
-      page?: number
-      limit?: number
-    },
+token: string, page: number | undefined, limit: number | undefined, options?: {
+    page?: number
+    limit?: number
+},
   ) {
     const params = new URLSearchParams()
     if (options?.page) params.append("page", options.page.toString())
