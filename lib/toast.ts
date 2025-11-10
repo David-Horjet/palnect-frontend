@@ -1,4 +1,3 @@
-// Toast notification system
 interface Toast {
   id: string
   message: string
@@ -26,6 +25,10 @@ export const toast = {
   success: (message: string, duration?: number) => toast.show(message, "success", duration),
   error: (message: string, duration?: number) => toast.show(message, "error", duration),
   info: (message: string, duration?: number) => toast.show(message, "info", duration),
+}
+
+export const showToast = (type: "success" | "error" | "info", message: string, duration?: number) => {
+  return toast.show(message, type, duration)
 }
 
 export type { Toast }
