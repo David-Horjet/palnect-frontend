@@ -222,7 +222,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Points Widget */}
-              <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20 p-6">
+              <Card className="bg-linear-to-br from-primary/10 to-accent/10 border-primary/20 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Your Points Balance</p>

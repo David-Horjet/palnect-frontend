@@ -1,7 +1,5 @@
 "use client"
 
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +11,8 @@ import { fetchMentors } from "@/store/slices/mentorsSlice"
 import { useAuth } from "@/hooks/useAuth"
 import { Search, Users, Star, UserCheck, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 export default function MentorsPage() {
   const dispatch = useDispatch() as AppDispatch
@@ -86,7 +86,7 @@ export default function MentorsPage() {
                 />
               </div>
             </div>
-            <Button asChild variant="primary">
+            <Button variant="primary">
               <Link href="/dashboard/mentors/apply">Become a Mentor</Link>
             </Button>
           </div>
@@ -200,7 +200,7 @@ export default function MentorsPage() {
                       </div>
 
                       {/* CTA Button */}
-                      <Button asChild className="w-full">
+                      <Button className="w-full">
                         <Link href={`/dashboard/mentors/${mentor.id}`}>View Profile & Subscribe</Link>
                       </Button>
                     </div>

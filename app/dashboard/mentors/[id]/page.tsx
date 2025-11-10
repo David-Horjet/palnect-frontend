@@ -1,6 +1,5 @@
 "use client"
 
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,6 +10,7 @@ import { fetchMentorDetail } from "@/store/slices/mentorsSlice"
 import { useAuth } from "@/hooks/useAuth"
 import Link from "next/link"
 import { ArrowLeft, Star, Users, Clock, Calendar, Loader2 } from "lucide-react"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 
 export default function MentorDetailPage({ params }: { params: { id: string } }) {
   const dispatch = useDispatch() as AppDispatch
@@ -54,12 +54,12 @@ export default function MentorDetailPage({ params }: { params: { id: string } })
 
         <div className="p-6 space-y-6">
           {/* Hero Section */}
-          <Card className="bg-gradient-to-br from-primary/10 to-accent/10">
+          <Card className="bg-linear-to-br from-primary/10 to-accent/10">
             <div className="grid md:grid-cols-3 gap-6 items-start">
               <div className="md:col-span-2">
                 {/* Avatar and Name */}
                 <div className="flex gap-4 mb-6">
-                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary to-accent flex-shrink-0 overflow-hidden">
+                  <div className="h-24 w-24 rounded-full bg-linear-to-br from-primary to-accent shrink-0 overflow-hidden">
                     {mentor.user.avatar_url ? (
                       <img
                         src={mentor.user.avatar_url || "/placeholder.svg"}

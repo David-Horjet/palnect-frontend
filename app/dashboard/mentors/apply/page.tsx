@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { MentorApplyModal } from "@/components/mentors/mentor-apply-modal"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { MentorApplyModal } from "@/components/sections/dashboard/mentor/mentor-apply-modal"
 
 export default function ApplyMentorPage() {
   const router = useRouter()

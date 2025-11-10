@@ -6,6 +6,7 @@ export interface Availability {
 }
 
 export interface Mentor {
+  data: any
   id: string
   user_id: string
   expertise: string[]
@@ -64,7 +65,7 @@ export interface MentorApplicationResponse {
 
 export const mentorsService = {
   async apply(token: string, data: MentorApplication) {
-    return apiClient.post<MentorApplicationResponse>("/api/mentors/apply", data, token)
+    return apiClient.post<MentorApplicationResponse>("/mentors/apply", data, token)
   },
 
   async list(
@@ -83,15 +84,15 @@ export const mentorsService = {
     if (options?.search) params.append("search", options.search)
 
     const query = params.toString()
-    const url = query ? `/api/mentors?${query}` : "/api/mentors"
+    const url = query ? `/mentors?${query}` : "/mentors"
     return apiClient.get<MentorsListResponse>(url, token)
   },
 
   async getDetail(token: string, id: string) {
-    return apiClient.get<MentorDetailResponse>(`/api/mentors/${id}`, token)
+    return apiClient.get<MentorDetailResponse>(`/mentors/${id}`, token)
   },
 
   async updateProfile(token: string, data: MentorApplication) {
-    return apiClient.put<MentorDetailResponse>("/api/mentors/profile", data, token)
+    return apiClient.put<MentorDetailResponse>("/mentors/profile", data, token)
   },
 }
