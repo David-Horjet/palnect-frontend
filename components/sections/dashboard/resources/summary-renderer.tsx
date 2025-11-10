@@ -61,7 +61,7 @@ export function SummaryRenderer({ summary, isLoading = false }: SummaryRendererP
 
   return (
     <div className="space-y-4">
-      <div className="bg-muted/50 rounded-lg p-4 text-muted-foreground min-h-[200px]">
+      <div className="bg-transparent border border-border/30 rounded-lg p-4 text-muted-foreground min-h-[200px]">
         {isLoading ? (
           <div className="space-y-2">
             <div className="h-4 bg-muted rounded animate-pulse w-3/4"></div>
