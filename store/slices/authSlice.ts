@@ -5,6 +5,7 @@ import { toast } from "@/lib/toast"
 interface AuthState {
   user: User | null
   token: string | null
+  adminToken: string | null
   loading: boolean
   error: string | null
   isAuthenticated: boolean
@@ -13,6 +14,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
+  adminToken: typeof window !== "undefined" ? localStorage.getItem("admin_token") : null,
   loading: false,
   error: null,
   isAuthenticated: typeof window !== "undefined" ? !!localStorage.getItem("token") : false,
@@ -59,6 +61,9 @@ export const login = createAsyncThunk(
     try {
       const response = await authService.login(credentials.email, credentials.password)
       localStorage.setItem("token", response.data.token)
+      if (response.data.user.is_admin) {
+        localStorage.setItem("admin_token", response.data.token)
+      }
       toast.success(response.message)
       return response.data
     } catch (error: unknown) {
@@ -80,6 +85,7 @@ export const getProfile = createAsyncThunk("auth/getProfile", async (_, { reject
     return response.data
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Failed to fetch profile"
+    toast.error(message)
     return rejectWithValue(message)
   }
 })
@@ -214,6 +220,7 @@ export const resetPassword = createAsyncThunk(
 
 export const logout = createAsyncThunk("auth/logout", async () => {
   localStorage.removeItem("token")
+  localStorage.removeItem("admin_token")
   toast.info("Logged out successfully")
 })
 
@@ -256,6 +263,9 @@ const authSlice = createSlice({
       state.loading = false
       state.user = action.payload.user
       state.token = action.payload.token
+      if (action.payload.user.is_admin) {
+        state.adminToken = action.payload.token
+      }
       state.isAuthenticated = true
     })
     builder.addCase(login.rejected, (state, action) => {
@@ -327,6 +337,7 @@ const authSlice = createSlice({
     builder.addCase(logout.fulfilled, (state) => {
       state.user = null
       state.token = null
+      state.adminToken = null
       state.isAuthenticated = false
     })
   },
