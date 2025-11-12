@@ -49,7 +49,11 @@ export default function SignInPage() {
       )
 
       if (result.type === login.fulfilled.type) {
-        router.push("/dashboard")
+        if (result?.payload.user.is_admin) {
+          router.push("/admin")
+        } else {
+          router.push("/dashboard")
+        }
       }
     }
   }
