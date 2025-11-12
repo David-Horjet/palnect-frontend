@@ -17,7 +17,7 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
 
   useEffect(() => {
     if (!loading && (!isAuthenticated || !user?.is_admin)) {
-      router.push("/signin")
+      router.push("/auth/signin")
     }
   }, [isAuthenticated, user?.is_admin, loading, router])
 
