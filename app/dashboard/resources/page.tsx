@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, BookOpen, Download, Plus, Loader2 } from "lucide-react"
+import { Search, BookOpen, Download, Plus, Loader2, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { listResources, getUserResources } from "@/store/slices/resourcesSlice"
 import type { AppDispatch, RootState } from "@/store/store"
@@ -31,6 +31,13 @@ export default function ResourcesPage() {
   const [viewMode, setViewMode] = useState<"all" | "my">("all")
   const [currentPage, setCurrentPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, pages: 1 })
+
+  const [expandedFilters, setExpandedFilters] = useState({
+    category: true,
+    subject: false,
+    school: false,
+    year: false,
+  })
 
   useEffect(() => {
     if (viewMode === "all") {
@@ -63,14 +70,21 @@ export default function ResourcesPage() {
   const filteredResources = displayedResources.filter((resource: Resource) => {
     if (viewMode === "my") return true
     const matchesSearch =
-      resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (resource.description && resource.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      resource?.title?.toLowerCase()?.includes(searchQuery?.toLowerCase()) ||
+      resource?.description?.toLowerCase()?.includes(searchQuery?.toLowerCase())
     return matchesSearch
   })
 
   const handleDeleteResource = (resourceId: string) => {
     // Implement delete functionality here
     console.log(`Deleting resource with ID: ${resourceId}`)
+  }
+
+  const toggleFilterSection = (section: keyof typeof expandedFilters) => {
+    setExpandedFilters((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }))
   }
 
   return (
@@ -84,6 +98,7 @@ export default function ResourcesPage() {
         />
 
         <div className="p-6">
+          {/* View Mode Toggle */}
           {/* View Mode Toggle */}
           <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
             <div className="flex gap-5">
@@ -120,84 +135,133 @@ export default function ResourcesPage() {
           {/* Filters - Only show for all resources view */}
           {viewMode === "all" && (
             <Card className="p-6 mb-6">
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Category Filter */}
                 <div>
-                  <p className="text-sm font-semibold mb-3 text-foreground">Category</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["All", ...CATEGORIES].map((cat) => (
-                      <Badge
-                        key={cat}
-                        variant={
-                          selectedCategory === cat || (cat === "All" && !selectedCategory) ? "default" : "outline"
-                        }
-                        className="cursor-pointer"
-                        onClick={() => setSelectedCategory(cat === "All" ? null : cat)}
-                      >
-                        {cat}
-                      </Badge>
-                    ))}
-                  </div>
+                  <button
+                    onClick={() => toggleFilterSection("category")}
+                    className="w-full flex items-center justify-between"
+                  >
+                    <p className="text-sm font-semibold text-foreground">Category</p>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        expandedFilters.category ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                  </button>
+                  {expandedFilters.category && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {["All", ...CATEGORIES].map((cat) => (
+                        <Badge
+                          key={cat}
+                          variant={
+                            selectedCategory === cat || (cat === "All" && !selectedCategory) ? "default" : "outline"
+                          }
+                          className="cursor-pointer"
+                          onClick={() => setSelectedCategory(cat === "All" ? null : cat)}
+                        >
+                          {cat}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Subject Filter */}
-                <div>
-                  <p className="text-sm font-semibold mb-3 text-foreground">Subject</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["All", ...SUBJECTS].map((subject) => (
-                      <Badge
-                        key={subject}
-                        variant={
-                          selectedSubject === subject || (subject === "All" && !selectedSubject) ? "default" : "outline"
-                        }
-                        className="cursor-pointer"
-                        onClick={() => setSelectedSubject(subject === "All" ? null : subject)}
-                      >
-                        {subject}
-                      </Badge>
-                    ))}
-                  </div>
+                <div className="border-t border-border/50 pt-4">
+                  <button
+                    onClick={() => toggleFilterSection("subject")}
+                    className="w-full flex items-center justify-between"
+                  >
+                    <p className="text-sm font-semibold text-foreground">Department</p>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        expandedFilters.subject ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                  </button>
+                  {expandedFilters.subject && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {["All", ...SUBJECTS].map((subject) => (
+                        <Badge
+                          key={subject}
+                          variant={
+                            selectedSubject === subject || (subject === "All" && !selectedSubject)
+                              ? "default"
+                              : "outline"
+                          }
+                          className="cursor-pointer"
+                          onClick={() => setSelectedSubject(subject === "All" ? null : subject)}
+                        >
+                          {subject}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* School Filter */}
-                <div>
-                  <p className="text-sm font-semibold mb-3 text-foreground">School</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["All", ...SCHOOLS].map((school) => (
-                      <Badge
-                        key={school}
-                        variant={
-                          selectedSchool === school || (school === "All" && !selectedSchool) ? "default" : "outline"
-                        }
-                        className="cursor-pointer"
-                        onClick={() => setSelectedSchool(school === "All" ? null : school)}
-                      >
-                        {school}
-                      </Badge>
-                    ))}
-                  </div>
+                <div className="border-t border-border/50 pt-4">
+                  <button
+                    onClick={() => toggleFilterSection("school")}
+                    className="w-full flex items-center justify-between"
+                  >
+                    <p className="text-sm font-semibold text-foreground">School</p>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        expandedFilters.school ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                  </button>
+                  {expandedFilters.school && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {["All", ...SCHOOLS].map((school) => (
+                        <Badge
+                          key={school}
+                          variant={
+                            selectedSchool === school || (school === "All" && !selectedSchool) ? "default" : "outline"
+                          }
+                          className="cursor-pointer"
+                          onClick={() => setSelectedSchool(school === "All" ? null : school)}
+                        >
+                          {school}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Year Filter */}
-                <div>
-                  <p className="text-sm font-semibold mb-3 text-foreground">Year of Study</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["All", ...YEARS].map((year) => (
-                      <Badge
-                        key={year}
-                        variant={selectedYear === year || (year === "All" && !selectedYear) ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => setSelectedYear(year === "All" ? null : year)}
-                      >
-                        {year}
-                      </Badge>
-                    ))}
-                  </div>
+                <div className="border-t border-border/50 pt-4">
+                  <button
+                    onClick={() => toggleFilterSection("year")}
+                    className="w-full flex items-center justify-between"
+                  >
+                    <p className="text-sm font-semibold text-foreground">Year of Study</p>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        expandedFilters.year ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                  </button>
+                  {expandedFilters.year && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {["All", ...YEARS].map((year) => (
+                        <Badge
+                          key={year}
+                          variant={selectedYear === year || (year === "All" && !selectedYear) ? "default" : "outline"}
+                          className="cursor-pointer"
+                          onClick={() => setSelectedYear(year === "All" ? null : year)}
+                        >
+                          {year}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Results Count */}
-                <p className="text-sm text-muted-foreground">
-                  {/* pt-2 border-t border-border */}
+                <p className="text-sm text-muted-foreground pt-4 border-t border-border">
                   Showing {filteredResources.length} resource{filteredResources.length !== 1 ? "s" : ""}
                 </p>
               </div>
