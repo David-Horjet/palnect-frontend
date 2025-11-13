@@ -79,7 +79,7 @@ export const fetchStudentSubscriptions = createAsyncThunk(
   async ({ token, page, limit }: { token: string; page?: number; limit?: number }, { rejectWithValue }) => {
     try {
       const response = await subscriptionsService.getStudentSubscriptions(token, page, limit)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch subscriptions"
       return rejectWithValue(message)
@@ -92,7 +92,7 @@ export const fetchMentorSubscriptions = createAsyncThunk(
   async ({ token, page, limit }: { token: string; page?: number; limit?: number }, { rejectWithValue }) => {
     try {
       const response = await subscriptionsService.getMentorSubscriptions(token, page, limit)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch subscriptions"
       return rejectWithValue(message)
@@ -123,7 +123,7 @@ const subscriptionsSlice = createSlice({
       })
       .addCase(fetchStudentSubscriptions.fulfilled, (state, action) => {
         state.loading = false
-        state.studentSubscriptions = action.payload
+        state.studentSubscriptions = action.payload.data as any
         state.pagination = action.payload.pagination
       })
       .addCase(fetchStudentSubscriptions.rejected, (state, action) => {
@@ -136,7 +136,7 @@ const subscriptionsSlice = createSlice({
       })
       .addCase(fetchMentorSubscriptions.fulfilled, (state, action) => {
         state.loading = false
-        state.mentorSubscriptions = action.payload
+        state.mentorSubscriptions = action.payload.data as any
         state.pagination = action.payload.pagination
       })
       .addCase(fetchMentorSubscriptions.rejected, (state, action) => {
