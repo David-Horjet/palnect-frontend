@@ -14,12 +14,12 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
       <div className="px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+            <h1 className="text-base md:text-lg lg:text-xl font-bold text-foreground mb-1">{title}</h1>
+            {subtitle && <p className="text-xs md:text-sm text-muted-foreground">{subtitle}</p>}
           </div>
 
           {/* Search and Notifications */}
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" className="gap-2">
               <Search className="h-5 w-5" />
               <span className="hidden sm:inline">Search</span>
@@ -28,7 +28,7 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-accent rounded-full" />
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

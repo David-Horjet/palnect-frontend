@@ -53,13 +53,13 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex text-sm md:text-base items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
                       ? "bg-primary text-white"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-3 w-3" />
                   <span>{item.label}</span>
                 </Link>
               )
@@ -70,7 +70,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
           <div className="border-t border-border p-4 space-y-2">
             <Link
               href="/dashboard/settings"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="flex text-sm md:text-base  items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <Settings className="h-5 w-5" />
               <span>Settings</span>
@@ -78,7 +78,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+              className="w-full text-sm md:text-base justify-start gap-3 text-muted-foreground hover:text-foreground"
             >
               <LogOut className="h-5 w-5" />
               <span>Sign Out</span>

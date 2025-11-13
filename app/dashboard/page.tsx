@@ -6,7 +6,7 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock } from "lucide-react"
+import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap } from "lucide-react"
 import Link from "next/link"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
@@ -21,6 +21,8 @@ export default function DashboardPage() {
   const dispatch = useDispatch<AppDispatch>()
   const [isLoading, setIsLoading] = useState(true)
 
+  const { user } = useSelector((state: RootState) => state.auth)
+
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
   const pointsLoading = useSelector((state: RootState) => state.points.loading)
 
@@ -28,6 +30,7 @@ export default function DashboardPage() {
   const subscriptionsLoading = useSelector((state: RootState) => state.subscriptions.loading)
 
   const mentors = useSelector((state: RootState) => state.mentors.mentors)
+  console.log("mentors:", mentors)
   const mentorsLoading = useSelector((state: RootState) => state.mentors.loading)
 
   const resources = useSelector((state: RootState) => state.resources.resources)
@@ -73,14 +76,14 @@ export default function DashboardPage() {
 
         <div className="p-6 space-y-8">
           {/* Welcome Banner */}
-          <Card className="bg-linear-to-r from-primary/20 via-accent/20 to-primary/10 border-primary/30 p-8">
+          <Card className="bg-linear-to-r from-primary/20 via-accent/20 to-primary/10 border-primary/30 p-[15px] md:p-8">
             <div className="flex items-start justify-between gap-6">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-foreground mb-2">Get started with Palnect</h2>
-                <p className="text-muted-foreground mb-4">
+                <h2 className="text-base md:text-lg lg:text-2xl font-bold text-foreground mb-2">Get started with Palnect</h2>
+                <p className="text-xs md:text-sm text-muted-foreground mb-4">
                   Upload resources, find mentors, and earn points to grow your academic network.
                 </p>
-                <div className="flex flex-wrap gap-3">
+                {/* <div className="flex flex-wrap gap-3">
                   <Button variant="primary" size="sm">
                     <Link href="/dashboard/points">
                       <Gift className="h-4 w-4 mr-2" />
@@ -91,9 +94,9 @@ export default function DashboardPage() {
                     <BookOpen className="h-4 w-4 mr-2" />
                     Take Platform Tour
                   </Button>
-                </div>
+                </div> */}
               </div>
-              <div className="text-4xl opacity-20">🎓</div>
+              <div className="text-foreground/50"><GraduationCap size={30} /></div>
             </div>
           </Card>
 
@@ -103,37 +106,43 @@ export default function DashboardPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start flex-col items-start hover:bg-primary/5 bg-transparent"
-               
+                className="h-auto p-5 justify-center flex-col items-start hover:bg-primary/5 bg-transparent"
+
               >
-                <Link href="/dashboard/resources/upload">
-                  <Upload className="h-5 w-5 mb-2" />
-                  <span className="font-semibold">Upload Resource</span>
-                  <span className="text-xs text-muted-foreground">Share notes with peers</span>
+                <Link className="flex items-center justify-center gap-2" href="/dashboard/resources/upload">
+                  <Upload className="h-5 w-5" />
+                  <div className="flex flex-col gap-1 items-start">
+                    <span className="font-semibold">Upload Resource</span>
+                    <span className="text-xs text-muted-foreground">Share notes with peers</span>
+                  </div>
                 </Link>
               </Button>
 
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start flex-col items-start hover:bg-accent/5 bg-transparent"
-               
+                className="h-auto p-5 justify-center flex-col items-start hover:bg-accent/5 bg-transparent"
+
               >
-                <Link href="/dashboard/mentors">
-                  <Users className="h-5 w-5 mb-2" />
-                  <span className="font-semibold">Find Mentor</span>
-                  <span className="text-xs text-muted-foreground">Get expert guidance</span>
+                <Link className="flex items-center justify-center gap-2" href="/dashboard/mentors">
+                  <Users className="h-5 w-5" />
+                  <div className="flex flex-col gap-1 items-start">
+                    <span className="font-semibold">Find Mentor</span>
+                    <span className="text-xs text-muted-foreground">Get expert guidance</span>
+                  </div>
                 </Link>
               </Button>
 
               <Button
                 variant="outline"
-                className="h-auto p-4 justify-start flex-col items-start hover:bg-primary/5 bg-transparent"
-               
+                className="h-auto p-5 justify-center flex-col items-start hover:bg-primary/5 bg-transparent"
+
               >
-                <Link href="/dashboard/points">
-                  <Zap className="h-5 w-5 mb-2" />
-                  <span className="font-semibold">Buy Points</span>
-                  <span className="text-xs text-muted-foreground">Get credits for services</span>
+                <Link className="flex items-center justify-center gap-2" href="/dashboard/points">
+                  <Zap className="h-5 w-5" />
+                  <div className="flex flex-col gap-1 items-start">
+                    <span className="font-semibold">Buy Points</span>
+                    <span className="text-xs text-muted-foreground">Get credits for services</span>
+                  </div>
                 </Link>
               </Button>
             </div>
@@ -238,11 +247,11 @@ export default function DashboardPage() {
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <p className="font-semibold text-sm">
-                                {mentor.mentor_profile?.user?.first_name || "Unknown"}{" "}
-                                {mentor.mentor_profile?.user?.last_name || ""}
+                                {mentor?.user?.first_name || "Unknown"}{" "}
+                                {mentor?.user?.last_name || ""}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {mentor.mentor_profile?.expertise?.slice(0, 2).join(", ") || "Expert"}
+                                {mentor?.expertise?.slice(0, 2).join(", ") || "Expert"}
                               </p>
                             </div>
                             <Badge className="text-xs">View</Badge>
