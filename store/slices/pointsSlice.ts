@@ -91,7 +91,7 @@ export const fetchTransactions = createAsyncThunk(
   async ({ token, page, limit }: { token: string; page?: number; limit?: number }, { rejectWithValue }) => {
     try {
       const response = await pointsService.getTransactions(token, page, limit)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch transactions"
       return rejectWithValue(message)
@@ -146,7 +146,7 @@ const pointsSlice = createSlice({
       })
       .addCase(fetchTransactions.fulfilled, (state, action) => {
         state.loading = false
-        state.transactions = action.payload
+        state.transactions = action.payload.data
         state.pagination = action.payload.pagination
       })
       .addCase(fetchTransactions.rejected, (state, action) => {

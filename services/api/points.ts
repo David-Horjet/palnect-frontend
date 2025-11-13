@@ -37,6 +37,12 @@ export interface Transaction {
   reference?: string
   status: "completed" | "pending" | "failed"
   created_at: string
+  pagination: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
 }
 
 export interface TransactionHistoryResponse {
@@ -86,10 +92,10 @@ export const pointsService = {
 
   // Get transaction history
   async getTransactions(
-token: string, page: number | undefined, limit: number | undefined, options?: {
-    page?: number
-    limit?: number
-},
+    token: string, page: number | undefined, limit: number | undefined, options?: {
+      page?: number
+      limit?: number
+    },
   ) {
     const params = new URLSearchParams()
     if (options?.page) params.append("page", options.page.toString())
