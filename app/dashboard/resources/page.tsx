@@ -85,19 +85,23 @@ export default function ResourcesPage() {
 
         <div className="p-6">
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-4 mb-6">
-            <Button variant={viewMode === "all" ? "primary" : "secondary"} onClick={() => setViewMode("all")}>
-              All Resources
-            </Button>
-            <Button variant={viewMode === "my" ? "primary" : "secondary"} onClick={() => setViewMode("my")}>
-              My Resources
-            </Button>
-            <Link href="/dashboard/resources/upload" className="ml-auto">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Upload Resource
+          <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
+            <div className="flex gap-5">
+              <Button variant={viewMode === "all" ? "primary" : "secondary"} onClick={() => setViewMode("all")}>
+                All Resources
               </Button>
-            </Link>
+              <Button variant={viewMode === "my" ? "primary" : "secondary"} onClick={() => setViewMode("my")}>
+                My Resources
+              </Button>
+            </div>
+            <div className="flex items-center  md:ml-auto">
+              <Link href="/dashboard/resources/upload" className="ml-auto">
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Upload Resource
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Search Bar */}
@@ -193,7 +197,7 @@ export default function ResourcesPage() {
 
                 {/* Results Count */}
                 <p className="text-sm text-muted-foreground">
-                   {/* pt-2 border-t border-border */}
+                  {/* pt-2 border-t border-border */}
                   Showing {filteredResources.length} resource{filteredResources.length !== 1 ? "s" : ""}
                 </p>
               </div>

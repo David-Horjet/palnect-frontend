@@ -12,7 +12,7 @@ export function Input({ className, error, label, ...props }: InputProps) {
       {label && <label className="block text-sm font-medium text-foreground mb-2">{label}</label>}
       <input
         className={cn(
-          "w-full px-4 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed",
+          "w-full text-sm md:text-base px-4 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed",
           error && "border-destructive focus:ring-destructive",
           className,
         )}
