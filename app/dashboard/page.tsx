@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const mentorsLoading = useSelector((state: RootState) => state.mentors.loading)
 
   const resources = useSelector((state: RootState) => state.resources.resources)
+  console.log("resources:", resources)
   const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div>
-            <h3 className="text-lg font-bold mb-4">Quick Actions</h3>
+            <h3 className="text-base md:text-lg font-bold mb-4">Quick Actions</h3>
             <div className="grid md:grid-cols-3 gap-4">
               <Button
                 variant="outline"
@@ -155,45 +156,45 @@ export default function DashboardPage() {
               value={getStatValue("Resources Completed")}
               change={resources.length > 0 ? `+${resources.length} available` : "No resources yet"}
               trend="up"
-              icon={<BookOpen className="h-8 w-8" />}
+              icon={<BookOpen className="h-5 w-5" />}
             />
             <StatCard
               label="Learning Streak"
               value="7 days"
               change="Keep it up!"
               trend="neutral"
-              icon={<TrendingUp className="h-8 w-8" />}
+              icon={<TrendingUp className="h-5 w-5" />}
             />
             <StatCard
               label="Mentors Connected"
               value={studentSubscriptions.length.toString()}
               change={studentSubscriptions.length > 0 ? `${studentSubscriptions.length} active` : "No mentors yet"}
               trend="up"
-              icon={<Users className="h-8 w-8" />}
+              icon={<Users className="h-5 w-5" />}
             />
             <StatCard
               label="Points Balance"
               value={pointsBalance.toString()}
               change={pointsBalance > 0 ? "Ready to use" : "Buy more points"}
               trend={pointsBalance > 0 ? "up" : "neutral"}
-              icon={<Zap className="h-8 w-8" />}
+              icon={<Zap className="h-5 w-5" />}
             />
           </div>
 
           {/* Two Column Layout */}
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Feed */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="w-full col-span-1 lg:col-span-2 space-y-6">
               {/* Activity Feed */}
-              <div>
+              {/* <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold">Recent Activity</h2>
+                  <h2 className="text-base md:text-lg font-bold">Recent Activity</h2>
                   <Link href="/dashboard/activity" className="text-sm text-primary hover:text-primary/80">
                     View All
                   </Link>
                 </div>
                 <ActivityFeed />
-              </div>
+              </div> */}
 
               {/* Recent Resources */}
               <div>
@@ -208,17 +209,17 @@ export default function DashboardPage() {
                 ) : resources.length > 0 ? (
                   <div className="space-y-3">
                     {resources.slice(0, 3).map((resource: any) => (
-                      <Card key={resource.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+                      <Card key={resource.id} className="p-2 md:p-4 hover:shadow-md transition-shadow cursor-pointer">
                         <Link href={`/dashboard/resources/${resource.id}`}>
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-foreground mb-1">{resource.title}</h3>
+                          <div className="w-full flex flex-col items-start justify-between">
+                            <div className="mb-2">
+                              <h3 className="text-sm md:text-base font-semibold text-foreground mb-1">{resource.title}</h3>
                               <p className="text-xs text-muted-foreground">
-                                by {resource.uploaded_by || "Unknown"} • {resource.download_count || 0} downloads •{" "}
+                                by {resource.uploader.first_name || "Unknown"} • {resource.downloads || 0} downloads •{" "}
                                 {new Date(resource.created_at).toLocaleDateString()}
                               </p>
                             </div>
-                            <Badge variant="secondary">{resource.category}</Badge>
+                            <Badge className="text-[10px]" variant="secondary">{resource.category}</Badge>
                           </div>
                         </Link>
                       </Card>
@@ -297,7 +298,7 @@ export default function DashboardPage() {
                         <Link
                           key={sub.id}
                           href={`/dashboard/mentors/${sub.mentor_profile?.id}`}
-                          className="p-3 bg-muted/50 rounded-lg border border-border/50 hover:bg-muted/70 transition-colors block"
+                          className="p-3 bg-muted/10 rounded-lg border border-border/50 hover:bg-muted/70 transition-colors block"
                         >
                           <p className="font-semibold text-sm text-foreground">
                             {sub.mentor?.first_name} {sub.mentor?.last_name}
