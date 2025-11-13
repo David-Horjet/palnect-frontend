@@ -38,7 +38,7 @@ const initialState: ResourcesState = {
 export const listResources = createAsyncThunk(
     "resources/list",
     async (
-        filters?: {
+        filters: {
             page?: number
             limit?: number
             category?: string
@@ -46,7 +46,7 @@ export const listResources = createAsyncThunk(
             school?: string
             year?: string
             search?: string
-        },
+        } = {},
         { rejectWithValue },
     ) => {
         try {
@@ -73,10 +73,10 @@ export const getResource = createAsyncThunk("resources/getSingle", async (id: st
 export const getUserResources = createAsyncThunk(
     "resources/getUserResources",
     async (
-        filters?: {
+        filters: {
             page?: number
             limit?: number
-        },
+        } = {},
         { rejectWithValue },
     ) => {
         try {
