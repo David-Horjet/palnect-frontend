@@ -7,6 +7,7 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
+import { Book, CreditCard, DollarSign, GraduationCap, Users } from "lucide-react"
 
 export default function AdminDashboard() {
   const dispatch = useDispatch<AppDispatch>()
@@ -20,31 +21,31 @@ export default function AdminDashboard() {
     {
       title: "Total Users",
       value: stats?.totalUsers || 0,
-      icon: "👥",
+      icon: <Users />,
       color: "text-blue-500",
     },
     {
       title: "Total Resources",
       value: stats?.totalResources || 0,
-      icon: "📚",
+      icon: <Book />,
       color: "text-green-500",
     },
     {
       title: "Total Mentors",
       value: stats?.totalMentors || 0,
-      icon: "🎓",
+      icon: <GraduationCap />,
       color: "text-purple-500",
     },
     {
       title: "Active Subscriptions",
       value: stats?.activeSubscriptions || 0,
-      icon: "✨",
+      icon: <DollarSign />,
       color: "text-orange-500",
     },
     {
       title: "Total Transactions",
       value: stats?.totalTransactions || 0,
-      icon: "💳",
+      icon: <CreditCard />,
       color: "text-pink-500",
     },
   ]
@@ -74,8 +75,8 @@ export default function AdminDashboard() {
               <Card key={i} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
-                    <span className="text-2xl">{stat.icon}</span>
+                    <CardTitle className="text-[14px] font-medium text-muted-foreground">{stat.title}</CardTitle>
+                    <span className="text-xs">{stat.icon}</span>
                   </div>
                 </CardHeader>
                 <CardContent>

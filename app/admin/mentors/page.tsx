@@ -7,6 +7,7 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { GraduationCap } from "lucide-react"
 
 export default function AdminMentorsPage() {
   const dispatch = useDispatch<AppDispatch>()
@@ -53,7 +54,7 @@ export default function AdminMentorsPage() {
           <Card className="border-dashed">
             <CardContent className="flex items-center justify-center py-12">
               <div className="text-center">
-                <div className="text-4xl mb-2">🎓</div>
+                <div className="text-4xl flex w-full justify-center mb-2"><GraduationCap /></div>
                 <p className="text-muted-foreground">No pending mentor applications</p>
               </div>
             </CardContent>
