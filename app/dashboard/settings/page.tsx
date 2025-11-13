@@ -306,7 +306,7 @@ export default function SettingsPage() {
                   type="password"
                   placeholder="••••••••"
                   value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  onChange={(e: { target: { value: React.SetStateAction<string> } }) => setCurrentPassword(e.target.value)}
                   error={passwordErrors.currentPassword}
                 />
                 <FormField
@@ -315,7 +315,7 @@ export default function SettingsPage() {
                   type="password"
                   placeholder="••••••••"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={(e: { target: { value: React.SetStateAction<string> } }) => setNewPassword(e.target.value)}
                   error={passwordErrors.newPassword}
                 />
                 <FormField
@@ -324,7 +324,7 @@ export default function SettingsPage() {
                   type="password"
                   placeholder="••••••••"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e: { target: { value: React.SetStateAction<string> } }) => setConfirmPassword(e.target.value)}
                   error={passwordErrors.confirmPassword}
                 />
                 <Button type="submit" variant="secondary" className="w-full justify-start">
