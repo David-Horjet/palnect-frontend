@@ -1,35 +1,41 @@
 "use client"
 
 import type React from "react"
-
-import { useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
+import { useEffect, useState } from "react"
+import { useSelector, useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
-import type { AppDispatch, RootState } from "@/store/store"
-import { getProfile } from "@/store/slices/authSlice"
+import type { RootState, AppDispatch } from "@/store/store"
+import { initializeAuth } from "@/store/slices/authSlice"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const dispatch = useDispatch() as AppDispatch
   const router = useRouter()
-  const { isAuthenticated, token, loading } = useSelector((state: RootState) => state.auth)
+  const dispatch = useDispatch<AppDispatch>()
+  const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
-    if (token) {
-      dispatch(getProfile())
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+
+    if (token && !isInitialized) {
+      dispatch(initializeAuth()).then(() => {
+        setIsInitialized(true)
+      })
+    } else if (!token) {
+      setIsInitialized(true)
     }
-  }, [dispatch, token])
+  }, [dispatch, isInitialized])
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (isInitialized && !isAuthenticated) {
       router.push("/auth/signin")
     }
-  }, [isAuthenticated, loading, router])
+  }, [isAuthenticated, isInitialized, router])
 
-  if (loading) {
+  if (!isInitialized || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>

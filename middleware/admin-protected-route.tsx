@@ -2,10 +2,11 @@
 
 import type React from "react"
 
-import { useEffect } from "react"
-import { useSelector } from "react-redux"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import { useRouter } from "next/navigation"
-import type { RootState } from "@/store/store"
+import type { AppDispatch, RootState } from "@/store/store"
+import { initializeAuth } from "@/store/slices/authSlice"
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode
@@ -13,15 +14,29 @@ interface AdminProtectedRouteProps {
 
 export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
   const router = useRouter()
-  const { isAuthenticated, user, loading } = useSelector((state: RootState) => state.auth)
+  const dispatch = useDispatch<AppDispatch>()
+  const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
-    if (!loading && (!isAuthenticated || !user?.is_admin)) {
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null
+  
+      if (token && !isInitialized) {
+        dispatch(initializeAuth()).then(() => {
+          setIsInitialized(true)
+        })
+      } else if (!token) {
+        setIsInitialized(true)
+      }
+    }, [dispatch, isInitialized])
+
+  useEffect(() => {
+    if (isInitialized && !isAuthenticated) {
       router.push("/auth/signin")
     }
-  }, [isAuthenticated, user?.is_admin, loading, router])
+  }, [isAuthenticated, isInitialized, router])
 
-  if (loading) {
+  if (!isInitialized || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -29,7 +44,7 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
     )
   }
 
-  if (!isAuthenticated || !user?.is_admin) {
+  if (!isAuthenticated) {
     return null
   }
 
