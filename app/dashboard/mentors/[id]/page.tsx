@@ -12,6 +12,7 @@ import Link from "next/link"
 import { ArrowLeft, Star, Users, Clock, Calendar, Loader2 } from "lucide-react"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { SubscribeModal } from "@/components/sections/dashboard/subscriptions/subscribe-modal"
+import Image from "next/image"
 
 export default function MentorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params); 
@@ -64,20 +65,22 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
                 <div className="flex gap-4 mb-6">
                   <div className="h-24 w-24 rounded-full bg-linear-to-br from-primary to-accent shrink-0 overflow-hidden">
                     {mentor.user.avatar_url ? (
-                      <img
+                      <Image
                         src={mentor.user.avatar_url || "/placeholder.svg"}
                         alt={mentor.user.first_name}
                         className="h-full w-full object-cover"
+                        width={96}
+                        height={96}
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center text-white font-bold text-2xl">
+                      <div className="h-full w-full flex items-center justify-center text-white font-bold text-lg md:text-xl">
                         {mentor.user.first_name[0]}
                         {mentor.user.last_name[0]}
                       </div>
                     )}
                   </div>
                   <div className="flex-1">
-                    <h1 className="text-3xl font-bold text-foreground">
+                    <h1 className="text-xl md:text-2xl font-bold text-foreground">
                       {mentor.user.first_name} {mentor.user.last_name}
                     </h1>
                     <p className="text-muted-foreground mb-3">
@@ -106,12 +109,12 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
                   ))}
                 </div>
 
-                <p className="text-muted-foreground">{mentor.bio}</p>
+                <p className="text-muted-foreground text-xs md:text-sm">{mentor.bio}</p>
               </div>
 
               {/* Subscription Card */}
-              <Card className="h-fit p-6">
-                <div className="space-y-3 text-sm mb-4">
+              <Card className="h-fit">
+                <div className="space-y-3 text-xs md:text-sm mb-4">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-primary" />
                     <span>Available now</span>
@@ -122,7 +125,7 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 </div>
 
-                <div className="space-y-2 mb-4 p-3 bg-muted/50 rounded-lg">
+                <div className="space-y-2 mb-4 p-3 bg-muted/20 rounded-lg">
                   <p className="text-xs font-semibold text-foreground">Subscription Rates (points)</p>
                   <div className="space-y-1 text-xs text-muted-foreground">
                     <p>Daily: {mentor.daily_rate} pts</p>
@@ -144,8 +147,8 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
             <div className="lg:col-span-2 space-y-6">
               {/* About */}
               <Card>
-                <h2 className="text-lg font-bold mb-4">About</h2>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{mentor.bio}</p>
+                <h2 className="text-base md:text-lg font-bold mb-4">About</h2>
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{mentor.bio}</p>
               </Card>
             </div>
 
@@ -154,7 +157,7 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
               {/* Availability */}
               <Card>
                 <h3 className="font-bold mb-4">Available Times</h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-xs md:text-sm">
                   <p className="font-medium text-foreground">Days</p>
                   <p className="text-muted-foreground">
                     {mentor.availability?.weekdays?.join(", ") || "Not specified"}
@@ -167,7 +170,7 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
               {/* Info */}
               <Card>
                 <h3 className="font-bold mb-4">Information</h3>
-                <div className="space-y-3 text-sm">
+                <div className="space-y-3 text-xs md:text-sm">
                   <div>
                     <p className="font-medium text-muted-foreground">Email</p>
                     <p className="text-foreground">{mentor.user.email}</p>

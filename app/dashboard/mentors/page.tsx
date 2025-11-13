@@ -141,10 +141,10 @@ export default function MentorsPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-bold text-foreground">
+                            <h3 className="text-sm md:text-base font-bold text-foreground">
                               {mentor.user.first_name} {mentor.user.last_name}
                             </h3>
-                            {mentor.is_approved && <UserCheck className="h-4 w-4 text-primary" />}
+                            {mentor.is_approved && <UserCheck className="h-3 w-3 text-primary" />}
                           </div>
                           {mentor.rating && (
                             <div className="flex items-center gap-1 mb-2">
@@ -165,7 +165,7 @@ export default function MentorsPage() {
                       </div>
 
                       {/* Bio */}
-                      <p className="text-sm text-muted-foreground line-clamp-2">{mentor.bio}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">{mentor.bio}</p>
 
                       {/* Expertise Tags */}
                       <div className="flex flex-wrap gap-1">
@@ -190,7 +190,7 @@ export default function MentorsPage() {
                       </div>
 
                       {/* Rates */}
-                      <div className="bg-muted/50 rounded-lg p-3 space-y-1 text-xs">
+                      <div className="bg-muted/20 rounded-lg p-3 space-y-1 text-xs">
                         <p className="font-semibold text-foreground">Rates (in points)</p>
                         <div className="space-y-1 text-muted-foreground">
                           <p>Daily: {mentor.daily_rate} pts</p>

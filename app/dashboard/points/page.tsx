@@ -90,30 +90,30 @@ export default function PointsPage() {
 
         <div className="p-6 space-y-8 max-w-5xl">
           {/* Current Balance */}
-          <Card className="bg-linear-to-br from-primary/20 via-accent/20 to-primary/10 border-primary/30 p-8">
+          <Card className="bg-linear-to-br from-primary/20 via-accent/20 to-primary/10 border-primary/30 lg:p-8">
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="text-muted-foreground mb-2 flex items-center gap-2">
+                <p className="text-xs md:text-sm text-muted-foreground mb-2 flex items-center gap-2">
                   <Zap className="h-4 w-4 text-primary" />
                   Your Current Balance
                 </p>
-                <p className="text-4xl font-bold text-foreground mb-2">{balance} Points</p>
-                <p className="text-sm text-muted-foreground">Use points to subscribe to mentors and unlock services</p>
+                <p className="text-2xl md:text-4xl font-bold text-foreground mb-2">{balance} Points</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Use points to subscribe to mentors and unlock services</p>
               </div>
-              <Button size="lg" onClick={() => setSelectedPackage(null)}>
-                Buy More Points
+              <Button onClick={() => setSelectedPackage(null)}>
+                Buy
               </Button>
             </div>
           </Card>
 
           {/* Points Packages */}
           <div>
-            <h2 className="text-2xl font-bold mb-6 text-foreground">Choose Your Package</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-6 text-foreground">Choose Your Package</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {packages.map((pkg) => (
                 <Card
                   key={pkg.id}
-                  className={`p-6 cursor-pointer transition-all relative ${
+                  className={`p-4 md:p-6 cursor-pointer transition-all relative ${
                     selectedPackage === pkg.id
                       ? "border-primary bg-primary/5 ring-2 ring-primary"
                       : "hover:border-primary/50"
@@ -124,14 +124,14 @@ export default function PointsPage() {
 
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm text-muted-foreground">Amount</p>
-                      <p className="text-2xl font-bold text-foreground">₦{pkg.naira}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Amount</p>
+                      <p className="text-xl md:text-2xl font-bold text-foreground">₦{pkg.naira}</p>
                     </div>
 
                     <div className="pt-3 border-t border-border/50">
-                      <p className="text-sm text-muted-foreground mb-1">You Get</p>
+                      <p className="text-xs md:text-sm text-muted-foreground mb-1">You Get</p>
                       <div className="space-y-1">
-                        <p className="font-bold text-lg text-primary">{pkg.points} Points</p>
+                        <p className="font-bold text-lg md:text-xl text-primary">{pkg.points} Points</p>
                         {pkg.bonus > 0 && (
                           <p className="text-xs text-accent font-semibold">
                             +{pkg.bonus} Bonus ({Math.round((pkg.bonus / pkg.points) * 100)}% extra)
@@ -150,7 +150,7 @@ export default function PointsPage() {
 
             {selectedPackage && (
               <div className="mt-6">
-                <Card className="p-6 bg-muted/50 border-primary/20">
+                <Card className="bg-muted/20 border-primary/20">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Selected Package</p>
@@ -185,7 +185,7 @@ export default function PointsPage() {
           {/* Transaction History */}
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
                 <History className="h-6 w-6" />
                 Transaction History
               </h2>
@@ -194,7 +194,7 @@ export default function PointsPage() {
               </Button>
             </div>
 
-            <Card>
+            <Card className="p-[9px] md:p-6">
               {loading && !transactions.length ? (
                 <div className="p-12 flex items-center justify-center">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -209,7 +209,7 @@ export default function PointsPage() {
                     {transactions.map((tx, idx) => (
                       <div
                         key={tx.id}
-                        className={`p-4 flex items-start justify-between gap-4 ${
+                        className={`p-2 md:p-4 flex items-start justify-between gap-4 ${
                           idx !== transactions.length - 1 ? "border-b border-border/50" : ""
                         } hover:bg-muted/50 transition-colors`}
                       >
@@ -218,8 +218,8 @@ export default function PointsPage() {
                             {getTransactionIcon(tx.type, tx.amount)}
                           </div>
 
-                          <div className="flex-1">
-                            <p className="font-semibold text-foreground">{tx.description}</p>
+                          <div className="flex-1 gap-2 flex flex-col">
+                            <p className="text-sm md:text-base font-semibold text-foreground">{tx.description}</p>
                             <p className="text-xs text-muted-foreground flex items-center gap-2">
                               {new Date(tx.created_at).toLocaleDateString()}
                               {tx.status === "completed" && (
@@ -234,7 +234,7 @@ export default function PointsPage() {
                         </div>
 
                         <div className="text-right shrink-0">
-                          <p className={`text-lg font-bold ${tx.amount > 0 ? "text-primary" : "text-destructive"}`}>
+                          <p className={`text-base md:text-lg font-bold ${tx.amount > 0 ? "text-primary" : "text-destructive"}`}>
                             {tx.amount > 0 ? "+" : ""}
                             {tx.amount}
                           </p>
@@ -277,12 +277,12 @@ export default function PointsPage() {
           </div>
 
           {/* Points Usage Guide */}
-          <Card className="p-6 bg-muted/50 border-border/50">
-            <h3 className="text-lg font-bold mb-4 text-foreground">How Points Work</h3>
+          <Card className="bg-muted/20 border-border/50">
+            <h3 className="text-base md:text-lg font-bold mb-4 text-foreground">How Points Work</h3>
             <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <Badge className="mb-2 bg-primary/20 text-primary">Get Points</Badge>
-                <ul className="text-sm text-muted-foreground space-y-1">
+                <ul className="text-xs md:text-sm text-muted-foreground space-y-1">
                   <li>• Purchase points with Paystack</li>
                   <li>• Earn from mentoring students</li>
                   <li>• Get 10 welcome points on signup</li>
