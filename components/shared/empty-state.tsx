@@ -20,7 +20,7 @@ export function EmptyState({ icon, title, description, ctaText, ctaHref, onCTA }
       <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
       <p className="text-muted-foreground mb-6 max-w-sm">{description}</p>
       {ctaText && (
-        <Button variant="primary" onClick={onCTA} asChild={!!ctaHref}>
+        <Button variant="primary" onClick={onCTA}>
           {ctaHref ? <a href={ctaHref}>{ctaText}</a> : ctaText}
         </Button>
       )}
