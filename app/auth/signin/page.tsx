@@ -41,7 +41,7 @@ export default function SignInPage() {
     setErrors(newErrors)
 
     if (Object.keys(newErrors).length === 0) {
-      const result = await dispatch(
+      const result: any = await dispatch(
         login({
           email: formData.email,
           password: formData.password,

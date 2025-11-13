@@ -11,7 +11,7 @@ interface FormFieldProps {
   type?: string
   placeholder?: string
   value?: string
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  onChange?: any
   error?: string
   helperText?: string
   required?: boolean
