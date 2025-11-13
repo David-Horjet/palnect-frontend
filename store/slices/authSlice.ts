@@ -9,6 +9,7 @@ interface AuthState {
   loading: boolean
   error: string | null
   isAuthenticated: boolean
+  isInitialized: boolean
 }
 
 const initialState: AuthState = {
@@ -18,6 +19,7 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   isAuthenticated: typeof window !== "undefined" ? !!localStorage.getItem("token") : false,
+  isInitialized: false,
 }
 
 export const signup = createAsyncThunk(
@@ -224,6 +226,21 @@ export const logout = createAsyncThunk("auth/logout", async () => {
   toast.info("Logged out successfully")
 })
 
+export const initializeAuth = createAsyncThunk("auth/initializeAuth", async (_, { rejectWithValue }) => {
+  try {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    const adminToken = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null
+
+    if (token) {
+      const response = await authService.getProfile(token)
+      return { user: response.data, token, adminToken }
+    }
+    return rejectWithValue("No token found")
+  } catch (error: unknown) {
+    return rejectWithValue("Session expired")
+  }
+})
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -234,6 +251,14 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload
       state.isAuthenticated = true
+    },
+    initializeAuthState: (state) => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+      const adminToken = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null
+      state.token = token
+      state.adminToken = adminToken
+      state.isAuthenticated = !!token
+      state.isInitialized = true
     },
   },
   extraReducers: (builder) => {
@@ -340,8 +365,27 @@ const authSlice = createSlice({
       state.adminToken = null
       state.isAuthenticated = false
     })
+
+    builder.addCase(initializeAuth.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(initializeAuth.fulfilled, (state, action) => {
+      state.loading = false
+      state.user = action.payload.user
+      state.token = action.payload.token
+      state.adminToken = action.payload.adminToken
+      state.isAuthenticated = true
+      state.isInitialized = true
+    })
+    builder.addCase(initializeAuth.rejected, (state) => {
+      state.loading = false
+      state.token = null
+      state.adminToken = null
+      state.isAuthenticated = false
+      state.isInitialized = true
+    })
   },
 })
 
-export const { clearError, setUser } = authSlice.actions
+export const { clearError, setUser, initializeAuth } = authSlice.actions
 export default authSlice.reducer

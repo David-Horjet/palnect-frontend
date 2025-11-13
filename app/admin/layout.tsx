@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { logout } from "@/store/slices/authSlice"
 import type { AppDispatch, RootState } from "@/store/store"
 import { Button } from "@/components/ui/button"
+import Logo from "@/components/shared/logo"
 
 export default function AdminLayout({
   children,
@@ -21,7 +22,7 @@ export default function AdminLayout({
 
   const handleLogout = () => {
     dispatch(logout()).then(() => {
-      router.push("/signin")
+      router.push("/auth/signin")
     })
   }
 
@@ -31,12 +32,7 @@ export default function AdminLayout({
         <header className="border-b border-border bg-card">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-8">
-              <Link href="/admin" className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">A</span>
-                </div>
-                <span className="font-bold text-lg text-foreground">Admin Panel</span>
-              </Link>
+              <Logo />
               <nav className="flex items-center gap-6">
                 <Link
                   href="/admin"
