@@ -117,12 +117,12 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
               <ArrowLeft className="h-4 w-4" />
               Back to Resources
             </Link>
-            <h1 className="text-2xl font-bold text-foreground">{currentResource.title}</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">{currentResource.title}</h1>
           </div>
         </div>
 
         <div className="p-6 space-y-8">
-          <Card className="bg-linear-to-br from-primary/10 to-accent/10 p-8">
+          <Card className="bg-linear-to-br from-primary/10 to-accent/10 p-[15px] md:p-8">
             <div className="grid md:grid-cols-3 gap-6 items-start">
               <div className="md:col-span-2">
                 <div className="flex items-center gap-2 mb-4">
@@ -130,11 +130,11 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                   <Badge variant="outline">{currentResource.subject}</Badge>
                   <Badge variant="outline">Year {currentResource.year}</Badge>
                 </div>
-                <p className="text-muted-foreground mb-4">{currentResource.description}</p>
+                <p className="text-sm md:text-base text-muted-foreground mb-4">{currentResource.description}</p>
 
-                <div className="flex flex-wrap gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Download className="h-5 w-5" />
+                <div className="flex flex-wrap gap-6 text-xs md:text-sm">
+                  <div className="flex items-center gap-1">
+                    <Download className="h-3 w-3" />
                     <span>{currentResource.downloads} downloads</span>
                   </div>
                   <div className="text-muted-foreground">
@@ -147,8 +147,8 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                 </div>
               </div>
 
-              <Card className="p-6 h-fit">
-                <div className="space-y-4 text-sm">
+              <Card className="p-[15px] md:p-6 h-fit">
+                <div className="space-y-4 text-xs md:text-sm">
                   <div>
                     <p className="text-muted-foreground mb-1">Uploaded by</p>
                     <p className="font-semibold">
@@ -166,9 +166,9 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
 
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
-              <Card className="p-6">
-                <h2 className="text-lg font-bold mb-4">Resource Details</h2>
-                <div className="space-y-3 text-sm">
+              <Card className="p-[15px] md:p-6">
+                <h2 className="text-base md:text-lg font-bold mb-4">Resource Details</h2>
+                <div className="space-y-3 text-xs md:text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Category</span>
                     <span className="font-medium">{currentResource.category}</span>
@@ -188,9 +188,9 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                 </div>
               </Card>
 
-              <Card className="p-6">
+              <Card className="p-[15px] md:p-6">
                 <div className="flex items-start justify-between mb-4">
-                  <h2 className="text-lg font-bold">AI Summary</h2>
+                  <h2 className="text-base md:text-lg font-bold">AI Summary</h2>
                   <Badge variant="outline" className="text-xs">
                     {POINTS_PER_SUMMARY} points
                   </Badge>
@@ -210,7 +210,7 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       Get an AI-powered summary of this resource to study faster. Uses {POINTS_PER_SUMMARY} points.
                     </p>
                     <Button onClick={handleGetSummary} disabled={aiSummaryLoading} className="w-full">
@@ -243,7 +243,7 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                 )}
               </Card>
 
-              <Card className="p-6">
+              {/* <Card className="p-6">
                 <h3 className="font-bold mb-4">About This Resource</h3>
                 <div className="space-y-3 text-sm">
                   <div>
@@ -260,7 +260,7 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                     <p className="text-xs text-muted-foreground mt-1">4/5 (28 ratings)</p>
                   </div>
                 </div>
-              </Card>
+              </Card> */}
             </div>
           </div>
         </div>

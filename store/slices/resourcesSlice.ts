@@ -135,7 +135,7 @@ export const downloadResource = createAsyncThunk("resources/download", async (id
         if (!token) return rejectWithValue("No token found")
 
         await resourcesService.downloadResource(token, id)
-        toast.success("Download tracked")
+        // toast.success("Download tracked")
         return id
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Failed to track download"
