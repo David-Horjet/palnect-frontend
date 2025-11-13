@@ -53,7 +53,7 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
       {displayItems.map((item) => (
         <Card key={item.id} className="hover:shadow-md transition-shadow cursor-pointer">
           <div className="flex gap-4">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 text-primary">
               {item.icon}
             </div>
             <div className="flex-1 min-w-0">
