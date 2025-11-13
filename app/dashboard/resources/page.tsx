@@ -107,7 +107,7 @@ export default function ResourcesPage() {
           {/* Search Bar */}
           <div className="mb-6">
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-2 h-5 w-5 text-muted-foreground" />
               <Input
                 placeholder="Search resources by title or description..."
                 value={searchQuery}
@@ -216,7 +216,7 @@ export default function ResourcesPage() {
 
           {/* Resources Grid */}
           {!loading && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredResources.map((resource: Resource) => (
                 <Link key={resource.id} href={`/dashboard/resources/${resource.id}`}>
                   <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer p-6">
