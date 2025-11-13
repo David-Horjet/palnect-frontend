@@ -139,8 +139,8 @@ export default function UploadResourcePage() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-foreground mb-1">Drop your PDF here</h3>
-                  <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
+                  <h3 className="text-base md:text-lg font-bold text-foreground mb-1">Drop your PDF here</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-4">or click to browse</p>
                 </div>
 
                 <input type="file" accept=".pdf" onChange={handleFileSelect} className="hidden" id="fileInput" />
@@ -284,11 +284,11 @@ export default function UploadResourcePage() {
 
           {/* Tips */}
           <Card className="p-6 bg-muted/50 border-border/50">
-            <h3 className="font-bold mb-3 text-foreground flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
+            <h3 className="font-bold text-sm md:text-base mb-3 text-foreground flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
               Upload Tips
             </h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
+            <ul className="text-xs md:text-sm text-muted-foreground space-y-2">
               <li>• Use clear, descriptive titles</li>
               <li>• Check that your PDFs are readable and not corrupted</li>
               <li>• Include relevant subjects and academic levels</li>
