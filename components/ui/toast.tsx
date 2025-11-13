@@ -39,7 +39,9 @@ export function ToastContainer() {
   useEffect(() => {
     const handleUpdate = () => setToasts([...toastStore.toasts])
     toastStore.listeners.add(handleUpdate)
-    return () => toastStore.listeners.delete(handleUpdate)
+    return () => {
+      toastStore.listeners.delete(handleUpdate)
+    }
   }, [])
   
 
