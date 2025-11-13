@@ -3,7 +3,7 @@
 import type React from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Bell, Lock, Eye, Database } from "lucide-react"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { AppDispatch } from "@/store/store"
 import { FormField } from "@/components/shared/form-field"
 import { changePassword } from "@/store/slices/authSlice"
+import { useTheme } from "@/lib/contexts/ThemeContext"
 
 interface SettingsSection {
   icon: React.ReactNode
@@ -25,10 +26,27 @@ interface SettingToggle {
   enabled: boolean
 }
 
+interface ThemeToggle {
+  id: string
+  label: string
+  description: string
+  enabled: boolean
+}
+
 export default function SettingsPage() {
 
   const { dispatch: dispatchAuth } = useAuth()
   const dispatch = dispatchAuth as AppDispatch
+  const { theme: currentTheme, toggleTheme: toggleThemeContext } = useTheme()
+
+  useEffect(() => {
+    setTheme((prev) =>
+      prev.map((item) =>
+        item.id === "change-theme" ? { ...item, enabled: currentTheme === "dark" } : item
+      )
+    )
+  }, [currentTheme])
+
   const [notifications, setNotifications] = useState<SettingToggle[]>([
     {
       id: "email-resources",
@@ -77,6 +95,15 @@ export default function SettingsPage() {
     },
   ])
 
+  const [theme, setTheme] = useState<ThemeToggle[]>([
+    {
+      id: "change-theme",
+      label: "Change Theme",
+      description: "Switch to dark mode",
+      enabled: currentTheme === "dark",
+    },
+  ])
+
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -88,6 +115,15 @@ export default function SettingsPage() {
 
   const togglePrivacy = (id: string) => {
     setPrivacy((prev) => prev.map((item) => (item.id === id ? { ...item, enabled: !item.enabled } : item)))
+  }
+
+  const toggleTheme = (id: string) => {
+    toggleThemeContext() // toggles theme in your context
+    setTheme((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, enabled: currentTheme !== "dark" } : item
+      )
+    )
   }
 
   const settings: SettingsSection[] = [
@@ -152,7 +188,7 @@ export default function SettingsPage() {
 
         <div className="p-6 space-y-6 max-w-4xl">
           {/* Notification Settings */}
-          <Card>
+          {/* <Card>
             <div className="flex items-start gap-4 mb-6">
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
                 <Bell className="h-5 w-5" />
@@ -182,10 +218,10 @@ export default function SettingsPage() {
                 </div>
               ))}
             </div>
-          </Card>
+          </Card> */}
 
           {/* Privacy Settings */}
-          <Card>
+          {/* <Card>
             <div className="flex items-start gap-4 mb-6">
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
                 <Eye className="h-5 w-5" />
@@ -208,6 +244,39 @@ export default function SettingsPage() {
                       type="checkbox"
                       checked={item.enabled}
                       onChange={() => togglePrivacy(item.id)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+                  </label>
+                </div>
+              ))}
+            </div>
+          </Card> */}
+
+          {/* Theme Settings */}
+          <Card>
+            <div className="flex items-start gap-4 mb-6">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <Eye className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold">Theme Settings</h2>
+                <p className="text-sm text-muted-foreground">Customize your Palnect experience</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 border-t border-border pt-4">
+              {theme.map((item) => (
+                <div key={item.id} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">{item.label}</p>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={item.enabled}
+                      onChange={() => toggleTheme(item.id)}
                       className="sr-only peer"
                     />
                     <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
