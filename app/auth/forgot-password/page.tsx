@@ -126,7 +126,7 @@ export default function ForgotPasswordPage() {
                   type="password"
                   placeholder="••••••••"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={(e: { target: { value: React.SetStateAction<string> } }) => setNewPassword(e.target.value)}
                   required
                 />
                 <FormField
@@ -135,7 +135,7 @@ export default function ForgotPasswordPage() {
                   type="password"
                   placeholder="••••••••"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e: { target: { value: React.SetStateAction<string> } }) => setConfirmPassword(e.target.value)}
                   required
                 />
                 <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isLoading}>
@@ -202,7 +202,7 @@ export default function ForgotPasswordPage() {
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: { target: { value: React.SetStateAction<string> } }) => setEmail(e.target.value)}
               required
             />
 
