@@ -189,9 +189,9 @@ export default function PointsPage() {
                 <History className="h-6 w-6" />
                 Transaction History
               </h2>
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 Export
-              </Button>
+              </Button> */}
             </div>
 
             <Card className="p-[9px] md:p-6">
