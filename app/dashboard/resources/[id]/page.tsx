@@ -29,7 +29,7 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
   const { user } = useSelector((state: RootState) => state.auth)
 
   const [isSaved, setIsSaved] = useState(false)
-  const POINTS_PER_SUMMARY = 800
+  const POINTS_PER_SUMMARY = 500
 
   useEffect(() => {
     dispatch(getResource(id))
@@ -123,14 +123,14 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
 
         <div className="p-6 space-y-8">
           <Card className="bg-linear-to-br from-primary/10 to-accent/10 p-[15px] md:p-8">
-            <div className="grid md:grid-cols-3 gap-6 items-start">
-              <div className="md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div className="col-span-1 md:col-span-2">
                 <div className="flex items-center gap-2 mb-4">
                   <Badge>{currentResource.category}</Badge>
                   <Badge variant="outline">{currentResource.subject}</Badge>
                   <Badge variant="outline">Year {currentResource.year}</Badge>
                 </div>
-                <p className="text-sm md:text-base text-muted-foreground mb-4">{currentResource.description}</p>
+                <p className="w-full wrap-break-word text-sm md:text-base text-muted-foreground mb-4">{currentResource.description}</p>
 
                 <div className="flex flex-wrap gap-6 text-xs md:text-sm">
                   <div className="flex items-center gap-1">
@@ -200,9 +200,9 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                   <div className="space-y-4">
                     <SummaryRenderer summary={aiSummary.summary} isLoading={aiSummaryLoading} />
                     <div className="flex gap-2">
-                      <Button size="sm" variant="secondary" onClick={() => setIsSaved(!isSaved)}>
+                      {/* <Button size="sm" variant="secondary" onClick={() => setIsSaved(!isSaved)}>
                         {isSaved ? "Saved" : "Save Summary"}
-                      </Button>
+                      </Button> */}
                       <Button size="sm" variant="outline" onClick={() => dispatch(clearAISummary())}>
                         Clear
                       </Button>

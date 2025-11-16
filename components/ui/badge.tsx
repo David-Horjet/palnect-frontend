@@ -27,7 +27,7 @@ export function Badge({ children, variant = "default", className, onClick, onDel
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs md:text-sm font-medium",
+        "inline-flex items-center gap-2 rounded-full px-2 md:px-3 py-1 text-xs md:text-sm font-medium",
         (onClick || deletable) && "cursor-pointer hover:opacity-80 transition-opacity",
         variants[variant],
         className,
