@@ -257,11 +257,11 @@ export default function SettingsPage() {
           <Card>
             <div className="flex items-start gap-4 mb-6">
               <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                <Eye className="h-5 w-5" />
+                <Eye className="h-4 w-4" />
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-bold">Theme Settings</h2>
-                <p className="text-sm text-muted-foreground">Customize your Palnect experience</p>
+                <h2 className="text-base md:text-lg font-bold">Theme Settings</h2>
+                <p className="text-xs md:text-sm text-muted-foreground">Customize your Palnect experience</p>
               </div>
             </div>
 
@@ -269,8 +269,8 @@ export default function SettingsPage() {
               {theme.map((item) => (
                 <div key={item.id} className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">{item.label}</p>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                    <p className="text-base md:text-lg font-medium text-foreground">{item.label}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{item.description}</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -293,8 +293,8 @@ export default function SettingsPage() {
                 <Lock className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-bold">Security</h2>
-                <p className="text-sm text-muted-foreground">Manage your account security</p>
+                <h2 className="text-base md:text-lg font-bold">Security</h2>
+                <p className="text-xs md:text-sm text-muted-foreground">Manage your account security</p>
               </div>
             </div>
 
@@ -332,17 +332,17 @@ export default function SettingsPage() {
                 </Button>
               </form>
 
-              <Button variant="secondary" className="w-full justify-start" disabled>
+              {/* <Button variant="secondary" className="w-full justify-start" disabled>
                 Enable Two-Factor Authentication
               </Button>
               <Button variant="secondary" className="w-full justify-start" disabled>
                 View Active Sessions
-              </Button>
+              </Button> */}
             </div>
           </Card>
 
           {/* Danger Zone */}
-          <Card className="border-destructive/50 bg-destructive/5">
+          {/* <Card className="border-destructive/50 bg-destructive/5">
             <h2 className="text-lg font-bold text-destructive mb-2">Danger Zone</h2>
             <p className="text-sm text-muted-foreground mb-4">Irreversible actions</p>
             <div className="space-y-2">
@@ -361,7 +361,7 @@ export default function SettingsPage() {
                 Delete Account
               </Button>
             </div>
-          </Card>
+          </Card> */}
         </div>
       </main>
     </div>
