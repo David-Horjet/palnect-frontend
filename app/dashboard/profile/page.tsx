@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Mail, GraduationCap, BookOpen } from "lucide-react"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import Image from "next/image"
 
 export default function ProfilePage() {
   const { user, dispatch: dispatchAuth, loading } = useAuth()
@@ -105,16 +106,18 @@ export default function ProfilePage() {
           {/* Profile Header */}
           <Card>
             <div className="flex flex-col md:flex-row gap-6 items-start justify-between md:items-center">
-              <div className="flex gap-6">
+              <div className="flex gap-3 md:gap-6">
                 <div className="shrink-0">
                   {user.avatar_url ? (
-                    <img
+                    <Image
                       src={user.avatar_url || "/placeholder.svg"}
                       alt="Avatar"
-                      className="h-24 w-24 rounded-full object-cover"
+                      className="h-15 md:h-24 w-15 md:w-24 rounded-full object-cover"
+                      width={96}
+                      height={96}
                     />
                   ) : (
-                    <div className="h-24 w-24 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-primary-foreground">
+                    <div className="h-15 md:h-24 w-15 md:w-24 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-primary-foreground">
                       {user.first_name[0]}
                       {user.last_name[0]}
                     </div>
@@ -122,15 +125,15 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-foreground mb-2">{`${user.first_name} ${user.last_name}`}</h1>
-                  <div className="space-y-2 text-sm text-muted-foreground">
+                  <h1 className="text-lg md:text-xl font-bold text-foreground mb-2">{`${user.first_name} ${user.last_name}`}</h1>
+                  <div className="space-y-2 text-xs md:text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
+                      <Mail className="h-3 w-3" />
                       <span>{user.email}</span>
                     </div>
                     {user.school && (
                       <div className="flex items-center gap-2">
-                        <GraduationCap className="h-4 w-4" />
+                        <GraduationCap className="h-3 w-3" />
                         <span>
                           {user.school} • {user.year_of_study && `Year ${user.year_of_study}`} • {user.department}
                         </span>
@@ -162,10 +165,10 @@ export default function ProfilePage() {
 
           {/* Bio */}
           <Card>
-            <h2 className="text-lg font-bold mb-4 text-foreground">About</h2>
+            <h2 className="text-base md:text-lg font-bold mb-4 text-foreground">About</h2>
             {isEditing ? (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Bio</label>
+                <label className="text-xs md:text-sm font-medium text-foreground">Bio</label>
                 <Textarea
                   name="bio"
                   value={formData.bio}
@@ -181,7 +184,7 @@ export default function ProfilePage() {
 
           {/* Student Info */}
           <Card>
-            <h2 className="text-lg font-bold mb-4 text-foreground">Educational Information</h2>
+            <h2 className="text-base md:text-lg font-bold mb-4 text-foreground">Educational Information</h2>
             {isEditing ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -225,16 +228,16 @@ export default function ProfilePage() {
             ) : (
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-muted-foreground mb-1">School</p>
-                  <p className="text-foreground">{formData.school || "-"}</p>
+                  <p className="text-xs md:text-sm font-semibold text-muted-foreground mb-1">School</p>
+                  <p className="text-xs md:text-sm text-foreground">{formData.school || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-muted-foreground mb-1">Department</p>
-                  <p className="text-foreground">{formData.department || "-"}</p>
+                  <p className="text-xs md:text-sm font-semibold text-muted-foreground mb-1">Department</p>
+                  <p className="text-xs md:text-sm text-foreground">{formData.department || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-muted-foreground mb-1">Year of Study</p>
-                  <p className="text-foreground">{formData.yearOfStudy ? `Year ${formData.yearOfStudy}` : "-"}</p>
+                  <p className="text-xs md:text-sm font-semibold text-muted-foreground mb-1">Year of Study</p>
+                  <p className="text-xs md:text-sm text-foreground">{formData.yearOfStudy ? `Year ${formData.yearOfStudy}` : "-"}</p>
                 </div>
               </div>
             )}
@@ -242,12 +245,12 @@ export default function ProfilePage() {
 
           {/* Resources Uploaded */}
           <Card>
-            <h2 className="text-lg font-bold mb-4 text-foreground flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
+            <h2 className="text-base md:text-lg font-bold mb-4 text-foreground flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
               Resources Uploaded
             </h2>
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Your uploaded resources will appear here</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Your uploaded resources will appear here</p>
             </div>
           </Card>
 
