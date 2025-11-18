@@ -103,6 +103,7 @@ export const uploadResource = createAsyncThunk(
             subject: string
             year: string
             school: string
+            department: string
         },
         { rejectWithValue },
     ) => {

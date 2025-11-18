@@ -14,6 +14,8 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { toast } from "@/lib/toast"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { SearchableSelect } from "@/components/shared/searchable-select"
+import { institutions } from "@/data/institutions"
 
 export default function UploadResourcePage() {
   const dispatch = useDispatch<AppDispatch>()
@@ -22,7 +24,6 @@ export default function UploadResourcePage() {
 
   const [file, setFile] = useState<File | null>(null)
   const [dragActive, setDragActive] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
 
   const [formData, setFormData] = useState({
     title: "",
@@ -31,11 +32,10 @@ export default function UploadResourcePage() {
     subject: "",
     year: "100",
     school: "",
+    department: "",
   })
 
   const categories = ["Past Questions", "Lecture Notes", "Assignments", "Study Guides"]
-  const subjects = ["Mathematics", "OPT423", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
-  const schools = ["University of Lagos", "University of Benin", "University of Ibadan", "OAU"]
   const years = ["100", "200", "300", "400", "500", "600"]
 
   const handleDrag = (e: React.DragEvent) => {
@@ -71,7 +71,21 @@ export default function UploadResourcePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+
+    if (name === "subject") {
+      const upperValue = value.toUpperCase().slice(0, 6)
+      setFormData((prev) => ({ ...prev, [name]: upperValue }))
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+    }
+  }
+
+  const handleSchoolChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, school: value, department: "" }))
+  }
+
+  const handleDepartmentChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, department: value }))
   }
 
   const handleUpload = async () => {
@@ -90,6 +104,7 @@ export default function UploadResourcePage() {
           subject: formData.subject,
           year: formData.year,
           school: formData.school,
+          department: formData.department,
         }),
       ).unwrap()
 
@@ -102,6 +117,7 @@ export default function UploadResourcePage() {
         subject: "",
         year: "100",
         school: "",
+        department: "",
       })
 
       // Redirect to resources page
@@ -112,7 +128,8 @@ export default function UploadResourcePage() {
     }
   }
 
-  const isFormValid = file && formData.title && formData.description && formData.subject && formData.school
+  const currentInstitution = institutions.find((inst) => inst.name === formData.school)
+  const isFormValid = file && formData.title && formData.description && formData.subject && formData.school && formData.department
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -124,9 +141,8 @@ export default function UploadResourcePage() {
         <div className="p-6 space-y-6 max-w-4xl">
           {/* Upload Area */}
           <Card
-            className={`border-2 border-dashed p-12 text-center transition-colors ${
-              dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-            }`}
+            className={`border-2 border-dashed p-12 text-center transition-colors ${dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+              }`}
             onDragEnd={handleDrag}
             onDragStart={handleDrag}
             onDragOver={handleDrag}
@@ -181,7 +197,7 @@ export default function UploadResourcePage() {
                     value={formData.title}
                     onChange={handleChange}
                     placeholder="e.g., Physics Lecture Notes - Chapter 5"
-                    className="w-full"
+                  // className="w-full"
                   />
                   <p className="text-xs text-muted-foreground mt-1">Be descriptive and specific</p>
                 </div>
@@ -216,26 +232,19 @@ export default function UploadResourcePage() {
                   </select>
                 </div>
 
-                {/* Subject */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Department *</label>
-                  <select
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background"
-                  >
-                    <option value="">Select a subject</option>
-                    {subjects.map((subj) => (
-                      <option key={subj} value={subj}>
-                        {subj}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
                 {/* Year and School */}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Subject */}
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">Subject Code *</label>
+                    <Input
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      placeholder="e.g., OPT423, SAA442"
+                      maxLength={6}
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Year of Study</label>
                     <select
@@ -251,23 +260,25 @@ export default function UploadResourcePage() {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">School/University *</label>
-                    <select
-                      name="school"
-                      value={formData.school}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-border rounded-md text-foreground bg-background"
-                    >
-                      <option value="">Select a school</option>
-                      {schools.map((school) => (
-                        <option key={school} value={school}>
-                          {school}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
+                <SearchableSelect
+                  label="School/University *"
+                  placeholder="Select your institution"
+                  value={formData.school}
+                  onChange={handleSchoolChange}
+                  options={institutions.map((inst) => inst.name)}
+                  searchPlaceholder="Search institution..."
+                />
+
+                <SearchableSelect
+                  label="Department *"
+                  placeholder="Select your department"
+                  value={formData.department}
+                  onChange={handleDepartmentChange}
+                  options={currentInstitution?.departments || []}
+                  disabled={!formData.school}
+                  searchPlaceholder="Search department..."
+                />
               </Card>
 
               {/* Action Buttons */}
