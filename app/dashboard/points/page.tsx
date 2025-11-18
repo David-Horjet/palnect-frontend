@@ -211,7 +211,7 @@ export default function PointsPage() {
                         key={tx.id}
                         className={`p-2 md:p-4 flex items-start justify-between gap-4 ${
                           idx !== transactions.length - 1 ? "border-b border-border/50" : ""
-                        } hover:bg-muted/50 transition-colors`}
+                        } hover:bg-muted/20 transition-colors`}
                       >
                         <div className="flex items-start gap-3 flex-1">
                           <div className={`p-2 rounded-lg ${tx.amount > 0 ? "bg-primary/10" : "bg-destructive/10"}`}>
