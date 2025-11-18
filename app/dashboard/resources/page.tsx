@@ -17,7 +17,7 @@ import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 const CATEGORIES = ["Past Questions", "Lecture Notes", "Assignments", "Study Guides"]
 const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
 const SCHOOLS = ["University of Lagos", "University of Ibadan", "OAU"]
-const YEARS = ["100", "200", "300", "400"]
+const YEARS = ["100", "200", "300", "400", "500", "600"]
 
 export default function ResourcesPage() {
   const dispatch = useDispatch<AppDispatch>()
