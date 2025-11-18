@@ -118,6 +118,7 @@ export const uploadResource = createAsyncThunk(
                 subject: data.subject,
                 year: data.year,
                 school: data.school,
+                department: data.department
             })
 
             toast.success("Resource uploaded successfully")

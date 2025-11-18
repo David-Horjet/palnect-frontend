@@ -18,6 +18,7 @@ export interface Resource {
   file_size?: number
   file_type?: string
   category: "Past Questions" | "Lecture Notes" | "Assignments" | "Study Guides"
+  department: string
   subject: string
   year: string
   school: string
@@ -64,6 +65,7 @@ export const resourcesService = {
       subject: string
       year: string
       school: string
+      department: string
     },
   ) {
     const formData = new FormData()
@@ -74,6 +76,7 @@ export const resourcesService = {
     formData.append("subject", data.subject)
     formData.append("year", data.year)
     formData.append("school", data.school)
+    formData.append("department", data.department)
 
     return apiClient.postFormData<UploadResourceResponse>("/resources/upload", formData, token)
   },
