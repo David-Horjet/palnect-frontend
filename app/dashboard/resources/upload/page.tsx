@@ -143,13 +143,13 @@ export default function UploadResourcePage() {
                   <p className="text-xs md:text-sm text-muted-foreground mb-4">or click to browse</p>
                 </div>
 
-                <input type="file" accept=".pdf" onChange={handleFileSelect} className="hidden" id="fileInput" />
+                <input type="file" accept=".pdf, .docx" onChange={handleFileSelect} className="hidden" id="fileInput" />
 
                 <Button variant="outline" onClick={() => document.getElementById("fileInput")?.click()}>
                   Browse Files
                 </Button>
 
-                <p className="text-xs text-muted-foreground">Maximum file size: 10MB • PDF only</p>
+                <p className="text-xs text-muted-foreground">Maximum file size: 10MB • PDF and DOC only</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -218,7 +218,7 @@ export default function UploadResourcePage() {
 
                 {/* Subject */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Subject *</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Department *</label>
                   <select
                     name="subject"
                     value={formData.subject}
