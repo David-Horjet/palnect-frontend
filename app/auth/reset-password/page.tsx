@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/shared/form-field"
 import Link from "next/link"
 import { useSearchParams, useRouter } from 'next/navigation'
+import Logo from "@/components/shared/logo"
 
 const ResetPasswordContent = () => {
     const dispatch = useDispatch<AppDispatch>()
@@ -72,7 +73,7 @@ const ResetPasswordContent = () => {
         if (result.type === resetPassword.fulfilled.type) {
             setIsSubmitted(true)
             setTimeout(() => {
-                router.push("/signin")
+                router.push("/auth/signin")
             }, 2000)
         }
     }
@@ -87,7 +88,7 @@ const ResetPasswordContent = () => {
                     <h1 className="text-3xl font-bold text-foreground mb-2">Password Reset Successfully</h1>
                     <p className="text-muted-foreground mb-8">Your password has been reset. Redirecting to sign in...</p>
                     <Button variant="primary" size="lg" className="w-full">
-                        <Link href="/signin">Go to Sign In</Link>
+                        <Link href="/auth/signin">Go to Sign In</Link>
                     </Button>
                 </div>
             </div>
@@ -98,12 +99,7 @@ const ResetPasswordContent = () => {
         <div className="min-h-screen bg-linear-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-flex items-center gap-2 mb-6">
-                        <div className="h-10 w-10 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
-                            <span className="text-white font-bold">P</span>
-                        </div>
-                        <span className="font-bold text-xl text-foreground">Palnect</span>
-                    </Link>
+                    <div className="flex justify-center mb-5"><Logo /></div>
                     <h1 className="text-3xl font-bold text-foreground mb-2">Set New Password</h1>
                     <p className="text-muted-foreground">Create a strong password for your account</p>
                 </div>
@@ -139,7 +135,7 @@ const ResetPasswordContent = () => {
                 </form>
 
                 <div className="text-center mt-6">
-                    <Link href="/signin" className="text-sm text-primary hover:text-primary/80 transition-colors">
+                    <Link href="/auth/signin" className="text-sm text-primary hover:text-primary/80 transition-colors">
                         Back to Sign In
                     </Link>
                 </div>
