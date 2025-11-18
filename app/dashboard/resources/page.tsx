@@ -13,10 +13,12 @@ import type { AppDispatch, RootState } from "@/store/store"
 import type { Resource } from "@/services/api/resources"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { institutions } from "@/data/institutions"
+
 
 const CATEGORIES = ["Past Questions", "Lecture Notes", "Assignments", "Study Guides"]
-const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "Computer Science"]
-const SCHOOLS = ["University of Lagos", "University of Ibadan", "OAU"]
+const SUBJECTS = institutions[0]?.departments || []
+const SCHOOLS = institutions.map((inst) => inst.name)
 const YEARS = ["100", "200", "300", "400", "500", "600"]
 
 export default function ResourcesPage() {
@@ -144,9 +146,8 @@ export default function ResourcesPage() {
                   >
                     <p className="text-sm font-semibold text-foreground">Category</p>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        expandedFilters.category ? "rotate-0" : "-rotate-90"
-                      }`}
+                      className={`h-4 w-4 transition-transform duration-200 ${expandedFilters.category ? "rotate-0" : "-rotate-90"
+                        }`}
                     />
                   </button>
                   {expandedFilters.category && (
@@ -175,9 +176,8 @@ export default function ResourcesPage() {
                   >
                     <p className="text-sm font-semibold text-foreground">Department</p>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        expandedFilters.subject ? "rotate-0" : "-rotate-90"
-                      }`}
+                      className={`h-4 w-4 transition-transform duration-200 ${expandedFilters.subject ? "rotate-0" : "-rotate-90"
+                        }`}
                     />
                   </button>
                   {expandedFilters.subject && (
@@ -208,9 +208,8 @@ export default function ResourcesPage() {
                   >
                     <p className="text-sm font-semibold text-foreground">School</p>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        expandedFilters.school ? "rotate-0" : "-rotate-90"
-                      }`}
+                      className={`h-4 w-4 transition-transform duration-200 ${expandedFilters.school ? "rotate-0" : "-rotate-90"
+                        }`}
                     />
                   </button>
                   {expandedFilters.school && (
@@ -239,9 +238,8 @@ export default function ResourcesPage() {
                   >
                     <p className="text-sm font-semibold text-foreground">Year of Study</p>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        expandedFilters.year ? "rotate-0" : "-rotate-90"
-                      }`}
+                      className={`h-4 w-4 transition-transform duration-200 ${expandedFilters.year ? "rotate-0" : "-rotate-90"
+                        }`}
                     />
                   </button>
                   {expandedFilters.year && (
