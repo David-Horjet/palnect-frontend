@@ -107,10 +107,10 @@ export default function DashboardPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <Button
                 variant="outline"
-                className="h-auto p-5 justify-center flex-col items-start hover:bg-primary/5 bg-transparent"
+                className="h-auto justify-start flex-col items-start hover:bg-primary/5 bg-transparent"
 
               >
-                <Link className="flex items-center justify-center gap-2" href="/dashboard/resources/upload">
+                <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/resources/upload">
                   <Upload className="h-5 w-5" />
                   <div className="flex flex-col gap-1 items-start">
                     <span className="font-semibold">Upload Resource</span>
@@ -124,7 +124,7 @@ export default function DashboardPage() {
                 className="h-auto p-5 justify-center flex-col items-start hover:bg-accent/5 bg-transparent"
 
               >
-                <Link className="flex items-center justify-center gap-2" href="/dashboard/mentors">
+                <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/mentors">
                   <Users className="h-5 w-5" />
                   <div className="flex flex-col gap-1 items-start">
                     <span className="font-semibold">Find Mentor</span>
@@ -138,7 +138,7 @@ export default function DashboardPage() {
                 className="h-auto p-5 justify-center flex-col items-start hover:bg-primary/5 bg-transparent"
 
               >
-                <Link className="flex items-center justify-center gap-2" href="/dashboard/points">
+                <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/points">
                   <Zap className="h-5 w-5" />
                   <div className="flex flex-col gap-1 items-start">
                     <span className="font-semibold">Buy Points</span>
