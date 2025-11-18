@@ -297,8 +297,8 @@ export default function DashboardPage() {
                       return (
                         <Link
                           key={sub.id}
-                          href={`/dashboard/mentors/${sub.mentor_profile?.id}`}
-                          className="p-3 bg-muted/10 rounded-lg border border-border/50 hover:bg-muted/70 transition-colors block"
+                          href={`/dashboard/mentors/${sub.mentor.id}`}
+                          className="p-3 bg-muted/10 rounded-lg border border-border/50 hover:bg-muted/20 transition-colors block"
                         >
                           <p className="font-semibold text-sm text-foreground">
                             {sub.mentor?.first_name} {sub.mentor?.last_name}
