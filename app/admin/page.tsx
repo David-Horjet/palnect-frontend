@@ -92,11 +92,11 @@ export default function AdminDashboard() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Link href="/admin/mentors" className="block p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
+            <Link href="/admin/mentors" className="block p-3 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
               <div className="font-medium text-foreground">Manage Mentors</div>
               <div className="text-sm text-muted-foreground">Review and approve pending applications</div>
             </Link>
-            <Link href="/admin/points" className="block p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
+            <Link href="/admin/points" className="block p-3 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
               <div className="font-medium text-foreground">Manage Points</div>
               <div className="text-sm text-muted-foreground">Credit or debit user points</div>
             </Link>
