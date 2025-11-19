@@ -89,7 +89,7 @@ const ResetPasswordContent = () => {
                     <p className="text-muted-foreground mb-8">Your password has been reset. Redirecting to sign in...</p>
                     <Button variant="primary" size="lg" className="w-full">
                         <Link href="/auth/signin">Go to Sign In</Link>
-                    </Button> 
+                    </Button>
                 </div>
             </div>
         )
