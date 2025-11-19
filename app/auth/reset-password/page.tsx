@@ -91,7 +91,7 @@ const ResetPasswordContent = () => {
                         <Link href="/auth/signin">Go to Sign In</Link>
                     </Button>  
                 </div> 
-            </div>
+            </div> 
         )
     }
 
