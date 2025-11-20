@@ -72,7 +72,7 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference }: Pur
               Open Payment Link
             </Button>
 
-            <Card className="p-3 bg-muted/50 border-border/50">
+            <Card className="p-3 bg-muted/30 border-border/50">
               <p className="text-xs text-muted-foreground">
                 After completing payment, you'll be redirected to verify. If you don't see the verification page, come
                 back here and check your transaction history to confirm.
