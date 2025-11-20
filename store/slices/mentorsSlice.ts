@@ -52,7 +52,7 @@ export const applyMentor = createAsyncThunk(
       showToast("success", "Mentor application submitted successfully!")
       return response.data
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to submit mentor application"
+      const message = error?.message || "Failed to submit mentor application"
       showToast("error", message)
       return rejectWithValue(message)
     }
@@ -81,7 +81,7 @@ export const fetchMentors = createAsyncThunk(
       const response = await mentorsService.list(token, { page, limit, expertise, search })
       return response
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to fetch mentors"
+      const message = error?.message || "Failed to fetch mentors"
       showToast("error", message)
       return rejectWithValue(message)
     }
@@ -95,7 +95,7 @@ export const fetchMentorDetail = createAsyncThunk(
       const response = await mentorsService.getDetail(token, id)
       return response.data
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to fetch mentor details"
+      const message = error?.message || "Failed to fetch mentor details"
       showToast("error", message)
       return rejectWithValue(message)
     }
@@ -126,7 +126,7 @@ export const updateMentorProfile = createAsyncThunk(
       showToast("success", "Mentor profile updated successfully!")
       return response.data.data
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to update mentor profile"
+      const message = error?.message || "Failed to update mentor profile"
       showToast("error", message)
       return rejectWithValue(message)
     }

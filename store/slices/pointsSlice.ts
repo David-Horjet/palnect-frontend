@@ -51,7 +51,7 @@ export const fetchBalance = createAsyncThunk(
       const response = await pointsService.getBalance(token)
       return response.data
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to fetch balance"
+      const message = error?.message || "Failed to fetch balance"
       return rejectWithValue(message)
     }
   },
@@ -64,7 +64,7 @@ export const purchasePoints = createAsyncThunk(
       const response = await pointsService.purchasePoints(token, amount, email)
       return response.data
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to initialize payment"
+      const message = error?.message || "Failed to initialize payment"
       toast.error(message)
       return rejectWithValue(message)
     }
@@ -79,7 +79,7 @@ export const verifyPayment = createAsyncThunk(
       toast.success("Payment verified successfully!")
       return response.data
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to verify payment"
+      const message = error?.message || "Failed to verify payment"
       toast.error(message)
       return rejectWithValue(message)
     }
@@ -93,7 +93,7 @@ export const fetchTransactions = createAsyncThunk(
       const response = await pointsService.getTransactions(token, page, limit)
       return response
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to fetch transactions"
+      const message = error?.message || "Failed to fetch transactions"
       return rejectWithValue(message)
     }
   },

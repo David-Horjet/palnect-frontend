@@ -67,7 +67,7 @@ export const subscribe = createAsyncThunk(
       toast.success("Subscribed successfully!")
       return response.data
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to subscribe"
+      const message = error?.message || "Failed to subscribe"
       toast.error(message)
       return rejectWithValue(message)
     }
@@ -81,7 +81,7 @@ export const fetchStudentSubscriptions = createAsyncThunk(
       const response = await subscriptionsService.getStudentSubscriptions(token, page, limit)
       return response
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to fetch subscriptions"
+      const message = error?.message || "Failed to fetch subscriptions"
       return rejectWithValue(message)
     }
   },
@@ -94,7 +94,7 @@ export const fetchMentorSubscriptions = createAsyncThunk(
       const response = await subscriptionsService.getMentorSubscriptions(token, page, limit)
       return response
     } catch (error: any) {
-      const message = error.response?.data?.message || "Failed to fetch subscriptions"
+      const message = error?.message || "Failed to fetch subscriptions"
       return rejectWithValue(message)
     }
   },

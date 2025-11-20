@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const pointsLoading = useSelector((state: RootState) => state.points.loading)
 
   const studentSubscriptions = useSelector((state: RootState) => state.subscriptions.studentSubscriptions)
+  console.log("studentSubscriptions: ", studentSubscriptions)
   const subscriptionsLoading = useSelector((state: RootState) => state.subscriptions.loading)
 
   const mentors = useSelector((state: RootState) => state.mentors.mentors)
