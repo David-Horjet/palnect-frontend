@@ -315,6 +315,7 @@ export default function PointsPage() {
         onOpenChange={setShowPurchaseModal}
         paymentUrl={paymentUrl}
         reference={paymentReference}
+        loading={loading}
       />
     </div>
   )

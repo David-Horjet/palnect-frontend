@@ -1,9 +1,9 @@
 "use client"
 
-import { DialogContent, DialogHeader, DialogProvider, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogProvider, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ExternalLink, Copy, CheckCircle } from "lucide-react"
+import { ExternalLink, Copy, CheckCircle, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "@/lib/toast"
 
@@ -12,10 +12,10 @@ interface PurchaseModalProps {
   onOpenChange: (open: boolean) => void
   paymentUrl: string | null
   reference: string | null
+  loading?: boolean
 }
 
-export function PurchaseModal({ open, onOpenChange, paymentUrl, reference }: PurchaseModalProps) {
-  console.log("Payment URL:", paymentUrl, reference)
+export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loading = false }: PurchaseModalProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopyReference = () => {
@@ -40,14 +40,22 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference }: Pur
           <DialogTitle>Complete Your Payment</DialogTitle>
         </DialogHeader>
 
-        {paymentUrl ? (
+        {loading ? (
+          <div className="space-y-4 py-8">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+            <div className="text-center space-y-2">
+              <h3 className="font-semibold text-foreground">Processing Payment</h3>
+              <p className="text-sm text-muted-foreground">Initializing your payment link...</p>
+            </div>
+          </div>
+        ) : paymentUrl ? (
           <div className="space-y-4">
-            <Card className="p-2 md:p-4 bg-primary/5 border-primary/20">
+            <Card className="p-4 bg-primary/5 border-primary/20">
               <div className="flex items-start gap-3">
-                <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-base md:text-lg font-semibold text-foreground mb-1">Payment Link Ready</p>
-                  <p className="text-xs md:text-sm text-muted-foreground">
+                  <p className="font-semibold text-foreground mb-1">Payment Link Ready</p>
+                  <p className="text-sm text-muted-foreground">
                     Click the button below to complete your payment securely with Paystack.
                   </p>
                 </div>
@@ -55,10 +63,10 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference }: Pur
             </Card>
 
             <div className="space-y-2">
-              <p className="text-xs md:text-sm font-semibold text-foreground">Reference Number</p>
+              <p className="text-sm font-semibold text-foreground">Reference Number</p>
               <div className="flex gap-2">
                 <div className="flex-1 p-3 bg-muted/30 rounded-lg border border-border">
-                  <p className="text-xs md:text-sm font-mono text-muted-foreground break-all">{reference}</p>
+                  <p className="text-sm font-mono text-muted-foreground break-all">{reference}</p>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleCopyReference} className="px-3 bg-transparent">
                   <Copy className="h-4 w-4" />
