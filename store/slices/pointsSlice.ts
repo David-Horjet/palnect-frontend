@@ -81,7 +81,7 @@ export const verifyPayment = createAsyncThunk(
     } catch (error: any) {
       const message = error?.message || "Failed to verify payment"
       // toast.error(message)
-      return rejectWithValue(message)
+      return rejectWithValue(message) 
     }
   },
 )
