@@ -79,7 +79,7 @@ export function DialogContent({
       <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 transform">
         <div
           className={cn(
-            'rounded-lg border border-input bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 shadow-lg',
+            'rounded-lg p-4 border border-input bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 shadow-lg',
             className
           )}
           onClick={(e) => e.stopPropagation()}
@@ -127,7 +127,7 @@ export function DialogTitle({
   className?: string
 }) {
   return (
-    <h2 className={cn('text-lg font-semibold leading-none tracking-tight', className)}>
+    <h2 className={cn('text-base md:text-lg font-semibold leading-none tracking-tight', className)}>
       {children}
     </h2>
   )
