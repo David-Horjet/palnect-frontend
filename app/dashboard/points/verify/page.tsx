@@ -17,29 +17,32 @@ export default function VerifyPaymentPage() {
   const reference = searchParams.get("reference")
   const dispatch = useDispatch() as AppDispatch
   const { token } = useAuth()
-  const { loading } = useSelector((state: RootState) => state.points)
+  const { loading, error } = useSelector((state: RootState) => state.points)
   const [verificationAttempted, setVerificationAttempted] = useState(false)
-  const [verificationSuccess, setVerificationSuccess] = useState(false)
-  const [verificationError, setVerificationError] = useState<string | null>(null)
+  const [verificationResult, setVerificationResult] = useState<"pending" | "success" | "failed">("pending")
 
   useEffect(() => {
     if (token && reference && !verificationAttempted) {
       handleVerify()
     }
-  }, [token, reference])
+  }, [token, reference, verificationAttempted])
 
   const handleVerify = async () => {
     setVerificationAttempted(true)
     try {
       const result = await dispatch(verifyPayment({ token: token!, reference: reference! }))
-      if (result.payload) {
-        setVerificationSuccess(true)
+
+      // Check if the action was fulfilled (not rejected)
+      if (result.type.endsWith("/fulfilled")) {
+        setVerificationResult("success")
         if (token) {
           dispatch(fetchBalance({ token }))
         }
+      } else if (result.type.endsWith("/rejected")) {
+        setVerificationResult("failed")
       }
     } catch (error: any) {
-      setVerificationError(error?.message || "Failed to verify payment")
+      setVerificationResult("failed")
     }
   }
 
@@ -49,7 +52,7 @@ export default function VerifyPaymentPage() {
 
       <main className="flex-1 overflow-auto flex items-center justify-center p-6">
         <Card className="max-w-md w-full p-8">
-          {loading && !verificationAttempted ? (
+          {loading && verificationResult === "pending" ? (
             <div className="text-center space-y-4">
               <div className="flex justify-center">
                 <div className="relative h-16 w-16">
@@ -73,7 +76,7 @@ export default function VerifyPaymentPage() {
                 </div>
               </div>
             </div>
-          ) : verificationSuccess ? (
+          ) : verificationResult === "success" ? (
             <div className="text-center space-y-4">
               <CheckCircle className="h-12 w-12 text-primary mx-auto" />
               <div>
@@ -92,13 +95,13 @@ export default function VerifyPaymentPage() {
                 </Button>
               </div>
             </div>
-          ) : verificationError || (verificationAttempted && !verificationSuccess) ? (
+          ) : verificationResult === "failed" ? (
             <div className="text-center space-y-4">
               <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">Verification Failed</h1>
                 <p className="text-muted-foreground mb-4">
-                  {verificationError || "We couldn't verify your payment. Please try again or contact support."}
+                  {error || "We couldn't verify your payment. Please try again or contact support."}
                 </p>
               </div>
               <div className="space-y-2">
