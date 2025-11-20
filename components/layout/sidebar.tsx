@@ -47,7 +47,7 @@ export function Sidebar({ links, currentPath = "/", onLinkClick }: SidebarProps)
                 "flex items-center justify-between px-4 py-2.5 rounded-lg transition-colors duration-200",
                 currentPath === link.href
                   ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"
-                  : "hover:bg-sidebar-accent/20 text-sidebar-foreground",
+                  : "hover:bg-sidebar-accent text-sidebar-foreground",
               )}
             >
               <div className="flex items-center gap-3">
