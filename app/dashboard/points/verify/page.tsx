@@ -51,10 +51,26 @@ export default function VerifyPaymentPage() {
         <Card className="max-w-md w-full p-8">
           {loading && !verificationAttempted ? (
             <div className="text-center space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+              <div className="flex justify-center">
+                <div className="relative h-16 w-16">
+                  <Loader2 className="h-16 w-16 animate-spin text-primary" />
+                </div>
+              </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">Verifying Payment</h1>
-                <p className="text-muted-foreground">Please wait while we verify your payment...</p>
+                <p className="text-muted-foreground">Securely confirming your transaction with Paystack...</p>
+              </div>
+              <div className="pt-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                    <p className="text-xs text-muted-foreground">Processing payment</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
+                    <p className="text-xs text-muted-foreground">Crediting points</p>
+                  </div>
+                </div>
               </div>
             </div>
           ) : verificationSuccess ? (
@@ -87,7 +103,8 @@ export default function VerifyPaymentPage() {
               </div>
               <div className="space-y-2">
                 <Button onClick={handleVerify} disabled={loading} className="w-full">
-                  Try Again
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {loading ? "Retrying..." : "Try Again"}
                 </Button>
                 <Button variant="outline" onClick={() => router.push("/dashboard/points")} className="w-full">
                   Back to Points
