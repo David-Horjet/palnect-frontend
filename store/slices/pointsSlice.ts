@@ -76,11 +76,11 @@ export const verifyPayment = createAsyncThunk(
   async ({ token, reference }: { token: string; reference: string }, { rejectWithValue }) => {
     try {
       const response = await pointsService.verifyPayment(token, reference)
-      toast.success("Payment verified successfully!")
+      // toast.success("Payment verified successfully!")
       return response.data
     } catch (error: any) {
       const message = error?.message || "Failed to verify payment"
-      toast.error(message)
+      // toast.error(message)
       return rejectWithValue(message)
     }
   },
