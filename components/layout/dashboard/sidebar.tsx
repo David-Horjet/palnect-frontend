@@ -56,7 +56,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
                   className={`flex text-sm md:text-base items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive
                       ? "bg-primary text-white"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                   }`}
                 >
                   <Icon className="h-3 w-3" />
@@ -70,7 +70,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
           <div className="border-t border-border p-4 space-y-2">
             <Link
               href="/dashboard/settings"
-              className="flex text-sm md:text-base  items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="flex text-sm md:text-base  items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted/30 hover:text-foreground transition-colors"
             >
               <Settings className="h-5 w-5" />
               <span>Settings</span>
