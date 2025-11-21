@@ -139,7 +139,7 @@ export default function SignUpPage() {
             error={errors.confirmPassword}
             required
           />
-          <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border border-border">
+          <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg border border-border/50">
             <input
               type="checkbox"
               id="agreeToTerms"
