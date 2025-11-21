@@ -21,7 +21,7 @@ export default function RootLayout({
   children: ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html className="scroll-smooth" lang="en" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#6366F1" />
       </head>
