@@ -94,7 +94,7 @@ export function Footer() {
                 <ul className="space-y-4">
                   <li><Link href="/privacy" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Privacy Policy</Link></li>
                   <li><Link href="/terms" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Terms of Service</Link></li>
-                  <li><Link href="/support" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Support</Link></li>
+                  <li><Link href="/legal/content-moderation" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Content Moderation</Link></li>
                   <li><Link href="/community" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Community</Link></li>
                 </ul>
               </div>
