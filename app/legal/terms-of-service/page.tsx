@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import Logo from "@/components/shared/logo"
 
 export const metadata = {
   title: "Terms of Service | Palnect",
@@ -12,9 +13,7 @@ export default function TermsOfService() {
       {/* Header */}
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="font-bold text-xl text-foreground">
-            Palnect
-          </Link>
+          <Logo />
           <nav className="flex gap-4">
             <Link href="/legal/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground">
               Privacy Policy
