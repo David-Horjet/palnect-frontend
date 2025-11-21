@@ -95,7 +95,7 @@ export function Footer() {
                   <li><Link href="/legal/privacy-policy" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Privacy Policy</Link></li>
                   <li><Link href="/legal/terms-of-service" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Terms of Service</Link></li>
                   <li><Link href="/legal/content-moderation" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Content Moderation</Link></li>
-                  <li><Link href="/community" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Community</Link></li>
+                  <li><a href="https://chat.whatsapp.com/KjpEfuKNLEXDjg6EqwCUf3" target="_blank" rel="noopener noreferrer" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Community</a></li>
                 </ul>
               </div>
             </div>
