@@ -3,6 +3,7 @@ import "./globals.css"
 import type { ReactNode } from "react"
 import type { Metadata } from "next"
 import Providers from "@/components/providers"
+import { Analytics } from "@vercel/analytics/react";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
           {children}
         </Providers>
       </body>
+       <Analytics />
     </html>
   )
 }
