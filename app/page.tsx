@@ -26,7 +26,7 @@ export default function Home() {
       </section>
       <FeaturesSection />
       <CtaSection />
-      <NewsletterSection />
+      {/* <NewsletterSection /> */}
       <Footer />
     </div>
   )
