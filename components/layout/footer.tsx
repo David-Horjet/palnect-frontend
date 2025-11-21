@@ -78,7 +78,7 @@ export function Footer() {
               </div>
 
               {/* Company */}
-              <div>
+              {/* <div>
                 <h4 className="mb-6 font-semibold text-foreground text-sm">Company</h4>
                 <ul className="space-y-4">
                   <li><Link href="/about" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">About</Link></li>
@@ -86,7 +86,7 @@ export function Footer() {
                   <li><Link href="/careers" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Careers</Link></li>
                   <li><Link href="/contact" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Contact</Link></li>
                 </ul>
-              </div>
+              </div> */}
 
               {/* Legal */}
               <div>
