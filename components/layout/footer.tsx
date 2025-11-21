@@ -70,10 +70,10 @@ export function Footer() {
               <div>
                 <h4 className="mb-6 font-semibold text-foreground text-sm">Platform</h4>
                 <ul className="space-y-4">
-                  <li><Link href="/features" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Features</Link></li>
-                  <li><Link href="/mentorship" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Find a Mentor</Link></li>
-                  <li><Link href="/resources" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Resources</Link></li>
-                  <li><Link href="/pricing" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Pricing</Link></li>
+                  <li><Link href="/#features" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Features</Link></li>
+                  <li><Link href="/dashboard/mentors" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Find a Mentor</Link></li>
+                  <li><Link href="/dashboard/resources" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Resources</Link></li>
+                  {/* <li><Link href="/dashboard/credits" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Pricing</Link></li> */}
                 </ul>
               </div>
 
