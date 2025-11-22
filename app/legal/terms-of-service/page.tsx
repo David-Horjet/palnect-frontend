@@ -113,9 +113,9 @@ export default function TermsOfService() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-foreground mb-2">No Refunds on Points</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">No Refunds on Credits</h3>
                 <p>
-                  All points purchases are final and non-refundable. Points have no monetary value and cannot be
+                  All credits purchases are final and non-refundable. Credits have no monetary value and cannot be
                   exchanged for cash or other consideration outside the Palnect platform.
                 </p>
               </div>
