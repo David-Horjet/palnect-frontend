@@ -9,7 +9,7 @@ export const faqData = [
       },
       {
         question: "Is Palnect free?",
-        answer: "Creating an account is free. Some features require points which can be earned or purchased.",
+        answer: "Creating an account is free. Some features require credits which can be earned or purchased.",
       },
       {
         question: "Which schools can use Palnect?",
@@ -35,23 +35,23 @@ export const faqData = [
     ],
   },
   {
-    category: "Points",
+    category: "Credits",
     items: [
       {
-        question: "How do I get points?",
+        question: "How do I get coints?",
         answer: "Purchase with card/bank transfer, earn through platform activities, or receive welcome bonus.",
       },
       {
-        question: "What can I use points for?",
+        question: "What can I use credits for?",
         answer: "Subscribe to mentors, unlock premium features (coming soon).",
       },
       {
-        question: "Are points refundable?",
-        answer: "No, all points purchases are final and non-refundable.",
+        question: "Are credits refundable?",
+        answer: "No, all credits purchases are final and non-refundable.",
       },
       {
-        question: "Do points expire?",
-        answer: "No, your points never expire.",
+        question: "Do credits expire?",
+        answer: "No, your credits never expire.",
       },
     ],
   },
@@ -70,7 +70,7 @@ export const faqData = [
       {
         question: "How do mentors get paid?",
         answer:
-          "Mentors receive points from subscriptions which can be withdrawn (future feature) or used on the platform.",
+          "Mentors receive credits from subscriptions which can be withdrawn (future feature) or used on the platform.",
       },
       {
         question: "Can I cancel a subscription?",

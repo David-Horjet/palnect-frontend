@@ -70,13 +70,13 @@ export interface VerifyPaymentResponse {
 export const pointsService = {
   // Get user's current points balance
   async getBalance(token: string) {
-    return apiClient.get<PointsBalanceResponse>("/points/balance", token)
+    return apiClient.get<PointsBalanceResponse>("/credits/balance", token)
   },
 
   // Purchase points (initiate payment)
   async purchasePoints(token: string, amount: number, email: string) {
     return apiClient.post<PurchasePointsResponse>(
-      "/points/purchase",
+      "/credits/purchase",
       {
         amount,
         email,
@@ -87,7 +87,7 @@ export const pointsService = {
 
   // Verify payment and credit points
   async verifyPayment(token: string, reference: string) {
-    return apiClient.get<VerifyPaymentResponse>(`/points/verify?reference=${reference}`, token)
+    return apiClient.get<VerifyPaymentResponse>(`/credits/verify?reference=${reference}`, token)
   },
 
   // Get transaction history
@@ -102,7 +102,7 @@ export const pointsService = {
     if (options?.limit) params.append("limit", options.limit.toString())
 
     const query = params.toString()
-    const endpoint = query ? `/points/transactions?${query}` : "/points/transactions"
+    const endpoint = query ? `/credits/transactions?${query}` : "/credits/transactions"
 
     return apiClient.get<TransactionHistoryResponse>(endpoint, token)
   },
