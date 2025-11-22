@@ -192,7 +192,7 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                 <div className="flex items-start justify-between mb-4">
                   <h2 className="text-base md:text-lg font-bold">AI Summary</h2>
                   <Badge variant="outline" className="text-xs">
-                    {POINTS_PER_SUMMARY} points
+                    {POINTS_PER_SUMMARY} credits
                   </Badge>
                 </div>
 
@@ -211,7 +211,7 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
                 ) : (
                   <div className="space-y-4">
                     <p className="text-xs md:text-sm text-muted-foreground">
-                      Get an AI-powered summary of this resource to study faster. Uses {POINTS_PER_SUMMARY} points.
+                      Get an AI-powered summary of this resource to study faster. Uses {POINTS_PER_SUMMARY} credits.
                     </p>
                     <Button onClick={handleGetSummary} disabled={aiSummaryLoading} className="w-full">
                       {aiSummaryLoading ? (
