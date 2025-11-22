@@ -117,7 +117,7 @@ export default function MentorProfilePage() {
 
           {/* Rates */}
           <Card>
-            <h2 className="text-lg font-bold mb-4 text-foreground">Mentorship Rates (Points)</h2>
+            <h2 className="text-lg font-bold mb-4 text-foreground">Mentorship Rates (Credits)</h2>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="bg-muted/50 p-4 rounded-lg">
                 <p className="text-sm font-semibold text-muted-foreground mb-2">Daily Rate</p>

@@ -83,10 +83,10 @@ export default function PointsPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <DashboardSidebar activeTab="points" />
+      <DashboardSidebar activeTab="credits" />
 
       <main className="flex-1 overflow-auto">
-        <DashboardHeader title="Points & Purchases" subtitle="Manage your points balance and transaction history" />
+        <DashboardHeader title="Credits & Purchases" subtitle="Manage your credits balance and transaction history" />
 
         <div className="p-6 space-y-8 max-w-5xl">
           {/* Current Balance */}
@@ -97,8 +97,8 @@ export default function PointsPage() {
                   <Zap className="h-4 w-4 text-primary" />
                   Your Current Balance
                 </p>
-                <p className="text-2xl md:text-4xl font-bold text-foreground mb-2">{balance} Points</p>
-                <p className="text-xs md:text-sm text-muted-foreground">Use points to subscribe to mentors and unlock services</p>
+                <p className="text-2xl md:text-4xl font-bold text-foreground mb-2">{balance} Credits</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Use credits to subscribe to mentors and unlock services</p>
               </div>
               <Button onClick={() => setSelectedPackage(null)}>
                 Buy
@@ -131,7 +131,7 @@ export default function PointsPage() {
                     <div className="pt-3 border-t border-border/50">
                       <p className="text-xs md:text-sm text-muted-foreground mb-1">You Get</p>
                       <div className="space-y-1">
-                        <p className="font-bold text-lg md:text-xl text-primary">{pkg.points} Points</p>
+                        <p className="font-bold text-lg md:text-xl text-primary">{pkg.points} Credits</p>
                         {pkg.bonus > 0 && (
                           <p className="text-xs text-accent font-semibold">
                             +{pkg.bonus} Bonus ({Math.round((pkg.bonus / pkg.points) * 100)}% extra)
@@ -161,7 +161,7 @@ export default function PointsPage() {
                               ₦{packages.find((p) => p.id === selectedPackage)?.naira}
                             </p>
                             <p className="text-sm text-accent">
-                              {packages.find((p) => p.id === selectedPackage)?.points} Points
+                              {packages.find((p) => p.id === selectedPackage)?.points} Credits
                               {(packages.find((p) => p.id === selectedPackage)?.bonus || 0) > 0 &&
                                 ` + ${packages.find((p) => p.id === selectedPackage)?.bonus} Bonus`}
                             </p>
@@ -201,7 +201,7 @@ export default function PointsPage() {
                 </div>
               ) : transactions.length === 0 ? (
                 <div className="p-12 text-center text-muted-foreground">
-                  <p>No transactions yet. Buy points to get started!</p>
+                  <p>No transactions yet. Buy credits to get started!</p>
                 </div>
               ) : (
                 <>
@@ -278,18 +278,18 @@ export default function PointsPage() {
 
           {/* Points Usage Guide */}
           <Card className="bg-muted/20 border-border/50">
-            <h3 className="text-base md:text-lg font-bold mb-4 text-foreground">How Points Work</h3>
+            <h3 className="text-base md:text-lg font-bold mb-4 text-foreground">How Credits Work</h3>
             <div className="grid md:grid-cols-3 gap-4">
               <div>
-                <Badge className="mb-2 bg-primary/20 text-primary">Get Points</Badge>
+                <Badge className="mb-2 bg-primary/20 text-primary">Get Credits</Badge>
                 <ul className="text-xs md:text-sm text-muted-foreground space-y-1">
-                  <li>• Purchase points with Paystack</li>
+                  <li>• Purchase credits with Paystack</li>
                   <li>• Earn from mentoring students</li>
-                  <li>• Get 10 welcome points on signup</li>
+                  <li>• Get 10 welcome credits on signup</li>
                 </ul>
               </div>
               <div>
-                <Badge className="mb-2 bg-accent/20 text-accent">Use Points</Badge>
+                <Badge className="mb-2 bg-accent/20 text-accent">Use Credits</Badge>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Subscribe to mentors (daily/weekly/monthly)</li>
                   <li>• Unlock premium resources</li>
@@ -299,8 +299,8 @@ export default function PointsPage() {
               <div>
                 <Badge className="mb-2 bg-destructive/20 text-destructive">Note</Badge>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Points are non-refundable</li>
-                  <li>• Unused points expire after 1 year</li>
+                  <li>• Credits are non-refundable</li>
+                  <li>• Unused credits expire after 1 year</li>
                   <li>• Subscriptions auto-expire on due date</li>
                 </ul>
               </div>

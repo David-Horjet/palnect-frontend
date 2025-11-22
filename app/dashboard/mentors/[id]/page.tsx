@@ -126,7 +126,7 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
                 </div>
 
                 <div className="space-y-2 mb-4 p-3 bg-muted/20 rounded-lg">
-                  <p className="text-xs font-semibold text-foreground">Subscription Rates (points)</p>
+                  <p className="text-xs font-semibold text-foreground">Subscription Rates (credits)</p>
                   <div className="space-y-1 text-xs text-muted-foreground">
                     <p>Daily: {mentor.daily_rate} pts</p>
                     <p>Weekly: {mentor.weekly_rate} pts</p>
