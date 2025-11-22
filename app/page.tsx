@@ -3,6 +3,7 @@
 import { Footer } from "@/components/layout/footer"
 import { Navbar } from "@/components/layout/navbar"
 import { CtaSection } from "@/components/sections/cta"
+import { FaqSection } from "@/components/sections/faq"
 import { FeaturesSection } from "@/components/sections/features"
 import { HeroSection } from "@/components/sections/hero"
 import { NewsletterSection } from "@/components/sections/newsletter"
@@ -26,6 +27,7 @@ export default function Home() {
       </section>
       <FeaturesSection />
       <CtaSection />
+      <FaqSection />
       {/* <NewsletterSection /> */}
       <Footer />
     </div>
