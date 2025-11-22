@@ -134,7 +134,7 @@ export default function SubscriptionsPage() {
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="font-semibold text-primary">{subscription.points_cost} pts</span>
+                              <span className="font-semibold text-primary">{subscription.points_cost} credits</span>
                             </div>
                           </div>
                         </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Home, BookOpen, Users, Settings, LogOut, Menu, X, Zap, User } from "lucide-react"
+import { Home, BookOpen, Users, Settings, LogOut, Menu, X, Zap, User, UserPlus2 } from "lucide-react"
 import { useState } from "react"
 import Logo from "@/components/shared/logo"
 
@@ -17,6 +17,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
     { id: "home", label: "Dashboard", icon: Home, href: "/dashboard" },
     { id: "resources", label: "Resources", icon: BookOpen, href: "/dashboard/resources" },
     { id: "mentors", label: "Find Mentors", icon: Users, href: "/dashboard/mentors" },
+    { id: "subscriptions", label: "Subscriptions", icon: UserPlus2, href: "/dashboard/subscriptions" },
     { id: "points", label: "Credits", icon: Zap, href: "/dashboard/credits" },
     { id: "profile", label: "Profile", icon: User, href: "/dashboard/profile" },
   ]
@@ -59,7 +60,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
                       : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                   }`}
                 >
-                  <Icon className="h-3 w-3" />
+                  <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
                 </Link>
               )
