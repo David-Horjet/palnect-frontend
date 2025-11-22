@@ -13,6 +13,8 @@ import { Mail, GraduationCap, BookOpen } from "lucide-react"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import Image from "next/image"
+import { UploadProgress } from "@/components/ui/upload-progress"
+import { compressFile } from "@/lib/file-compression"
 
 export default function ProfilePage() {
   const { user, dispatch: dispatchAuth, loading } = useAuth()
@@ -79,7 +81,7 @@ export default function ProfilePage() {
     setIsEditing(false)
   }
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       setIsCompressingAvatar(true)

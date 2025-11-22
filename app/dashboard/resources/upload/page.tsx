@@ -16,6 +16,8 @@ import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { SearchableSelect } from "@/components/shared/searchable-select"
 import { institutions } from "@/data/institutions"
+import { UploadProgress } from "@/components/ui/upload-progress"
+import { compressFile, formatFileSize } from "@/lib/file-compression"
 
 export default function UploadResourcePage() {
   const dispatch = useDispatch<AppDispatch>()
