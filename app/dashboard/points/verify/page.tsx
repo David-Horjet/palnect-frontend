@@ -71,7 +71,7 @@ export default function VerifyPaymentPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
-                    <p className="text-xs text-muted-foreground">Crediting points</p>
+                    <p className="text-xs text-muted-foreground">Crediting in progress...</p>
                   </div>
                 </div>
               </div>
@@ -82,12 +82,12 @@ export default function VerifyPaymentPage() {
               <div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">Payment Successful</h1>
                 <p className="text-muted-foreground mb-4">
-                  Your points have been added to your account. You can now use them to subscribe to mentors.
+                  Your credits have been added to your account. You can now use them to subscribe to mentors.
                 </p>
               </div>
               <div className="space-y-2">
-                <Button onClick={() => router.push("/dashboard/points")} className="w-full">
-                  View Points Balance
+                <Button onClick={() => router.push("/dashboard/credits")} className="w-full">
+                  View Credits Balance
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
                 <Button variant="outline" onClick={() => router.push("/dashboard/mentors")} className="w-full">
@@ -109,8 +109,8 @@ export default function VerifyPaymentPage() {
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {loading ? "Retrying..." : "Try Again"}
                 </Button>
-                <Button variant="outline" onClick={() => router.push("/dashboard/points")} className="w-full">
-                  Back to Points
+                <Button variant="outline" onClick={() => router.push("/dashboard/credits")} className="w-full">
+                  Back to Credits
                 </Button>
               </div>
             </div>
