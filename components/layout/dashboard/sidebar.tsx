@@ -17,7 +17,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
     { id: "home", label: "Dashboard", icon: Home, href: "/dashboard" },
     { id: "resources", label: "Resources", icon: BookOpen, href: "/dashboard/resources" },
     { id: "mentors", label: "Find Mentors", icon: Users, href: "/dashboard/mentors" },
-    { id: "credits", label: "Credits", icon: Zap, href: "/dashboard/credits" },
+    { id: "points", label: "Credits", icon: Zap, href: "/dashboard/credits" },
     { id: "profile", label: "Profile", icon: User, href: "/dashboard/profile" },
   ]
 

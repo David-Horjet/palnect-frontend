@@ -83,7 +83,7 @@ export default function PointsPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <DashboardSidebar activeTab="credits" />
+      <DashboardSidebar activeTab="points" />
 
       <main className="flex-1 overflow-auto">
         <DashboardHeader title="Credits & Purchases" subtitle="Manage your credits balance and transaction history" />
