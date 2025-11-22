@@ -85,7 +85,7 @@ export const pointsService = {
     )
   },
 
-  // Verify payment and credit points
+  // Verify payment and credit credits
   async verifyPayment(token: string, reference: string) {
     return apiClient.get<VerifyPaymentResponse>(`/credits/verify?reference=${reference}`, token)
   },
