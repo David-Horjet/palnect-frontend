@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Facebook, Twitter, Github } from "lucide-react"
+import { Facebook, Twitter, Github, Instagram, Linkedin } from "lucide-react"
 import Logo from "../shared/logo"
 
 export function Footer() {
@@ -48,6 +48,13 @@ export function Footer() {
                   <Facebook size={24} />
                 </Link>
                 <Link
+                  href="https://linkedin.com/in/palnect"
+                  aria-label="linkedin"
+                  className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
+                >
+                  <Linkedin size={24} />
+                </Link>
+                <Link
                   href="https://x.com/palnect"
                   aria-label="twitter"
                   className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
@@ -55,11 +62,11 @@ export function Footer() {
                   <Twitter size={24} />
                 </Link>
                 <Link
-                  href="https://github.com/palnect"
-                  aria-label="github"
+                  href="https://instagram.com/palnect"
+                  aria-label="instagram"
                   className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
                 >
-                  <Github size={24} />
+                  <Instagram size={24} />
                 </Link>
               </div>
             </div>
