@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, Zap } from "lucide-react"
+import { Book, ChevronDown, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { faqData } from "@/data/faq"
 
@@ -17,7 +17,7 @@ export function FaqSection() {
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
                     <span className="dark:bg-white/10 relative mb-5 inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-xs font-medium">
-                        <Zap className="h-3 w-3 text-primary" />
+                        <Book className="h-3 w-3 text-primary" />
                         <span className="hero-subtitle-text">FAQ</span>
                     </span>
                     <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Frequently Asked Questions</h2>
@@ -66,7 +66,7 @@ export function FaqSection() {
                     ))}
                 </div>
 
-                <div className="mt-12 p-6 bg-card rounded-lg border border-input text-center">
+                {/* <div className="mt-12 p-6 bg-card rounded-lg border border-input text-center">
                     <p className="text-muted-foreground mb-4">Can't find what you're looking for?</p>
                     <a
                         href="mailto:support@palnect.com"
@@ -74,7 +74,7 @@ export function FaqSection() {
                     >
                         Contact Support
                     </a>
-                </div>
+                </div> */}
             </div>
         </section>
     )
