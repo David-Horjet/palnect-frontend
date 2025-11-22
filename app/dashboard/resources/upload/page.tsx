@@ -24,6 +24,8 @@ export default function UploadResourcePage() {
 
   const [file, setFile] = useState<File | null>(null)
   const [dragActive, setDragActive] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isCompressing, setIsCompressing] = useState(false)
 
   const [formData, setFormData] = useState({
     title: "",
@@ -56,7 +58,7 @@ export default function UploadResourcePage() {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0]
       if (droppedFile.type === "application/pdf") {
-        setFile(droppedFile)
+        handleFileCompression(droppedFile)
       } else {
         toast.error("Please drop a PDF file")
       }
@@ -65,7 +67,7 @@ export default function UploadResourcePage() {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0])
+      handleFileCompression(e.target.files[0])
     }
   }
 
@@ -129,7 +131,26 @@ export default function UploadResourcePage() {
   }
 
   const currentInstitution = institutions.find((inst) => inst.name === formData.school)
-  const isFormValid = file && formData.title && formData.description && formData.subject && formData.school && formData.department
+  const isFormValid =
+    file && formData.title && formData.description && formData.subject && formData.school && formData.department
+
+  const handleFileCompression = async (selectedFile: File) => {
+    setIsCompressing(true)
+    setUploadProgress(10)
+    try {
+      const compressed = await compressFile(selectedFile)
+      setUploadProgress(100)
+      setTimeout(() => {
+        setFile(compressed)
+        setUploadProgress(0)
+        setIsCompressing(false)
+      }, 500)
+    } catch (error) {
+      toast.error("Failed to compress file")
+      setIsCompressing(false)
+      setUploadProgress(0)
+    }
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -139,6 +160,11 @@ export default function UploadResourcePage() {
         <DashboardHeader title="Upload Resource" subtitle="Share your study materials with the Palnect community" />
 
         <div className="p-6 space-y-6 max-w-4xl">
+          {isCompressing && (
+            <Card className="p-6">
+              <UploadProgress progress={uploadProgress} fileName={file?.name} />
+            </Card>
+          )}
           {/* Upload Area */}
           <Card
             className={`border-2 border-dashed p-12 text-center transition-colors ${dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
@@ -174,7 +200,7 @@ export default function UploadResourcePage() {
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">{file.name}</p>
-                  <p className="text-sm text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p className="text-sm text-muted-foreground">{formatFileSize(file.size)}</p>
                 </div>
                 <Button variant="secondary" size="sm" onClick={() => setFile(null)}>
                   Change File

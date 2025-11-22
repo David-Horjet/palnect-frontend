@@ -19,6 +19,8 @@ export default function ProfilePage() {
   console.log("User data in ProfilePage:", user)
   const dispatch = dispatchAuth as AppDispatch
   const [isEditing, setIsEditing] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isCompressingAvatar, setIsCompressingAvatar] = useState(false)
   const [formData, setFormData] = useState({
     firstName: user?.first_name || "",
     lastName: user?.last_name || "",
@@ -80,7 +82,21 @@ export default function ProfilePage() {
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      dispatch(uploadAvatar(file))
+      setIsCompressingAvatar(true)
+      setUploadProgress(10)
+      try {
+        const compressed = await compressFile(file, 2) // 2MB max for avatars
+        setUploadProgress(50)
+        await dispatch(uploadAvatar(compressed))
+        setUploadProgress(100)
+        setTimeout(() => {
+          setUploadProgress(0)
+          setIsCompressingAvatar(false)
+        }, 500)
+      } catch (error) {
+        setUploadProgress(0)
+        setIsCompressingAvatar(false)
+      }
     }
   }
 
@@ -103,6 +119,11 @@ export default function ProfilePage() {
         <DashboardHeader title="My Profile" subtitle="Manage your personal and mentorship information" />
 
         <div className="p-6 space-y-6 max-w-4xl">
+          {isCompressingAvatar && (
+            <Card className="p-6">
+              <UploadProgress progress={uploadProgress} fileName="Avatar" />
+            </Card>
+          )}
           {/* Profile Header */}
           <Card>
             <div className="flex flex-col md:flex-row gap-6 items-start justify-between md:items-center">
