@@ -95,7 +95,7 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loadi
                 variant="outline"
                 className="flex-1 bg-transparent"
                 onClick={() => {
-                  window.location.href = `/dashboard/points/verify?reference=${reference}`
+                  window.location.href = `/dashboard/credits/verify?reference=${reference}`
                 }}
               >
                 Verify Payment
