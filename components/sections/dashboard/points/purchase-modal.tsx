@@ -88,11 +88,11 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loadi
                   Processing...
                 </>
               ) : (
-                "Open Payment Modal"
+                "Pay now"
               )}
             </Button>
 
-            <Card className="p-3 bg-muted/50 border-border/50">
+            <Card className="p-3 bg-muted/20 border-border/50">
               <p className="text-xs text-muted-foreground">
                 A secure Paystack payment modal will open. Complete the payment using your card, bank transfer, or
                 mobile money.
