@@ -41,13 +41,13 @@ export function PurchaseModal({
     try {
       initializePayment({
         email: paymentData.email,
-        amount: paymentData.amount,
+        amount: paymentData.amount/100,
         reference: paymentData.reference,
         publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
         onSuccess: () => {
           setIsProcessing(false)
           toast.success("Payment successful! Redirecting to verification...")
-          window.location.href = `/dashboard/points/verify?reference=${paymentData.reference}`
+          window.location.href = `/dashboard/credits/verify?reference=${paymentData.reference}`
         },
         onClose: () => {
           setIsProcessing(false)
@@ -94,7 +94,7 @@ export function PurchaseModal({
               </div>
             </Card>
 
-            <Card className="p-4 bg-primary/5 border-primary/20">
+            {/* <Card className="p-4 bg-primary/5 border-primary/20">
               <div className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
@@ -104,7 +104,7 @@ export function PurchaseModal({
                   </p>
                 </div>
               </div>
-            </Card>
+            </Card> */}
 
             <Button size="lg" onClick={handlePaymentClick} disabled={isProcessing} className="w-full">
               {isProcessing ? (
@@ -113,11 +113,11 @@ export function PurchaseModal({
                   Processing...
                 </>
               ) : (
-                "Open Payment Modal"
+                "Pay now"
               )}
             </Button>
 
-            <Card className="p-3 bg-muted/50 border-border/50">
+            <Card className="p-3 bg-muted/20 border-border/50">
               <p className="text-xs text-muted-foreground">
                 A secure Paystack payment modal will open. Complete the payment using your card, bank transfer, or
                 mobile money.
