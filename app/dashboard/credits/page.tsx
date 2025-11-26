@@ -150,7 +150,7 @@ export default function PointsPage() {
 
             {selectedPackage && (
               <div className="mt-6">
-                <Card className="bg-muted/20 border-primary/20">
+                <Card className="bg-background/20 border-primary/20">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Selected Package</p>
