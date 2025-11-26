@@ -14,32 +14,40 @@ interface PurchaseModalProps {
   paymentUrl: string | null
   reference: string | null
   loading?: boolean
+  paymentData?: {
+    reference: string | null
+    email: string | null
+    amount: number | null
+    accessCode: string | null
+  }
 }
 
-export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loading = false }: PurchaseModalProps) {
+export function PurchaseModal({
+  open,
+  onOpenChange,
+  paymentUrl,
+  reference,
+  loading = false,
+  paymentData,
+}: PurchaseModalProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const { initializePayment } = usePaystackModal()
 
   const handlePaymentClick = () => {
-    if (!paymentUrl || !reference) return
+    if (!paymentData?.reference || !paymentData?.email || !paymentData?.amount) return
 
     setIsProcessing(true)
 
-    // Extract amount from payment URL or use a default
-    // The amount should be in the paymentUrl or we need to pass it separately
-    const amount = 100000 // This would be dynamic based on selected package
-
     try {
       initializePayment({
-        email: "user@example.com", // Get from auth state
-        amount,
-        reference,
+        email: paymentData.email,
+        amount: paymentData.amount,
+        reference: paymentData.reference,
         publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
         onSuccess: () => {
           setIsProcessing(false)
           toast.success("Payment successful! Redirecting to verification...")
-          // Redirect to verify page
-          window.location.href = `/dashboard/points/verify?reference=${reference}`
+          window.location.href = `/dashboard/points/verify?reference=${paymentData.reference}`
         },
         onClose: () => {
           setIsProcessing(false)
@@ -70,6 +78,23 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loadi
         ) : paymentUrl ? (
           <div className="space-y-4">
             <Card className="p-4 bg-primary/5 border-primary/20">
+              <div className="space-y-3">
+                <div className="flex justify-between items-start">
+                  <p className="text-sm text-muted-foreground">Amount</p>
+                  <p className="text-xl font-bold text-foreground">₦{(paymentData?.amount || 0) / 100}</p>
+                </div>
+                <div className="flex justify-between items-start">
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="text-sm font-semibold text-foreground">{paymentData?.email}</p>
+                </div>
+                <div className="flex justify-between items-start">
+                  <p className="text-sm text-muted-foreground">Reference</p>
+                  <p className="text-xs font-mono text-foreground">{paymentData?.reference}</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-primary/5 border-primary/20">
               <div className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
@@ -88,11 +113,11 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loadi
                   Processing...
                 </>
               ) : (
-                "Pay now"
+                "Open Payment Modal"
               )}
             </Button>
 
-            <Card className="p-3 bg-muted/20 border-border/50">
+            <Card className="p-3 bg-muted/50 border-border/50">
               <p className="text-xs text-muted-foreground">
                 A secure Paystack payment modal will open. Complete the payment using your card, bank transfer, or
                 mobile money.
