@@ -7,6 +7,7 @@ import { CheckCircle, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { usePaystackModal } from "@/hooks/usePaystackModal"
 import { toast } from "@/lib/toast"
+import { useRouter } from "next/navigation"
 
 interface PurchaseModalProps {
   open: boolean
@@ -32,6 +33,7 @@ export function PurchaseModal({
 }: PurchaseModalProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const { initializePayment } = usePaystackModal()
+  const router = useRouter()
 
   const handlePaymentClick = () => {
     if (!paymentData?.reference || !paymentData?.email || !paymentData?.amount) return
@@ -47,7 +49,9 @@ export function PurchaseModal({
         onSuccess: () => {
           setIsProcessing(false)
           toast.success("Payment successful! Redirecting to verification...")
-          window.location.href = `/dashboard/credits/verify?reference=${paymentData.reference}`
+          setTimeout(() => {
+            router.push(`/dashboard/credits/verify?reference=${paymentData.reference}`)
+          }, 500)
         },
         onClose: () => {
           setIsProcessing(false)
