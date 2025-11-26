@@ -60,6 +60,7 @@ export function PurchaseModal({
     }
   }
 
+  console.log(loading, isProcessing)
   return (
     <DialogProvider open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
