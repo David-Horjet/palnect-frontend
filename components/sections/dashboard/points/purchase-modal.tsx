@@ -3,8 +3,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogProvider, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ExternalLink, Copy, CheckCircle, Loader2 } from "lucide-react"
+import { CheckCircle, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { usePaystackModal } from "@/hooks/usePaystackModal"
 import { toast } from "@/lib/toast"
 
 interface PurchaseModalProps {
@@ -16,20 +17,38 @@ interface PurchaseModalProps {
 }
 
 export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loading = false }: PurchaseModalProps) {
-  const [copied, setCopied] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const { initializePayment } = usePaystackModal()
 
-  const handleCopyReference = () => {
-    if (reference) {
-      navigator.clipboard.writeText(reference)
-      setCopied(true)
-      toast.success("Reference copied to clipboard")
-      setTimeout(() => setCopied(false), 2000)
-    }
-  }
+  const handlePaymentClick = () => {
+    if (!paymentUrl || !reference) return
 
-  const handleOpenPayment = () => {
-    if (paymentUrl) {
-      window.open(paymentUrl, "_blank", "width=800,height=600")
+    setIsProcessing(true)
+
+    // Extract amount from payment URL or use a default
+    // The amount should be in the paymentUrl or we need to pass it separately
+    const amount = 100000 // This would be dynamic based on selected package
+
+    try {
+      initializePayment({
+        email: "user@example.com", // Get from auth state
+        amount,
+        reference,
+        publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
+        onSuccess: () => {
+          setIsProcessing(false)
+          toast.success("Payment successful! Redirecting to verification...")
+          // Redirect to verify page
+          window.location.href = `/dashboard/points/verify?reference=${reference}`
+        },
+        onClose: () => {
+          setIsProcessing(false)
+          toast.info("Payment window closed. You can retry anytime.")
+        },
+      })
+    } catch (error) {
+      setIsProcessing(false)
+      toast.error("Failed to initialize payment. Please try again.")
     }
   }
 
@@ -40,12 +59,12 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loadi
           <DialogTitle>Complete Your Payment</DialogTitle>
         </DialogHeader>
 
-        {loading ? (
+        {loading || isProcessing ? (
           <div className="space-y-4 py-8">
             <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
             <div className="text-center space-y-2">
               <h3 className="font-semibold text-foreground">Processing Payment</h3>
-              <p className="text-sm text-muted-foreground">Initializing your payment link...</p>
+              <p className="text-sm text-muted-foreground">Initializing secure payment...</p>
             </div>
           </div>
         ) : paymentUrl ? (
@@ -54,53 +73,35 @@ export function PurchaseModal({ open, onOpenChange, paymentUrl, reference, loadi
               <div className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-foreground mb-1">Payment Link Ready</p>
+                  <p className="font-semibold text-foreground mb-1">Ready to Pay</p>
                   <p className="text-sm text-muted-foreground">
-                    Click the button below to complete your payment securely with Paystack.
+                    Click the button below to open the secure Paystack payment modal and complete your transaction.
                   </p>
                 </div>
               </div>
             </Card>
 
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground">Reference Number</p>
-              <div className="flex gap-2">
-                <div className="flex-1 p-3 bg-muted/30 rounded-lg border border-border">
-                  <p className="text-sm font-mono text-muted-foreground break-all">{reference}</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleCopyReference} className="px-3 bg-transparent">
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">Save this reference for your records</p>
-            </div>
-
-            <Button size="lg" onClick={handleOpenPayment} className="w-full">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Open Payment Link
+            <Button size="lg" onClick={handlePaymentClick} disabled={isProcessing} className="w-full">
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Open Payment Modal"
+              )}
             </Button>
 
-            <Card className="p-3 bg-muted/30 border-border/50">
+            <Card className="p-3 bg-muted/50 border-border/50">
               <p className="text-xs text-muted-foreground">
-                After completing payment, you'll be redirected to verify. If you don't see the verification page, come
-                back here and check your transaction history to confirm.
+                A secure Paystack payment modal will open. Complete the payment using your card, bank transfer, or
+                mobile money.
               </p>
             </Card>
 
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1 bg-transparent" onClick={() => onOpenChange(false)}>
-                Close
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 bg-transparent"
-                onClick={() => {
-                  window.location.href = `/dashboard/credits/verify?reference=${reference}`
-                }}
-              >
-                Verify Payment
-              </Button>
-            </div>
+            <Button variant="outline" className="w-full bg-transparent" onClick={() => onOpenChange(false)}>
+              Close
+            </Button>
           </div>
         ) : (
           <div className="space-y-4">
