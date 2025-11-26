@@ -24,6 +24,7 @@ export default function RootLayout({
     <html className="scroll-smooth" lang="en" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#6366F1" />
+        <script src="https://js.paystack.co/v1/inline.js"></script>
       </head>
       <body className={`${poppins.className} antialiased`}>
         <Providers>
