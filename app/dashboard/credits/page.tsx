@@ -316,6 +316,12 @@ export default function PointsPage() {
         paymentUrl={paymentUrl}
         reference={paymentReference}
         loading={loading}
+        paymentData={{
+          reference: paymentReference,
+          email: user?.email || null,
+          amount: packages.find((p) => p.id === selectedPackage)?.kobo || null,
+          accessCode: paymentReference || null,
+        }}
       />
     </div>
   )
