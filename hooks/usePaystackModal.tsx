@@ -42,10 +42,14 @@ export function usePaystackModal() {
       amount: amount * 100, // Convert to kobo
       ref: reference,
       onClose: () => {
-        onClose?.()
+        if (onClose) {
+          onClose()
+        }
       },
       onSuccess: (response) => {
-        onSuccess?.()
+        if (onSuccess) {
+          onSuccess()
+        }
       },
     })
 
