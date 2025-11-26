@@ -1,6 +1,6 @@
 "use client"
 
-import { Dialog, DialogContent, DialogHeader, DialogProvider, DialogTitle } from "@/components/ui/dialog"
+import { DialogContent, DialogHeader, DialogProvider, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { CheckCircle, Loader2 } from "lucide-react"
