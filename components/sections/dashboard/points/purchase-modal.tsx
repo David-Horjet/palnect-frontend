@@ -43,7 +43,7 @@ export function PurchaseModal({
     try {
       initializePayment({
         email: paymentData.email,
-        amount: paymentData.amount/100,
+        amount: paymentData.amount,
         reference: paymentData.reference,
         publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
         onSuccess: () => {

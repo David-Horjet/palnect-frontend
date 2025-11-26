@@ -39,7 +39,7 @@ export function usePaystackModal() {
     const handler = window.PaystackPop.setup({
       key: publicKey,
       email,
-      amount: amount * 100, // Convert to kobo
+      amount: amount,
       ref: reference,
       onClose: () => {
         if (onClose) {
