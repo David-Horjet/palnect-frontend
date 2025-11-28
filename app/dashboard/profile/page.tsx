@@ -87,7 +87,7 @@ export default function ProfilePage() {
       setIsCompressingAvatar(true)
       setUploadProgress(10)
       try {
-        const compressed = await compressFile(file, 2) // 2MB max for avatars
+        const compressed = await compressFile(file, 2)
         setUploadProgress(50)
         await dispatch(uploadAvatar(compressed))
         setUploadProgress(100)
