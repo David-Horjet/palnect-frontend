@@ -22,29 +22,27 @@ export default function VerifyPaymentPage() {
   const [verificationResult, setVerificationResult] = useState<"pending" | "success" | "failed">("pending")
 
   useEffect(() => {
-    if (token && reference && !verificationAttempted) {
-      handleVerify()
+    if (token && reference && verificationResult === "pending" && !verificationAttempted) {
+      handleVerify();
     }
-  }, [token, reference, verificationAttempted])
+  }, [token, reference, verificationResult, verificationAttempted]);
 
   const handleVerify = async () => {
-    setVerificationAttempted(true)
     try {
-      const result = await dispatch(verifyPayment({ token: token!, reference: reference! }))
+      const result = await dispatch(verifyPayment({ token: token!, reference: reference! }));
 
-      // Check if the action was fulfilled (not rejected)
       if (result.type.endsWith("/fulfilled")) {
-        setVerificationResult("success")
-        if (token) {
-          dispatch(fetchBalance({ token }))
-        }
-      } else if (result.type.endsWith("/rejected")) {
-        setVerificationResult("failed")
+        setVerificationResult("success");
+        if (token) dispatch(fetchBalance({ token }));
+      } else {
+        setVerificationResult("failed");
       }
-    } catch (error: any) {
-      setVerificationResult("failed")
+    } catch {
+      setVerificationResult("failed");
+    } finally {
+      setVerificationAttempted(true);
     }
-  }
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
