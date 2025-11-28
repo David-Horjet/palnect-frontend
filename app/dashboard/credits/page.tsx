@@ -299,8 +299,8 @@ export default function PointsPage() {
               <div>
                 <Badge className="mb-2 bg-destructive/20 text-destructive">Note</Badge>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Credits are non-refundable</li>
-                  <li>• Unused credits expire after 1 year</li>
+                  <li>• Earned or Bought Credits can be converted to your local currency</li>
+                  <li>• Unused credits does not expire</li>
                   <li>• Subscriptions auto-expire on due date</li>
                 </ul>
               </div>
