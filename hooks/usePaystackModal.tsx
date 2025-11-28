@@ -41,15 +41,15 @@ export function usePaystackModal() {
       email,
       amount: amount,
       ref: reference,
-      onClose: () => {
-        if (onClose) {
-          onClose()
-        }
-      },
       onSuccess: (response) => {
         console.log("response: ", response)
         if (onSuccess) {
           onSuccess()
+        }
+      },
+      onClose: () => {
+        if (onClose) {
+          onClose()
         }
       },
     })
