@@ -42,7 +42,6 @@ export function usePaystackModal() {
       amount: amount,
       ref: reference,
       onSuccess: (response) => {
-        console.log("response: ", response)
         if (onSuccess) {
           onSuccess()
         }

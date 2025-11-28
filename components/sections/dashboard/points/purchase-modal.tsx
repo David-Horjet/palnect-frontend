@@ -47,7 +47,6 @@ export function PurchaseModal({
         reference: paymentData.reference,
         publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
         onSuccess: () => {
-          console.log("🎉 Payment success event triggered");
           setIsProcessing(false)
           toast.success("Payment successful! Redirecting to verification...")
           setTimeout(() => {
