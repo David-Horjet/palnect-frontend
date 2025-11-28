@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import { verifyPayment, fetchBalance } from "@/store/slices/pointsSlice"
@@ -21,9 +21,12 @@ export default function VerifyPaymentPage() {
   const [verificationAttempted, setVerificationAttempted] = useState(false)
   const [verificationResult, setVerificationResult] = useState<"pending" | "success" | "failed">("pending")
 
+  const hasVerifiedRef = useRef(false)
+
   useEffect(() => {
     console.log("debugging: ", token, reference, verificationResult, verificationAttempted)
-    if (token && reference && verificationResult === "pending" && !verificationAttempted) {
+    if (!hasVerifiedRef.current && token && reference && verificationResult === "pending" && !verificationAttempted) {
+      hasVerifiedRef.current = true
       handleVerify();
     }
   }, [token, reference, verificationResult, verificationAttempted]);
@@ -81,7 +84,7 @@ export default function VerifyPaymentPage() {
               <div>
                 <h1 className="text-lg md:text-xl font-bold text-foreground mb-2">Payment Successful</h1>
                 <p className="text-xs md:text-sm text-muted-foreground mb-4">
-                  Your credits have been added to your account. You can now use them to subscribe to mentors.
+                  Your credits have been added to your account. You can now use them within the app.
                 </p>
               </div>
               <div className="space-y-2">
