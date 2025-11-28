@@ -83,7 +83,7 @@ export default function DashboardPage() {
               <div className="flex-1">
                 <h2 className="text-base md:text-lg lg:text-2xl font-bold text-foreground mb-2">Get started with Palnect</h2>
                 <p className="text-xs md:text-sm text-muted-foreground mb-4">
-                  Upload resources, find mentors, and earn points to grow your academic network.
+                  Upload resources, find mentors, and earn credits to grow your academic network.
                 </p>
                 {/* <div className="flex flex-wrap gap-3">
                   <Button variant="primary" size="sm">
@@ -139,10 +139,10 @@ export default function DashboardPage() {
                 className="h-auto p-5 justify-center flex-col items-start hover:bg-primary/5 bg-transparent"
 
               >
-                <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/points">
+                <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/credits">
                   <Zap className="h-5 w-5" />
                   <div className="flex flex-col gap-1 items-start">
-                    <span className="font-semibold">Buy Points</span>
+                    <span className="font-semibold">Buy Credits</span>
                     <span className="text-xs text-muted-foreground">Get credits for services</span>
                   </div>
                 </Link>
@@ -174,9 +174,9 @@ export default function DashboardPage() {
               icon={<Users className="h-5 w-5" />}
             />
             <StatCard
-              label="Points Balance"
+              label="Credits Balance"
               value={pointsBalance.toString()}
-              change={pointsBalance > 0 ? "Ready to use" : "Buy more points"}
+              change={pointsBalance > 0 ? "Ready to use" : "Buy more credits"}
               trend={pointsBalance > 0 ? "up" : "neutral"}
               icon={<Zap className="h-5 w-5" />}
             />
@@ -271,16 +271,16 @@ export default function DashboardPage() {
               <Card className="bg-linear-to-br from-primary/10 to-accent/10 border-primary/20 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Your Points Balance</p>
+                    <p className="text-sm text-muted-foreground mb-1">Your Credits Balance</p>
                     <p className="text-3xl font-bold text-foreground">{pointsLoading ? "..." : pointsBalance}</p>
                   </div>
                   <Zap className="h-8 w-8 text-primary opacity-50" />
                 </div>
                 <p className="text-xs text-muted-foreground mb-4">
-                  Use points to subscribe to mentors and unlock premium resources
+                  Use credits to subscribe to mentors and unlock premium resources
                 </p>
                 <Button size="sm" className="w-full">
-                  <Link href="/dashboard/points">Buy More Points</Link>
+                  <Link href="/dashboard/credits">Buy More Credits</Link>
                 </Button>
               </Card>
 
@@ -298,8 +298,8 @@ export default function DashboardPage() {
                       return (
                         <Link
                           key={sub.id}
-                          href={`/dashboard/mentors/${sub.mentor.id}`}
-                          className="p-3 bg-muted/10 rounded-lg border border-border/50 hover:bg-muted/20 transition-colors block"
+                          href={`/dashboard/mentors/${sub.mentor_profile_id}`}
+                          className={`p-3 bg-muted/10 rounded-lg border border-border/50 hover:bg-muted/20 transition-colors ${sub.status === "active" ? "block" : "hidden"}`}
                         >
                           <p className="font-semibold text-sm text-foreground">
                             {sub.mentor?.first_name} {sub.mentor?.last_name}

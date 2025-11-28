@@ -23,12 +23,16 @@ export default function SignUpPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    agreeToTerms: false,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, type, checked, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }))
   }
 
   const validateForm = () => {
@@ -40,6 +44,7 @@ export default function SignUpPage() {
     if (!formData.password) newErrors.password = "Password is required"
     if (formData.password.length < 8) newErrors.password = "Password must be at least 8 characters"
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match"
+    if (!formData.agreeToTerms) newErrors.agreeToTerms = "You must agree to the Terms of Service and Privacy Policy"
     return newErrors
   }
 
@@ -74,7 +79,7 @@ export default function SignUpPage() {
           <p className="text-muted-foreground">Join our community and start learning</p>
         </div>
 
-{/* Error Alert */}
+        {/* Error Alert */}
         {error && (
           <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
             {error}
@@ -134,6 +139,27 @@ export default function SignUpPage() {
             error={errors.confirmPassword}
             required
           />
+          <div className="flex items-start gap-3 p-3 bg-muted/20 rounded-lg border border-border/50">
+            <input
+              type="checkbox"
+              id="agreeToTerms"
+              name="agreeToTerms"
+              checked={formData.agreeToTerms}
+              onChange={handleChange}
+              className="mt-1 h-4 w-4 rounded border-input cursor-pointer"
+            />
+            <label htmlFor="agreeToTerms" className="text-sm text-muted-foreground cursor-pointer">
+              I agree to the{" "}
+              <Link href="/legal/terms-of-service" target="_blank" className="text-primary hover:underline font-medium">
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link href="/legal/privacy-policy" target="_blank" className="text-primary hover:underline font-medium">
+                Privacy Policy
+              </Link>
+            </label>
+          </div>
+          {errors.agreeToTerms && <p className="text-destructive text-sm">{errors.agreeToTerms}</p>}
 
           <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
             {loading ? "Creating Account..." : "Create Account"}

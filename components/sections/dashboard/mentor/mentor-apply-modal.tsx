@@ -128,7 +128,7 @@ export function MentorApplyModal({ isOpen, onClose }: MentorApplyModalProps) {
           <div>
             <h2 className="text-2xl font-bold text-foreground">Become a Mentor</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Share your expertise and earn points by mentoring students
+              Share your expertise and earn credits by mentoring students
             </p>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-muted rounded-lg transition-colors">
@@ -184,7 +184,7 @@ export function MentorApplyModal({ isOpen, onClose }: MentorApplyModalProps) {
 
           {/* Rates Section */}
           <div>
-            <label className="block text-sm font-semibold text-foreground mb-3">Mentorship Rates (in points)</label>
+            <label className="block text-sm font-semibold text-foreground mb-3">Mentorship Rates (in credits)</label>
             <div className="grid grid-cols-3 gap-4">
               <FormField
                 label="Daily Rate"

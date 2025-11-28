@@ -9,6 +9,7 @@ interface Subscription {
   start_date: string
   end_date: string
   status: string
+  mentor_profile_id: string
   mentor?: {
     id: string
     first_name: string

@@ -11,11 +11,13 @@ import { Calendar, Clock, Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import Link from "next/link"
 
 export default function SubscriptionsPage() {
   const dispatch = useDispatch() as AppDispatch
   const { token } = useAuth()
   const { studentSubscriptions, loading, pagination } = useSelector((state: RootState) => state.subscriptions)
+  console.log("studentSubscriptions: ", studentSubscriptions)
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
@@ -73,11 +75,11 @@ export default function SubscriptionsPage() {
             <>
               <div className="space-y-4">
                 {studentSubscriptions.map((subscription) => (
-                  <Card key={subscription.id} className="p-6 hover:border-primary/50 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex gap-4 flex-1">
+                  <Card key={subscription.id} className="hover:border-primary/50 transition-colors">
+                    <Link href={`/dashboard/mentors/${subscription.mentor_profile_id}`} className="flex items-start justify-between gap-4">
+                      <div className="flex gap-2 md:gap-4 flex-1">
                         {/* Mentor Avatar */}
-                        <div className="h-16 w-16 rounded-full bg-linear-to-br from-primary to-accent shrink-0 overflow-hidden">
+                        <div className="h-10 md:h-16 w-10 md:w-16 rounded-full bg-linear-to-br from-primary to-accent shrink-0 overflow-hidden">
                           {subscription.mentor?.avatar_url ? (
                             <img
                               src={subscription.mentor.avatar_url || "/placeholder.svg"}
@@ -94,7 +96,7 @@ export default function SubscriptionsPage() {
 
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
-                            <h3 className="text-lg font-semibold text-foreground">
+                            <h3 className="text-base md:text-lg font-semibold text-foreground">
                               {subscription.mentor?.first_name} {subscription.mentor?.last_name}
                             </h3>
                             <Badge className={getStatusColor(subscription.status)}>
@@ -102,7 +104,7 @@ export default function SubscriptionsPage() {
                             </Badge>
                           </div>
 
-                          <p className="text-sm text-muted-foreground mb-3">{subscription.mentor?.school}</p>
+                          <p className="text-xs md:text-sm text-muted-foreground mb-3">{subscription.mentor?.school}</p>
 
                           {/* Expertise Tags */}
                           {subscription.mentor_profile?.expertise && (
@@ -121,7 +123,7 @@ export default function SubscriptionsPage() {
                           )}
 
                           {/* Duration and Dates */}
-                          <div className="flex gap-4 text-sm text-muted-foreground">
+                          <div className="flex flex-col md:flex-row gap-4 text-xs md:text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
                               <span>{getDurationLabel(subscription.duration)} duration</span>
@@ -134,12 +136,12 @@ export default function SubscriptionsPage() {
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="font-semibold text-primary">{subscription.points_cost} pts</span>
+                              <span className="font-semibold text-primary">{subscription.points_cost} credits</span>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   </Card>
                 ))}
               </div>
