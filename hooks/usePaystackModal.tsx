@@ -44,7 +44,7 @@ export function usePaystackModal() {
       onSuccess: (response) => {
         console.log("response: ", response)
         if (onSuccess) {
-          onSuccess()
+          onSuccess(response)
         }
       },
       onClose: () => {
