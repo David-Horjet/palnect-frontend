@@ -122,12 +122,12 @@ export function PurchaseModal({
               )}
             </Button>
 
-            <Card className="p-3 bg-muted/20 border-border/50">
+            {/* <Card className="p-3 bg-muted/20 border-border/50">
               <p className="text-xs text-muted-foreground">
                 A secure Paystack payment modal will open. Complete the payment using your card, bank transfer, or
                 mobile money.
               </p>
-            </Card>
+            </Card> */}
 
             <Button variant="outline" className="w-full bg-transparent" onClick={() => onOpenChange(false)}>
               Close
