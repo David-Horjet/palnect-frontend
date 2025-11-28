@@ -60,8 +60,8 @@ export default function VerifyPaymentPage() {
                 </div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground mb-2">Verifying Payment</h1>
-                <p className="text-muted-foreground">Securely confirming your transaction with Paystack...</p>
+                <h1 className="text-lg md:text-xl font-bold text-foreground mb-2">Verifying Payment</h1>
+                <p className="text-xs md:text-sm text-muted-foreground">Securely confirming your transaction with Paystack...</p>
               </div>
               <div className="pt-4">
                 <div className="space-y-2">
@@ -80,8 +80,8 @@ export default function VerifyPaymentPage() {
             <div className="text-center space-y-4">
               <CheckCircle className="h-12 w-12 text-primary mx-auto" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground mb-2">Payment Successful</h1>
-                <p className="text-muted-foreground mb-4">
+                <h1 className="text-lg md:text-xl font-bold text-foreground mb-2">Payment Successful</h1>
+                <p className="text-xs md:text-sm text-muted-foreground mb-4">
                   Your credits have been added to your account. You can now use them to subscribe to mentors.
                 </p>
               </div>
@@ -99,8 +99,8 @@ export default function VerifyPaymentPage() {
             <div className="text-center space-y-4">
               <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground mb-2">Verification Failed</h1>
-                <p className="text-muted-foreground mb-4">
+                <h1 className="text-lg md:text-xl font-bold text-foreground mb-2">Verification Failed</h1>
+                <p className="text-xs md:text-sm text-muted-foreground mb-4">
                   {error || "We couldn't verify your payment. Please try again or contact support."}
                 </p>
               </div>
