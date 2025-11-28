@@ -98,8 +98,8 @@ export const pointsService = {
     },
   ) {
     const params = new URLSearchParams()
-    if (options?.page) params.append("page", options.page.toString())
-    if (options?.limit) params.append("limit", options.limit.toString())
+    if (page) params.append("page", page.toString())
+    if (limit) params.append("limit", limit.toString())
 
     const query = params.toString()
     const endpoint = query ? `/credits/transactions?${query}` : "/credits/transactions"
