@@ -191,7 +191,7 @@ export default function MentorsPage() {
 
                       {/* Rates */}
                       <div className="bg-muted/20 rounded-lg p-3 space-y-1 text-xs">
-                        <p className="font-semibold text-foreground">Rates (in points)</p>
+                        <p className="font-semibold text-foreground">Rates (in credits)</p>
                         <div className="space-y-1 text-muted-foreground">
                           <p>Daily: {mentor.daily_rate} pts</p>
                           <p>Weekly: {mentor.weekly_rate} pts</p>

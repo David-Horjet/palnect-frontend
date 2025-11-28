@@ -27,6 +27,12 @@ interface PointsState {
   }
   paymentUrl: string | null
   paymentReference: string | null
+  paymentData: {
+    reference: string | null
+    email: string | null
+    amount: number | null
+    accessCode: string | null
+  }
 }
 
 const initialState: PointsState = {
@@ -42,6 +48,12 @@ const initialState: PointsState = {
   },
   paymentUrl: null,
   paymentReference: null,
+  paymentData: {
+    reference: null,
+    email: null,
+    amount: null,
+    accessCode: null,
+  },
 }
 
 export const fetchBalance = createAsyncThunk(
@@ -106,6 +118,12 @@ const pointsSlice = createSlice({
     clearPaymentUrl: (state) => {
       state.paymentUrl = null
       state.paymentReference = null
+      state.paymentData = {
+        reference: null,
+        email: null,
+        amount: null,
+        accessCode: null,
+      }
     },
   },
   extraReducers: (builder) => {

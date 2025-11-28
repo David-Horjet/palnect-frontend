@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Facebook, Twitter, Github } from "lucide-react"
+import { Facebook, Twitter, Github, Instagram, Linkedin } from "lucide-react"
 import Logo from "../shared/logo"
 
 export function Footer() {
@@ -48,6 +48,13 @@ export function Footer() {
                   <Facebook size={24} />
                 </Link>
                 <Link
+                  href="https://linkedin.com/in/palnect"
+                  aria-label="linkedin"
+                  className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
+                >
+                  <Linkedin size={24} />
+                </Link>
+                <Link
                   href="https://x.com/palnect"
                   aria-label="twitter"
                   className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
@@ -55,11 +62,11 @@ export function Footer() {
                   <Twitter size={24} />
                 </Link>
                 <Link
-                  href="https://github.com/palnect"
-                  aria-label="github"
+                  href="https://instagram.com/palnect"
+                  aria-label="instagram"
                   className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
                 >
-                  <Github size={24} />
+                  <Instagram size={24} />
                 </Link>
               </div>
             </div>
@@ -70,15 +77,15 @@ export function Footer() {
               <div>
                 <h4 className="mb-6 font-semibold text-foreground text-sm">Platform</h4>
                 <ul className="space-y-4">
-                  <li><Link href="/features" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Features</Link></li>
-                  <li><Link href="/mentorship" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Find a Mentor</Link></li>
-                  <li><Link href="/resources" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Resources</Link></li>
-                  <li><Link href="/pricing" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Pricing</Link></li>
+                  <li><Link href="/#features" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Features</Link></li>
+                  <li><Link href="/dashboard/mentors" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Find a Mentor</Link></li>
+                  <li><Link href="/dashboard/resources" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Resources</Link></li>
+                  {/* <li><Link href="/dashboard/credits" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Pricing</Link></li> */}
                 </ul>
               </div>
 
               {/* Company */}
-              <div>
+              {/* <div>
                 <h4 className="mb-6 font-semibold text-foreground text-sm">Company</h4>
                 <ul className="space-y-4">
                   <li><Link href="/about" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">About</Link></li>
@@ -86,16 +93,16 @@ export function Footer() {
                   <li><Link href="/careers" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Careers</Link></li>
                   <li><Link href="/contact" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Contact</Link></li>
                 </ul>
-              </div>
+              </div> */}
 
               {/* Legal */}
               <div>
                 <h4 className="mb-6 font-semibold text-foreground text-sm">Legal</h4>
                 <ul className="space-y-4">
-                  <li><Link href="/privacy" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Privacy Policy</Link></li>
-                  <li><Link href="/terms" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Terms of Service</Link></li>
-                  <li><Link href="/support" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Support</Link></li>
-                  <li><Link href="/community" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Community</Link></li>
+                  <li><Link href="/legal/privacy-policy" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Privacy Policy</Link></li>
+                  <li><Link href="/legal/terms-of-service" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Terms of Service</Link></li>
+                  <li><Link href="/legal/content-moderation" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Content Moderation</Link></li>
+                  <li><a href="https://chat.whatsapp.com/KjpEfuKNLEXDjg6EqwCUf3" target="_blank" rel="noopener noreferrer" className="text-foreground/80 hover:text-purple-400 transition-colors duration-300 text-sm">Community</a></li>
                 </ul>
               </div>
             </div>

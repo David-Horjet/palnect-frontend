@@ -162,7 +162,7 @@ export function MentorUpdateModal({ isOpen, onClose, mentor }: MentorUpdateModal
 
           {/* Rates Section */}
           <div>
-            <label className="block text-sm font-semibold text-foreground mb-3">Mentorship Rates (in points)</label>
+            <label className="block text-sm font-semibold text-foreground mb-3">Mentorship Rates (in credits)</label>
             <div className="grid grid-cols-3 gap-4">
               <FormField
                 label="Daily Rate"
