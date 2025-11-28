@@ -22,6 +22,7 @@ export default function VerifyPaymentPage() {
   const [verificationResult, setVerificationResult] = useState<"pending" | "success" | "failed">("pending")
 
   useEffect(() => {
+    console.log("debugging: ", token, reference, verificationResult, verificationAttempted)
     if (token && reference && verificationResult === "pending" && !verificationAttempted) {
       handleVerify();
     }
