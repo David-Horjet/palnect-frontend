@@ -193,7 +193,7 @@ export default function UploadResourcePage() {
                   Browse Files
                 </Button>
 
-                <p className="text-xs text-muted-foreground">Maximum file size: 10MB • PDF and DOC only</p>
+                <p className="text-xs text-muted-foreground">Maximum file size: 50MB • PDF and DOC only</p>
               </div>
             ) : (
               <div className="space-y-4">
