@@ -37,7 +37,7 @@ export function MessageBubble({ role, content, createdAt, isLoading }: MessageBu
   return (
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+        <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
           <Bot className="h-4 w-4 text-primary" />
         </div>
       )}
@@ -58,7 +58,7 @@ export function MessageBubble({ role, content, createdAt, isLoading }: MessageBu
       </div>
 
       {isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+        <div className="shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
           <User className="h-4 w-4 text-accent" />
         </div>
       )}

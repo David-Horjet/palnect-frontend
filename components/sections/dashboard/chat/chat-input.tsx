@@ -64,7 +64,7 @@ export function ChatInput({ onSend, isLoading, pointsBalance, pointCost }: ChatI
           disabled={isLoading || pointsBalance < pointCost}
           className="flex-1"
         />
-        <Button onClick={handleSend} disabled={!canSend} size="icon" className="flex-shrink-0">
+        <Button onClick={handleSend} disabled={!canSend} size="sm" className="shrink-0">
           <Send className="h-4 w-4" />
         </Button>
       </div>
