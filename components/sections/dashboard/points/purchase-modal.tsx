@@ -36,29 +36,32 @@ export function PurchaseModal({
   const router = useRouter()
 
   const handlePaymentClick = () => {
-    if (!paymentData?.reference || !paymentData?.email || !paymentData?.amount) return
+    console.log(paymentData?.accessCode)
+    if (!paymentData?.accessCode) return
 
     setIsProcessing(true)
 
     try {
       initializePayment({
-        email: paymentData.email,
-        amount: paymentData.amount,
-        reference: paymentData.reference,
-        publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "",
-        onSuccess: () => {
+        accessCode: paymentData.accessCode,
+        onSuccess: (transaction) => {
           setIsProcessing(false)
           toast.success("Payment successful! Redirecting to verification...")
           setTimeout(() => {
-            router.push(`/dashboard/credits/verify?reference=${paymentData.reference}`)
+            router.push(`/dashboard/credits/verify?reference=${transaction.reference}`)
           }, 500)
         },
-        onClose: () => {
+        onCancel: () => {
           setIsProcessing(false)
           toast.info("Payment window closed. You can retry anytime.")
         },
+        onError: (error) => {
+          setIsProcessing(false)
+          toast.error(error?.message || "Payment failed. Please try again.")
+        },
       })
     } catch (error) {
+      console.log("payment error: ", error)
       setIsProcessing(false)
       toast.error("Failed to initialize payment. Please try again.")
     }
