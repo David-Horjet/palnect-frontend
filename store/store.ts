@@ -5,6 +5,7 @@ import mentorsReducer from "./slices/mentorsSlice"
 import subscriptionsReducer from "./slices/subscriptionsSlice"
 import pointsReducer from "./slices/pointsSlice"
 import adminReducer from "./slices/adminSlice"
+import chatReducer from "./slices/chatSlice"
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     subscriptions: subscriptionsReducer,
     points: pointsReducer,
     admin: adminReducer,
+    chat: chatReducer,
   },
 })
 
