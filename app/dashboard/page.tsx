@@ -161,7 +161,7 @@ export default function DashboardPage() {
             />
             <StatCard
               label="Learning Streak"
-              value="7 days"
+              value="1 day(s)"
               change="Keep it up!"
               trend="neutral"
               icon={<TrendingUp className="h-5 w-5" />}
