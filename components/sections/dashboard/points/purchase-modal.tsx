@@ -59,6 +59,7 @@ export function PurchaseModal({
         },
       })
     } catch (error) {
+      console.log("payment error: ", error)
       setIsProcessing(false)
       toast.error("Failed to initialize payment. Please try again.")
     }

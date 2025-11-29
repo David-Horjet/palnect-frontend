@@ -15,14 +15,14 @@ interface PaystackConfig {
 declare global {
   interface Window {
     PaystackPop: {
-      setup: (config: {
+      new (config: {
         key: string
         email: string
         amount: number
         ref: string
         onClose: () => void
         onSuccess: (response: { reference: string }) => void
-      }) => { openIframe: () => void }
+      }): { pop: () => void }
     }
   }
 }
@@ -36,24 +36,24 @@ export function usePaystackModal() {
       return
     }
 
-    const handler = window.PaystackPop.setup({
+    const handler = new window.PaystackPop({
       key: publicKey,
       email,
       amount: amount,
       ref: reference,
-      onSuccess: (response) => {
-        if (onSuccess) {
-          onSuccess()
-        }
-      },
       onClose: () => {
         if (onClose) {
           onClose()
         }
       },
+      onSuccess: (response) => {
+        if (onSuccess) {
+          onSuccess()
+        }
+      },
     })
 
-    handler.openIframe()
+    handler.pop()
   }, [])
 
   return { initializePayment }
