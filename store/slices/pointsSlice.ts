@@ -27,6 +27,7 @@ interface PointsState {
   }
   paymentUrl: string | null
   paymentReference: string | null
+  accessCode: string | null
   paymentData: {
     reference: string | null
     email: string | null
@@ -48,6 +49,7 @@ const initialState: PointsState = {
   },
   paymentUrl: null,
   paymentReference: null,
+  accessCode: null,
   paymentData: {
     reference: null,
     email: null,
@@ -139,6 +141,7 @@ const pointsSlice = createSlice({
         state.loading = false
         state.paymentUrl = action.payload.authorizationUrl
         state.paymentReference = action.payload.reference
+        state.accessCode = action.payload.access_code
       })
       .addCase(purchasePoints.rejected, (state, action) => {
         state.loading = false
