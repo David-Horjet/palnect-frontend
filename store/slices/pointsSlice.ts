@@ -141,7 +141,7 @@ const pointsSlice = createSlice({
         state.loading = false
         state.paymentUrl = action.payload.authorizationUrl
         state.paymentReference = action.payload.reference
-        state.accessCode = action.payload.access_code
+        state.accessCode = action.payload.accessCode
       })
       .addCase(purchasePoints.rejected, (state, action) => {
         state.loading = false

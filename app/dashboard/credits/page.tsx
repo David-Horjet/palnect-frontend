@@ -25,7 +25,7 @@ interface PointsPackage {
 export default function PointsPage() {
   const dispatch = useDispatch() as AppDispatch
   const { token, user } = useAuth()
-  const { balance, transactions, loading, pagination, paymentUrl, paymentReference } = useSelector(
+  const { balance, transactions, loading, pagination, paymentUrl, paymentReference, accessCode } = useSelector(
     (state: RootState) => state.points,
   )
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null)
@@ -113,11 +113,10 @@ export default function PointsPage() {
               {packages.map((pkg) => (
                 <Card
                   key={pkg.id}
-                  className={`p-4 md:p-6 cursor-pointer transition-all relative ${
-                    selectedPackage === pkg.id
+                  className={`p-4 md:p-6 cursor-pointer transition-all relative ${selectedPackage === pkg.id
                       ? "border-primary bg-primary/5 ring-2 ring-primary"
                       : "hover:border-primary/50"
-                  } ${pkg.popular ? "ring-1 ring-accent" : ""}`}
+                    } ${pkg.popular ? "ring-1 ring-accent" : ""}`}
                   onClick={() => setSelectedPackage(pkg.id)}
                 >
                   {pkg.popular && <Badge className="absolute top-2 right-2 bg-accent text-foreground">Popular</Badge>}
@@ -209,9 +208,8 @@ export default function PointsPage() {
                     {transactions.map((tx, idx) => (
                       <div
                         key={tx.id}
-                        className={`p-2 md:p-4 flex items-start justify-between gap-4 ${
-                          idx !== transactions.length - 1 ? "border-b border-border/50" : ""
-                        } hover:bg-muted/20 transition-colors`}
+                        className={`p-2 md:p-4 flex items-start justify-between gap-4 ${idx !== transactions.length - 1 ? "border-b border-border/50" : ""
+                          } hover:bg-muted/20 transition-colors`}
                       >
                         <div className="flex items-start gap-3 flex-1">
                           <div className={`p-2 rounded-lg ${tx.amount > 0 ? "bg-primary/10" : "bg-destructive/10"}`}>
@@ -320,7 +318,7 @@ export default function PointsPage() {
           reference: paymentReference,
           email: user?.email || null,
           amount: packages.find((p) => p.id === selectedPackage)?.kobo || null,
-          accessCode: paymentReference || null,
+          accessCode: accessCode || null,
         }}
       />
     </div>
