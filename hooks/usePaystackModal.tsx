@@ -4,56 +4,54 @@ import { useCallback } from "react"
 import { toast } from "@/lib/toast"
 
 interface PaystackConfig {
-  email: string
-  amount: number
-  reference: string
-  publicKey: string
-  onSuccess?: () => void
-  onClose?: () => void
+  accessCode: string
+  onSuccess?: (transaction: any) => void
+  onCancel?: () => void
+  onError?: (error: any) => void
 }
 
 declare global {
   interface Window {
-    PaystackPop: {
-      new (config: {
-        key: string
-        email: string
-        amount: number
-        ref: string
-        onClose: () => void
-        onSuccess: (response: { reference: string }) => void
-      }): { pop: () => void }
-    }
+    PaystackPop: any
   }
 }
 
 export function usePaystackModal() {
   const initializePayment = useCallback((config: PaystackConfig) => {
-    const { email, amount, reference, publicKey, onSuccess, onClose } = config
+    const { accessCode, onSuccess, onCancel, onError } = config
 
     if (!window.PaystackPop) {
       toast.error("Paystack is not loaded. Please refresh the page.")
       return
     }
 
-    const handler = new window.PaystackPop({
-      key: publicKey,
-      email,
-      amount: amount,
-      ref: reference,
-      onClose: () => {
-        if (onClose) {
-          onClose()
-        }
-      },
-      onSuccess: (response) => {
-        if (onSuccess) {
-          onSuccess()
-        }
-      },
-    })
+    try {
+      const popup = new window.PaystackPop()
 
-    handler.pop()
+      popup.resumeTransaction(accessCode, {
+        onSuccess: (transaction: any) => {
+          console.log("[v0] Payment successful:", transaction)
+          if (onSuccess) {
+            onSuccess(transaction)
+          }
+        },
+        onCancel: () => {
+          console.log("[v0] Payment cancelled")
+          if (onCancel) {
+            onCancel()
+          }
+        },
+        onError: (error: any) => {
+          console.log("[v0] Payment error:", error)
+          if (onError) {
+            onError(error)
+          }
+        },
+      })
+    } catch (error) {
+      console.error("[v0] Failed to initialize Paystack:", error)
+      toast.error("Failed to initialize payment. Please try again.")
+    }
   }, [])
 
   return { initializePayment }
