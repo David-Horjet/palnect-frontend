@@ -209,7 +209,7 @@ export default function LexiChatPage() {
                     content={msg.content}
                     createdAt={msg.created_at}
                     status={msg.status}
-                    isNew={msg.id.startsWith("temp-")}
+                    isNew={msg.isNew}
                     isLoading={false}
                   />
                 ))}

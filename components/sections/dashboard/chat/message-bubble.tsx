@@ -10,15 +10,15 @@ interface MessageBubbleProps {
   createdAt: string
   status?: "sending" | "sent" | "delivered" | "failed"
   isLoading?: boolean
+  isNew?: boolean
 }
 
-export function MessageBubble({ role, content, createdAt, status, isLoading }: MessageBubbleProps) {
+export function MessageBubble({ role, content, createdAt, status, isLoading, isNew }: MessageBubbleProps) {
   const [displayedContent, setDisplayedContent] = useState("")
   const isUser = role === "user"
 
-  // Typewriter effect for assistant messages
   useEffect(() => {
-    if (!isUser && content && !isLoading) {
+    if (!isUser && content && isNew && !isLoading) {
       let index = 0
       const interval = setInterval(() => {
         if (index <= content.length) {
@@ -30,10 +30,10 @@ export function MessageBubble({ role, content, createdAt, status, isLoading }: M
       }, 15)
 
       return () => clearInterval(interval)
-    } else if (isUser || isLoading) {
+    } else {
       setDisplayedContent(content)
     }
-  }, [content, isUser, isLoading])
+  }, [content, isUser, isNew, isLoading])
 
   const renderStatusIcon = () => {
     if (role !== "user" || !status) return null
@@ -52,6 +52,8 @@ export function MessageBubble({ role, content, createdAt, status, isLoading }: M
     }
   }
 
+  const messageOpacity = isUser && status === "sending" ? "opacity-50" : "opacity-100"
+
   return (
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
@@ -62,7 +64,7 @@ export function MessageBubble({ role, content, createdAt, status, isLoading }: M
 
       <div className={`max-w-xs lg:max-w-md xl:max-w-lg flex flex-col gap-1`}>
         <div
-          className={`px-4 py-2 rounded-lg ${
+          className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${
             isUser ? "bg-primary text-primary-foreground rounded-br-none" : "bg-muted text-foreground rounded-bl-none"
           }`}
         >
