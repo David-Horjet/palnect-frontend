@@ -9,6 +9,7 @@ interface ChatState {
   loading: boolean
   messageLoading: boolean
   error: string | null
+  isTyping: boolean
   pagination: {
     total: number
     page: number
@@ -24,6 +25,7 @@ const initialState: ChatState = {
   loading: false,
   messageLoading: false,
   error: null,
+  isTyping: false,
   pagination: {
     total: 0,
     page: 1,
@@ -111,6 +113,9 @@ const chatSlice = createSlice({
       state.currentConversation = null
       state.messages = []
     },
+    setTyping: (state, action) => {
+      state.isTyping = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -182,5 +187,5 @@ const chatSlice = createSlice({
   },
 })
 
-export const { clearCurrentConversation } = chatSlice.actions
+export const { clearCurrentConversation, setTyping } = chatSlice.actions
 export default chatSlice.reducer
