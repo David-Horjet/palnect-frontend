@@ -8,7 +8,7 @@ export interface Message {
   sender_id: string
   role: "user" | "assistant"
   content: string
-  status: "sent" | "delivered" | "seen"
+  status: "sent" | "sending" | "delivered" | "seen" | "failed"
   attachments?: Array<{ url: string; type: string }>
   client_message_id?: string
   is_deleted: boolean
@@ -33,21 +33,19 @@ export interface Conversation {
   is_deleted: boolean
   created_at: string
   updated_at: string
-  messages?: Message[]
+  messages: Message[]
   unread_count?: number
 }
 
 export interface ConversationsResponse {
   success: boolean
   message: string
-  data: {
-    conversations: Conversation[]
-    pagination: {
-      total: number
-      page: number
-      limit: number
-      totalPages: number
-    }
+  data: Conversation[]
+  pagination: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
   }
 }
 

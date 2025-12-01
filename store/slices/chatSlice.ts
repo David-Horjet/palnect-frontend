@@ -76,7 +76,7 @@ export const createConversation = createAsyncThunk(
 export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
   async (
-    { token, conversationId, clientMessageId, message }: { token: string; conversationId: string | null; clientMessageId: string; message: string },
+    { token, conversationId, clientMessageId, message }: { token: string; conversationId: string; clientMessageId: string; message: string },
     { rejectWithValue },
   ) => {
     try {
@@ -185,22 +185,24 @@ const chatSlice = createSlice({
         const clientMessageId = action.meta.arg.clientMessageId
         state.messages.push({
           id: clientMessageId,
-          conversationId: action.meta.arg.conversationId || "",
+          conversation_id: action.meta.arg.conversationId || "",
           role: "user",
           content: action.meta.arg.message,
           created_at: new Date().toISOString(),
           status: "sending",
           isNew: false,
+          sender_id: "",
+          is_deleted: false
         })
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.messageLoading = false
-        state.messages = action.payload.conversation.messages.map((msg: Message) => ({
+        state.messages = action.payload.messages.map((msg: Message) => ({
           ...msg,
-          status: msg.role === "user" ? "delivered" : undefined,
+          status: msg.role === "user" ? "delivered" : "failed",
           isNew: msg.role === "assistant",
         }))
-        state.currentConversation = action.payload.conversation
+        state.currentConversation = action.payload
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.messageLoading = false
