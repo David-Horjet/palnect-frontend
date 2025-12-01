@@ -1,17 +1,18 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Bot, User } from "lucide-react"
+import { Bot, User, Check, CheckCheck, Clock } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 interface MessageBubbleProps {
   role: "user" | "assistant"
   content: string
   createdAt: string
+  status?: "sending" | "sent" | "delivered" | "failed"
   isLoading?: boolean
 }
 
-export function MessageBubble({ role, content, createdAt, isLoading }: MessageBubbleProps) {
+export function MessageBubble({ role, content, createdAt, status, isLoading }: MessageBubbleProps) {
   const [displayedContent, setDisplayedContent] = useState("")
   const isUser = role === "user"
 
@@ -34,6 +35,23 @@ export function MessageBubble({ role, content, createdAt, isLoading }: MessageBu
     }
   }, [content, isUser, isLoading])
 
+  const renderStatusIcon = () => {
+    if (role !== "user" || !status) return null
+
+    switch (status) {
+      case "sending":
+        return <Clock className="h-3 w-3 text-muted-foreground" />
+      case "sent":
+        return <Check className="h-3 w-3 text-muted-foreground" />
+      case "delivered":
+        return <CheckCheck className="h-3 w-3 text-primary" />
+      case "failed":
+        return <span className="text-destructive text-xs">Failed</span>
+      default:
+        return null
+    }
+  }
+
   return (
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
       {!isUser && (
@@ -52,9 +70,12 @@ export function MessageBubble({ role, content, createdAt, isLoading }: MessageBu
           {!isUser && isLoading && <span className="inline-block animate-pulse">▌</span>}
         </div>
 
-        <span className="text-xs text-muted-foreground px-2">
-          {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
-        </span>
+        <div className="flex items-center gap-1 px-2">
+          <span className="text-xs text-muted-foreground">
+            {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
+          </span>
+          {renderStatusIcon()}
+        </div>
       </div>
 
       {isUser && (
