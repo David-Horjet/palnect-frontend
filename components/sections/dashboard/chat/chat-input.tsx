@@ -1,23 +1,26 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Send, Zap } from "lucide-react"
+import { useSocket } from "@/hooks/useSocket"
 
 interface ChatInputProps {
   onSend: (message: string) => void
   isLoading: boolean
   pointsBalance: number
   pointCost: number
+  conversationId?: string
 }
 
-export function ChatInput({ onSend, isLoading, pointsBalance, pointCost }: ChatInputProps) {
+export function ChatInput({ onSend, isLoading, pointsBalance, pointCost, conversationId }: ChatInputProps) {
   const [message, setMessage] = useState("")
   const [canSend, setCanSend] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const socket = useSocket()
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     setCanSend(message.trim().length > 0 && pointsBalance >= pointCost && !isLoading)
@@ -36,6 +39,25 @@ export function ChatInput({ onSend, isLoading, pointsBalance, pointCost }: ChatI
       e.preventDefault()
       handleSend()
     }
+  }
+
+  const handleTyping = () => {
+    if (!socket || !conversationId) return
+
+    socket.emit("chat:typing", { conversationId })
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit("chat:stopTyping", { conversationId })
+    }, 1000)
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value)
+    handleTyping()
   }
 
   return (
@@ -59,12 +81,12 @@ export function ChatInput({ onSend, isLoading, pointsBalance, pointCost }: ChatI
           ref={inputRef}
           placeholder="Ask Lexi anything..."
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
           disabled={isLoading || pointsBalance < pointCost}
           className="flex-1"
         />
-        <Button onClick={handleSend} disabled={!canSend} size="sm" className="shrink-0">
+        <Button onClick={handleSend} disabled={!canSend} size="md" className="shrink-0">
           <Send className="h-4 w-4" />
         </Button>
       </div>

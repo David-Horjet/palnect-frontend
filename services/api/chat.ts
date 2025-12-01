@@ -5,6 +5,7 @@ export interface Message {
   conversationId: string
   role: "user" | "assistant"
   content: string
+  status: "sending" | "sent" | "delivered" | "failed" | undefined
   created_at: string
 }
 
@@ -47,9 +48,9 @@ export const chatService = {
     return apiClient.get<{ success: boolean; data: Conversation }>(`/chat/conversations/${conversationId}`, token)
   },
 
-  async sendMessage(token: string, conversationId: string | null, message: string) {
+  async sendMessage(token: string, conversationId: string | null, clientMessageId: string, message: string) {
     const endpoint = conversationId ? `/chat/messages?conversationId=${conversationId}` : "/chat/messages"
-    return apiClient.post<ChatResponse>(endpoint, { message }, token)
+    return apiClient.post<ChatResponse>(endpoint, { message, clientMessageId }, token)
   },
 
   async createConversation(token: string) {

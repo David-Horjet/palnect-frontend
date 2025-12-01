@@ -9,6 +9,8 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Sparkles, MessageCircle } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
+import { useSocket } from "@/hooks/useSocket"
+import { setTyping } from "@/store/slices/chatSlice"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ChatInput } from "@/components/sections/dashboard/chat/chat-input"
@@ -28,9 +30,10 @@ export default function LexiChatPage() {
   const messages = useSelector((state: RootState) => state.chat.messages)
   const messageLoading = useSelector((state: RootState) => state.chat.messageLoading)
   const chatLoading = useSelector((state: RootState) => state.chat.loading)
-
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
   const user = useSelector((state: RootState) => state.auth.user)
+  const socket = useSocket()
+  const isTyping = useSelector((state: RootState) => state.chat.isTyping)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -56,6 +59,37 @@ export default function LexiChatPage() {
 
     initialize()
   }, [dispatch])
+
+  useEffect(() => {
+    if (!socket || !currentConversation) return
+
+    const handleNewMessage = (data: any) => {
+      console.log("[v0] Received new message:", data)
+      // Redux already handles the message via socket events in chatSlice
+    }
+
+    const handleTyping = (data: any) => {
+      if (data.conversationId === currentConversation.id) {
+        dispatch(setTyping(true))
+      }
+    }
+
+    const handleStopTyping = (data: any) => {
+      if (data.conversationId === currentConversation.id) {
+        dispatch(setTyping(false))
+      }
+    }
+
+    socket.on("ai:message", handleNewMessage)
+    socket.on("ai:typing", handleTyping)
+    socket.on("ai:stopTyping", handleStopTyping)
+
+    return () => {
+      socket.off("ai:message", handleNewMessage)
+      socket.off("ai:typing", handleTyping)
+      socket.off("ai:stopTyping", handleStopTyping)
+    }
+  }, [socket, currentConversation, dispatch])
 
   const handleSelectConversation = async (conversationId: string) => {
     const token = localStorage.getItem("token")
@@ -83,6 +117,8 @@ export default function LexiChatPage() {
       return
     }
 
+    const clientMessageId = `temp-${Date.now()}`
+
     if (!currentConversation) {
       const result = await dispatch(createConversation({ token }))
       if (result.payload) {
@@ -91,6 +127,7 @@ export default function LexiChatPage() {
             token,
             conversationId: (result.payload as any).id,
             message,
+            clientMessageId,
           }),
         )
       }
@@ -100,6 +137,7 @@ export default function LexiChatPage() {
           token,
           conversationId: currentConversation.id,
           message,
+          clientMessageId,
         }),
       )
     }
@@ -123,7 +161,6 @@ export default function LexiChatPage() {
       <DashboardSidebar activeTab="lexi" />
 
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {/* Chat Sidebar */}
         {!isMobile && (
           <div className="w-64 border-r border-border overflow-hidden">
             <ChatSidebar
@@ -134,13 +171,11 @@ export default function LexiChatPage() {
           </div>
         )}
 
-        {/* Main Chat Area */}
         <main className="flex-1 flex flex-col overflow-hidden">
           <DashboardHeader title="Lexi - AI Study Mentor" subtitle="Your personal academic assistant" />
 
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {!currentConversation || messages.length === 0 ? (
-              /* Welcome State */
               <div className="flex items-center justify-center h-full">
                 <Card className="max-w-md p-8 text-center space-y-6">
                   <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
@@ -162,7 +197,6 @@ export default function LexiChatPage() {
                 </Card>
               </div>
             ) : (
-              /* Messages Area */
               <div className="space-y-4">
                 {messages.map((msg) => (
                   <MessageBubble
@@ -170,30 +204,36 @@ export default function LexiChatPage() {
                     role={msg.role}
                     content={msg.content}
                     createdAt={msg.created_at}
+                    status={msg.status}
                     isLoading={messageLoading && msg.role === "assistant" && msg === messages[messages.length - 1]}
                   />
                 ))}
-                {messageLoading && messages.length > 0 && messages[messages.length - 1]?.role === "user" && (
-                  <MessageBubble role="assistant" content="" createdAt={new Date().toISOString()} isLoading={true} />
+                {isTyping && (
+                  <MessageBubble
+                    role="assistant"
+                    content=""
+                    createdAt={new Date().toISOString()}
+                    isLoading={true}
+                    status="sending"
+                  />
                 )}
                 <div ref={messagesEndRef} />
               </div>
             )}
           </div>
 
-          {/* Chat Input */}
           {currentConversation && (
             <ChatInput
               onSend={handleSendMessage}
               isLoading={messageLoading}
               pointsBalance={pointsBalance}
               pointCost={POINT_COST_PER_MESSAGE}
+              conversationId={currentConversation.id}
             />
           )}
         </main>
       </div>
 
-      {/* Mobile Sidebar */}
       {isMobile && mobileDrawerOpen && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileDrawerOpen(false)} />

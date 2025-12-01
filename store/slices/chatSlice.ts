@@ -76,11 +76,11 @@ export const createConversation = createAsyncThunk(
 export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
   async (
-    { token, conversationId, message }: { token: string; conversationId: string | null; message: string },
+    { token, conversationId, clientMessageId, message }: { token: string; conversationId: string | null; clientMessageId: string; message: string },
     { rejectWithValue },
   ) => {
     try {
-      const response = await chatService.sendMessage(token, conversationId, message)
+      const response = await chatService.sendMessage(token, conversationId, clientMessageId, message,)
       return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to send message"
