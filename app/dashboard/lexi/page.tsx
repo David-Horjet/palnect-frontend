@@ -169,7 +169,7 @@ export default function LexiChatPage() {
                     key={msg.id}
                     role={msg.role}
                     content={msg.content}
-                    createdAt={msg.createdAt}
+                    createdAt={msg.created_at}
                     isLoading={messageLoading && msg.role === "assistant" && msg === messages[messages.length - 1]}
                   />
                 ))}

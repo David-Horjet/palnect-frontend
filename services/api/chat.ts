@@ -5,7 +5,7 @@ export interface Message {
   conversationId: string
   role: "user" | "assistant"
   content: string
-  createdAt: string
+  created_at: string
 }
 
 export interface Conversation {
