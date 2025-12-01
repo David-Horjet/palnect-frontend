@@ -63,10 +63,10 @@ export const chatService = {
   },
 
   // Send message (works for all conversation types)
-  async sendMessage(token: string, conversationId: string, message: string) {
+  async sendMessage(token: string, conversationId: string, clientMessageId: string, message: string) {
     return apiClient.post<{ success: boolean; data: Conversation }>(
-      `/chat/conversations/${conversationId}/messages`,
-      { content: message },
+      `/chat/messages?conversationId=${conversationId}`,
+      { message, clientMessageId },
       token,
     )
   },
