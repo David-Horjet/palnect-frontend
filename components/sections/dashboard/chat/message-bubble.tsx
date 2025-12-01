@@ -8,7 +8,7 @@ interface MessageBubbleProps {
   role: "user" | "assistant"
   content: string
   createdAt: string
-  status?: "sending" | "sent" | "delivered" | "failed"
+  status?: "sending" | "sent" | "delivered" | "seen" | "failed"
   isLoading?: boolean
   isNew?: boolean
 }

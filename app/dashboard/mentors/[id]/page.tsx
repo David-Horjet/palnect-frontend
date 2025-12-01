@@ -9,10 +9,12 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { fetchMentorDetail } from "@/store/slices/mentorsSlice"
 import { useAuth } from "@/hooks/useAuth"
 import Link from "next/link"
-import { ArrowLeft, Star, Users, Clock, Calendar, Loader2 } from "lucide-react"
+import { ArrowLeft, Star, Users, Clock, Calendar, Loader2, MessageSquare } from "lucide-react"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { SubscribeModal } from "@/components/sections/dashboard/subscriptions/subscribe-modal"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { subscriptionsService } from "@/services/api/subscriptions"
 
 export default function MentorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params); 
@@ -44,8 +46,8 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
   }, [token, mentor])
 
   const handleMessageClick = () => {
-    if (isSubscribed) {
-      router.push(`/dashboard/mentors/${mentor.id}/chat`)
+    if (isSubscribed && mentor) {
+      router.push(`/dashboard/messages/${mentor.id}`)
     } else {
       setShowSubscribeModal(true)
     }
@@ -239,10 +241,10 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
           weekly: mentor.weekly_rate,
           monthly: mentor.monthly_rate,
         }}
-        onSubscribeSuccess={() => {
-          setIsSubscribed(true)
-          setShowSubscribeModal(false)
-        }}
+        // onSubscribeSuccess={() => {
+        //   setIsSubscribed(true)
+        //   setShowSubscribeModal(false)
+        // }}
       />
     </div>
   )
