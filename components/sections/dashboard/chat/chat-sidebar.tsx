@@ -86,7 +86,7 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, isMob
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-sidebar-foreground truncate">{conversation.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(conversation.updatedAt).toLocaleDateString()}
+                    {new Date(conversation.updated_at).toLocaleDateString()}
                   </p>
                 </div>
                 <button
