@@ -5,7 +5,8 @@ export interface Message {
   conversationId: string
   role: "user" | "assistant"
   content: string
-  status: "sending" | "sent" | "delivered" | "failed" | undefined
+  status?: "sending" | "sent" | "delivered" | "failed"
+  isNew?: boolean
   created_at: string
 }
 

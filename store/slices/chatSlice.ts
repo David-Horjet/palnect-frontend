@@ -116,6 +116,20 @@ const chatSlice = createSlice({
     setTyping: (state, action) => {
       state.isTyping = action.payload
     },
+    updateMessageStatus: (state, action) => {
+      const { clientMessageId, status } = action.payload
+      const message = state.messages.find((m) => m.id === clientMessageId)
+      if (message) {
+        message.status = status
+      }
+    },
+    markMessageAsRead: (state, action) => {
+      const { messageId } = action.payload
+      const message = state.messages.find((m) => m.id === messageId)
+      if (message) {
+        message.isNew = false
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -125,7 +139,6 @@ const chatSlice = createSlice({
       })
       .addCase(fetchConversations.fulfilled, (state, action) => {
         state.loading = false
-        console.log("Fetched Conversations Payload:", action.payload)
         state.conversations = action.payload.data
         state.pagination = action.payload.pagination
       })
@@ -141,7 +154,10 @@ const chatSlice = createSlice({
       .addCase(getConversation.fulfilled, (state, action) => {
         state.loading = false
         state.currentConversation = action.payload
-        state.messages = action.payload.messages
+        state.messages = action.payload.messages.map((msg) => ({
+          ...msg,
+          isNew: false,
+        }))
       })
       .addCase(getConversation.rejected, (state, action) => {
         state.loading = false
@@ -163,18 +179,39 @@ const chatSlice = createSlice({
         state.error = action.payload as string
       })
 
-      .addCase(sendMessage.pending, (state) => {
+      .addCase(sendMessage.pending, (state, action) => {
         state.messageLoading = true
         state.error = null
+        const clientMessageId = action.meta.arg.clientMessageId
+        state.messages.push({
+          id: clientMessageId,
+          conversationId: action.meta.arg.conversationId || "",
+          role: "user",
+          content: action.meta.arg.message,
+          created_at: new Date().toISOString(),
+          status: "sending",
+          isNew: false,
+        })
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.messageLoading = false
-        state.messages = action.payload.conversation.messages
+        state.messages = action.payload.conversation.messages.map((msg: Message) => ({
+          ...msg,
+          status: msg.role === "user" ? "delivered" : undefined,
+          isNew: msg.role === "assistant",
+        }))
         state.currentConversation = action.payload.conversation
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.messageLoading = false
-        state.error = action.payload as string
+        const clientMessageId = (action.payload as any)?.clientMessageId
+        if (clientMessageId) {
+          const message = state.messages.find((m) => m.id === clientMessageId)
+          if (message) {
+            message.status = "failed"
+          }
+        }
+        state.error = (action.payload as any)?.error || "Failed to send message"
       })
 
       .addCase(deleteConversation.fulfilled, (state, action) => {
@@ -187,5 +224,5 @@ const chatSlice = createSlice({
   },
 })
 
-export const { clearCurrentConversation, setTyping } = chatSlice.actions
+export const { clearCurrentConversation, setTyping, updateMessageStatus, markMessageAsRead } = chatSlice.actions
 export default chatSlice.reducer
