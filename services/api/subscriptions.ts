@@ -96,4 +96,15 @@ token: string, page: number | undefined, limit: number | undefined, options?: {
 
     return apiClient.get<MentorSubscriptionsResponse>(endpoint, token)
   },
+
+  // Check if user is subscribed to a specific mentor
+  async checkSubscriptionStatus(token: string, mentorId: string) {
+    return apiClient.get<{
+      success: boolean
+      data: {
+        isSubscribed: boolean
+        subscription?: Subscription
+      }
+    }>(`/subscriptions/check/${mentorId}`, token)
+  },
 }
