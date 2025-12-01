@@ -23,6 +23,7 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, isMob
   const [isCreating, setIsCreating] = useState(false)
 
   const conversations = useSelector((state: RootState) => state.chat.conversations)
+  console.log("Conversations:", conversations)
   const loading = useSelector((state: RootState) => state.chat.loading)
 
   const handleNewChat = async () => {

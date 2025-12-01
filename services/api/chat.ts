@@ -29,14 +29,12 @@ export interface ChatResponse {
 export interface ConversationsResponse {
   success: boolean
   message: string
-  data: {
-    conversations: Conversation[]
-    pagination: {
-      total: number
-      page: number
-      limit: number
-      totalPages: number
-    }
+  data: Conversation[]
+  pagination: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
   }
 }
 

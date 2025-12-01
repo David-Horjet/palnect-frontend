@@ -37,7 +37,7 @@ export const fetchConversations = createAsyncThunk(
   async ({ token, page, limit }: { token: string; page?: number; limit?: number }, { rejectWithValue }) => {
     try {
       const response = await chatService.getConversations(token, page, limit)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch conversations"
       return rejectWithValue(message)
@@ -120,7 +120,8 @@ const chatSlice = createSlice({
       })
       .addCase(fetchConversations.fulfilled, (state, action) => {
         state.loading = false
-        state.conversations = action.payload.conversations
+        console.log("Fetched Conversations Payload:", action.payload)
+        state.conversations = action.payload.data
         state.pagination = action.payload.pagination
       })
       .addCase(fetchConversations.rejected, (state, action) => {
