@@ -47,7 +47,7 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
 
   const handleMessageClick = () => {
     if (isSubscribed && mentor) {
-      router.push(`/dashboard/messages/${mentor.id}`)
+      router.push(`/dashboard/messages?chat=${mentor.id}`)
     } else {
       setShowSubscribeModal(true)
     }
@@ -167,9 +167,9 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Message
                       </Button>
-                      <Badge variant="secondary" className="w-full text-center">
+                      {/* <Badge variant="secondary" className="w-full text-center">
                         Subscribed
-                      </Badge>
+                      </Badge> */}
                     </>
                   ) : (
                     <Button variant="primary" className="w-full" onClick={() => setShowSubscribeModal(true)}>

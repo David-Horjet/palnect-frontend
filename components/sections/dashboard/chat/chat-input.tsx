@@ -67,11 +67,11 @@ export function ChatInput({ onSend, isLoading, pointsBalance, pointCost, convers
         <div className="flex items-center gap-2">
           <Zap className="h-3 w-3 text-primary" />
           <span className="text-muted-foreground">
-            Each message costs <span className="font-semibold">{pointCost} points</span>
+            Each message costs <span className="font-semibold">{pointCost} credits</span>
           </span>
         </div>
         <span className={`font-semibold ${pointsBalance < pointCost ? "text-destructive" : "text-success"}`}>
-          {pointsBalance} points available
+          {pointsBalance} credits available
         </span>
       </div>
 
