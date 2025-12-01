@@ -3,14 +3,19 @@
 import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
-import { fetchConversations, getConversation, sendMessage, createConversation } from "@/store/slices/chatSlice"
+import {
+  fetchConversations,
+  getConversation,
+  sendMessage,
+  createConversation,
+  setTyping,
+} from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Sparkles, MessageCircle } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
-import { setTyping } from "@/store/slices/chatSlice"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ChatInput } from "@/components/sections/dashboard/chat/chat-input"
@@ -41,7 +46,7 @@ export default function LexiChatPage() {
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, isTyping])
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -64,8 +69,7 @@ export default function LexiChatPage() {
     if (!socket || !currentConversation) return
 
     const handleNewMessage = (data: any) => {
-      console.log("[v0] Received new message:", data)
-      // Redux already handles the message via socket events in chatSlice
+      // Redux already handles via fetchConversations or socket events
     }
 
     const handleTyping = (data: any) => {
@@ -205,17 +209,29 @@ export default function LexiChatPage() {
                     content={msg.content}
                     createdAt={msg.created_at}
                     status={msg.status}
-                    isLoading={messageLoading && msg.role === "assistant" && msg === messages[messages.length - 1]}
+                    isNew={msg.id.startsWith("temp-")}
+                    isLoading={false}
                   />
                 ))}
                 {isTyping && (
-                  <MessageBubble
-                    role="assistant"
-                    content=""
-                    createdAt={new Date().toISOString()}
-                    isLoading={true}
-                    status="sending"
-                  />
+                  <div className="flex gap-3">
+                    <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
+                        <div
+                          className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="bg-muted text-foreground rounded-lg rounded-bl-none px-4 py-2">
+                      <p className="text-sm text-muted-foreground italic">Lexi is typing...</p>
+                    </div>
+                  </div>
                 )}
                 <div ref={messagesEndRef} />
               </div>
