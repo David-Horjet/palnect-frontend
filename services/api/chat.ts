@@ -62,11 +62,12 @@ export const chatService = {
 
   // Send message (works for all conversation types)
   async sendMessage(token: string, conversationId: string, clientMessageId: string, message: string) {
-    return apiClient.post<{ success: boolean; data: Conversation }>(
-      `/chat/messages?conversationId=${conversationId}`,
-      { message, clientMessageId },
-      token,
-    )
+    // Server returns { success, message, data: { response, pointsDeducted, conversation } }
+    return apiClient.post<{
+      success: boolean
+      message: string
+      data: { response: string; pointsDeducted: number; conversation: Conversation }
+    }>(`/chat/messages?conversationId=${conversationId}`, { message, clientMessageId }, token)
   },
 
   // Create new conversation (for peers)

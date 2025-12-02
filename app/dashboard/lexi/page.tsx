@@ -9,6 +9,8 @@ import {
   sendMessage,
   createConversation,
   setTyping,
+  addIncomingMessage,
+  updateMessageStatus,
 } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
@@ -37,8 +39,11 @@ export default function LexiChatPage() {
   const chatLoading = useSelector((state: RootState) => state.chat.loading)
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
   const user = useSelector((state: RootState) => state.auth.user)
+  console.log("user: ", user)
   const socket = useSocket()
   const isTyping = useSelector((state: RootState) => state.chat.isTyping)
+
+  console.log("messages:", messages, messageLoading)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -69,29 +74,36 @@ export default function LexiChatPage() {
     if (!socket || !currentConversation) return
 
     const handleNewMessage = (data: any) => {
-      // Redux already handles via fetchConversations or socket events
+      // data: { conversationId, message }
+      if (data?.conversationId !== currentConversation.id) return
+      dispatch(addIncomingMessage(data))
     }
 
-    const handleTyping = (data: any) => {
+    const handleUserTyping = (data: any) => {
+      // data: { userId, conversationId, isTyping }
       if (data.conversationId === currentConversation.id) {
-        dispatch(setTyping(true))
+        dispatch(setTyping(Boolean(data.isTyping)))
       }
     }
 
-    const handleStopTyping = (data: any) => {
-      if (data.conversationId === currentConversation.id) {
-        dispatch(setTyping(false))
-      }
+    const handleMessageStatus = (data: any) => {
+      // data: { messageId, status }
+      if (!data) return
+      dispatch(updateMessageStatus({ messageId: data.messageId, status: data.status }))
     }
 
-    socket.on("ai:message", handleNewMessage)
-    socket.on("ai:typing", handleTyping)
-    socket.on("ai:stopTyping", handleStopTyping)
+    // Ask server to add this client to the conversation room so it receives room broadcasts
+    socket.emit("joinConversation", currentConversation.id)
+    socket.on("newMessage", handleNewMessage)
+    socket.on("userTyping", handleUserTyping)
+    socket.on("messageStatusUpdate", handleMessageStatus)
 
     return () => {
-      socket.off("ai:message", handleNewMessage)
-      socket.off("ai:typing", handleTyping)
-      socket.off("ai:stopTyping", handleStopTyping)
+      // leave the room when switching conversations / cleaning up
+      socket.emit("leaveConversation", currentConversation.id)
+      socket.off("newMessage", handleNewMessage)
+      socket.off("userTyping", handleUserTyping)
+      socket.off("messageStatusUpdate", handleMessageStatus)
     }
   }, [socket, currentConversation, dispatch])
 
@@ -135,6 +147,7 @@ export default function LexiChatPage() {
             conversationId: (result.payload as any).id,
             message,
             clientMessageId,
+            senderId: user?.id!,
           }),
         )
       }
@@ -145,6 +158,7 @@ export default function LexiChatPage() {
           conversationId: currentConversation.id,
           message,
           clientMessageId,
+          senderId: user?.id!
         }),
       )
     }

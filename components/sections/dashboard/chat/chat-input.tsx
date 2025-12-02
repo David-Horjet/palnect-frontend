@@ -44,14 +44,14 @@ export function ChatInput({ onSend, isLoading, pointsBalance, pointCost, convers
   const handleTyping = () => {
     if (!socket || !conversationId) return
 
-    socket.emit("chat:typing", { conversationId })
+    socket.emit("typing", { conversationId, isTyping: true })
 
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current)
     }
 
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("chat:stopTyping", { conversationId })
+      socket.emit("typing", { conversationId, isTyping: false })
     }, 1000)
   }
 
