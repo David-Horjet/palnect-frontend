@@ -105,7 +105,10 @@ export default function LexiChatPage() {
   const handleNewChat = async () => {
     const token = localStorage.getItem("token")
     if (token) {
-      const result = await dispatch(createConversation({ token }))
+      const result = await dispatch(createConversation({
+        token,
+        type: "lexi_ai"
+      }))
       if (result.payload) {
         handleSelectConversation((result.payload as any).id)
       }
@@ -124,7 +127,7 @@ export default function LexiChatPage() {
     const clientMessageId = `temp-${Date.now()}`
 
     if (!currentConversation) {
-      const result = await dispatch(createConversation({ token }))
+      const result = await dispatch(createConversation({ token, type: "lexi_ai" }))
       if (result.payload) {
         await dispatch(
           sendMessage({

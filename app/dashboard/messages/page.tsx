@@ -76,7 +76,7 @@ export default function MessagesPage() {
     const clientMessageId = `temp-${Date.now()}`
 
     if (!currentConversation) {
-      const result = await dispatch(createConversation({ token }))
+      const result = await dispatch(createConversation({ token, type: "mentor" }))
       if (result.payload) {
         await dispatch(
           sendMessage({

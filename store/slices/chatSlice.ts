@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import { chatService, type Message, type Conversation } from "@/services/api/chat"
+import { chatService, type Message, type Conversation, ConversationType } from "@/services/api/chat"
 import { toast } from "@/lib/toast"
 
 interface ChatState {
@@ -62,9 +62,9 @@ export const getConversation = createAsyncThunk(
 
 export const createConversation = createAsyncThunk(
   "chat/createConversation",
-  async ({ token }: { token: string }, { rejectWithValue }) => {
+  async ({ token, type }: { token: string, type: ConversationType }, { rejectWithValue }) => {
     try {
-      const response = await chatService.createConversation(token)
+      const response = await chatService.createConversation(token, type)
       return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to create conversation"
