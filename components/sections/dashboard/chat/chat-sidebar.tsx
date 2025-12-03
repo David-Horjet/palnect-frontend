@@ -15,6 +15,7 @@ interface ChatSidebarProps {
   onSelectConversation: (conversationId: string) => void
   currentConversationId: string | null
   isMobileOpen: boolean
+  conversations: Conversation[]
   onClose?: () => void
 }
 
@@ -32,18 +33,21 @@ function getConversationIcon(type: string) {
   }
 }
 
-export function ChatSidebar({ onSelectConversation, currentConversationId, isMobileOpen, onClose }: ChatSidebarProps) {
+export function ChatSidebar({ onSelectConversation, currentConversationId, conversations, isMobileOpen, onClose }: ChatSidebarProps) {
   const dispatch = useDispatch<AppDispatch>()
   const [isCreating, setIsCreating] = useState(false)
 
-  const conversations = useSelector((state: RootState) => state.chat.conversations)
+  // const conversations = useSelector((state: RootState) => state.chat.conversations)
   const loading = useSelector((state: RootState) => state.chat.loading)
 
   const handleNewChat = async () => {
     setIsCreating(true)
     const token = localStorage.getItem("token")
     if (token) {
-      const result = await dispatch(createConversation({ token }))
+      const result = await dispatch(createConversation({
+        token,
+        type: "lexi_ai"
+      }))
       if (result.payload) {
         onSelectConversation((result.payload as any).id)
       }
@@ -116,7 +120,7 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, isMob
 
       {/* Sidebar Footer */}
       <div className="p-4 border-t border-sidebar-border">
-        <Button variant="outline" size="sm" className="w-full bg-transparent" asChild>
+        <Button variant="outline" size="sm" className="w-full bg-transparent">
           <Link href="/dashboard">Back to Dashboard</Link>
         </Button>
       </div>

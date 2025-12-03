@@ -2,13 +2,15 @@
 
 import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import { useSearchParams } from "next/navigation"
 import type { AppDispatch, RootState } from "@/store/store"
-import { fetchConversations, getConversation, sendMessage, createConversation } from "@/store/slices/chatSlice"
+import { fetchConversations, getConversation, sendMessage } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
 import { MessageCircle } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
+import { chatService } from "@/services/api/chat"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ChatInput } from "@/components/sections/dashboard/chat/chat-input"
@@ -19,18 +21,23 @@ const POINT_COST_PER_MESSAGE = 10
 
 export default function MessagesPage() {
   const dispatch = useDispatch<AppDispatch>()
+  const searchParams = useSearchParams()
   const isMobile = useMediaQuery("(max-width: 768px)")
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const allConversations = useSelector((state: RootState) => state.chat.conversations)
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
   const messages = useSelector((state: RootState) => state.chat.messages)
   const messageLoading = useSelector((state: RootState) => state.chat.messageLoading)
-  const chatLoading = useSelector((state: RootState) => state.chat.loading)
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
   const socket = useSocket()
   const isTyping = useSelector((state: RootState) => state.chat.isTyping)
+
+  const nonAiConversations = allConversations.filter(
+    (conv) => conv.type === "peer" || conv.type === "mentor" || conv.type === "group",
+  )
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -48,14 +55,24 @@ export default function MessagesPage() {
       try {
         await dispatch(fetchBalance({ token }))
         await dispatch(fetchConversations({ token, page: 1, limit: 20 }))
+
+        const mentorId = searchParams?.get("mentorId")
+        if (mentorId) {
+          const conversation = await chatService.getMentorConversation(token, mentorId)
+          if (conversation.data) {
+            dispatch(getConversation({ token, conversationId: conversation.data.id }))
+          }
+        }
+
         setIsInitialized(true)
       } catch (error) {
         console.error("Failed to initialize messages:", error)
+        setIsInitialized(true)
       }
     }
 
     initialize()
-  }, [dispatch])
+  }, [dispatch, searchParams])
 
   const handleSelectConversation = async (conversationId: string) => {
     const token = localStorage.getItem("token")
@@ -75,25 +92,14 @@ export default function MessagesPage() {
 
     const clientMessageId = `temp-${Date.now()}`
 
-    if (!currentConversation) {
-      const result = await dispatch(createConversation({ token, type: "mentor" }))
-      if (result.payload) {
-        await dispatch(
-          sendMessage({
-            token,
-            conversationId: (result.payload as any).id,
-            message,
-            clientMessageId,
-          }),
-        )
-      }
-    } else {
+    if (currentConversation) {
       await dispatch(
         sendMessage({
           token,
           conversationId: currentConversation.id,
           message,
           clientMessageId,
+          senderId: ""
         }),
       )
     }
@@ -120,6 +126,7 @@ export default function MessagesPage() {
         {!isMobile && (
           <div className="w-64 border-r border-border overflow-hidden">
             <ChatSidebar
+              conversations={nonAiConversations}
               onSelectConversation={handleSelectConversation}
               currentConversationId={currentConversation?.id || null}
               isMobileOpen={mobileDrawerOpen}
@@ -131,13 +138,11 @@ export default function MessagesPage() {
           <DashboardHeader
             title={currentConversation ? currentConversation.title || "Conversation" : "Messages"}
             subtitle={
-              currentConversation?.type === "lexi_ai"
-                ? "Chat with Lexi AI"
-                : currentConversation?.type === "mentor"
-                  ? "Chat with your mentor"
-                  : currentConversation?.type === "group"
-                    ? "Group conversation"
-                    : "Direct message"
+              currentConversation?.type === "mentor"
+                ? "Chat with your mentor"
+                : currentConversation?.type === "group"
+                  ? "Group conversation"
+                  : "Direct message"
             }
           />
 
@@ -150,9 +155,7 @@ export default function MessagesPage() {
                   </div>
                   <div className="space-y-2">
                     <h2 className="text-2xl font-bold text-foreground">Welcome to Messages</h2>
-                    <p className="text-muted-foreground">
-                      Select a conversation from the sidebar or start a new one to begin chatting.
-                    </p>
+                    <p className="text-muted-foreground">Select a conversation from the sidebar to begin chatting.</p>
                   </div>
                 </Card>
               </div>
@@ -211,6 +214,7 @@ export default function MessagesPage() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileDrawerOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-64 bg-sidebar">
             <ChatSidebar
+              conversations={nonAiConversations}
               onSelectConversation={handleSelectConversation}
               currentConversationId={currentConversation?.id || null}
               isMobileOpen={mobileDrawerOpen}

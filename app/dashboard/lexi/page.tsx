@@ -9,8 +9,6 @@ import {
   sendMessage,
   createConversation,
   setTyping,
-  addIncomingMessage,
-  updateMessageStatus,
 } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
@@ -33,17 +31,17 @@ export default function LexiChatPage() {
   const [isInitialized, setIsInitialized] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const allConversations = useSelector((state: RootState) => state.chat.conversations)
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
   const messages = useSelector((state: RootState) => state.chat.messages)
   const messageLoading = useSelector((state: RootState) => state.chat.messageLoading)
   const chatLoading = useSelector((state: RootState) => state.chat.loading)
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
   const user = useSelector((state: RootState) => state.auth.user)
-  console.log("user: ", user)
   const socket = useSocket()
   const isTyping = useSelector((state: RootState) => state.chat.isTyping)
 
-  console.log("messages:", messages, messageLoading)
+  const lexiConversations = allConversations.filter((conv) => conv.type === "lexi_ai")
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -74,36 +72,29 @@ export default function LexiChatPage() {
     if (!socket || !currentConversation) return
 
     const handleNewMessage = (data: any) => {
-      // data: { conversationId, message }
-      if (data?.conversationId !== currentConversation.id) return
-      dispatch(addIncomingMessage(data))
+      // Handle message via socket
     }
 
-    const handleUserTyping = (data: any) => {
-      // data: { userId, conversationId, isTyping }
+    const handleTyping = (data: any) => {
       if (data.conversationId === currentConversation.id) {
-        dispatch(setTyping(Boolean(data.isTyping)))
+        dispatch(setTyping(true))
       }
     }
 
-    const handleMessageStatus = (data: any) => {
-      // data: { messageId, status }
-      if (!data) return
-      dispatch(updateMessageStatus({ messageId: data.messageId, status: data.status }))
+    const handleStopTyping = (data: any) => {
+      if (data.conversationId === currentConversation.id) {
+        dispatch(setTyping(false))
+      }
     }
 
-    // Ask server to add this client to the conversation room so it receives room broadcasts
-    socket.emit("joinConversation", currentConversation.id)
-    socket.on("newMessage", handleNewMessage)
-    socket.on("userTyping", handleUserTyping)
-    socket.on("messageStatusUpdate", handleMessageStatus)
+    socket.on("ai:message", handleNewMessage)
+    socket.on("ai:typing", handleTyping)
+    socket.on("ai:stopTyping", handleStopTyping)
 
     return () => {
-      // leave the room when switching conversations / cleaning up
-      socket.emit("leaveConversation", currentConversation.id)
-      socket.off("newMessage", handleNewMessage)
-      socket.off("userTyping", handleUserTyping)
-      socket.off("messageStatusUpdate", handleMessageStatus)
+      socket.off("ai:message", handleNewMessage)
+      socket.off("ai:typing", handleTyping)
+      socket.off("ai:stopTyping", handleStopTyping)
     }
   }, [socket, currentConversation, dispatch])
 
@@ -117,10 +108,7 @@ export default function LexiChatPage() {
   const handleNewChat = async () => {
     const token = localStorage.getItem("token")
     if (token) {
-      const result = await dispatch(createConversation({
-        token,
-        type: "lexi_ai"
-      }))
+      const result = await dispatch(createConversation({ token, type: "lexi_ai" }))
       if (result.payload) {
         handleSelectConversation((result.payload as any).id)
       }
@@ -147,7 +135,7 @@ export default function LexiChatPage() {
             conversationId: (result.payload as any).id,
             message,
             clientMessageId,
-            senderId: user?.id!,
+            senderId: ""
           }),
         )
       }
@@ -158,7 +146,7 @@ export default function LexiChatPage() {
           conversationId: currentConversation.id,
           message,
           clientMessageId,
-          senderId: user?.id!
+          senderId: ""
         }),
       )
     }
@@ -185,6 +173,7 @@ export default function LexiChatPage() {
         {!isMobile && (
           <div className="w-64 border-r border-border overflow-hidden">
             <ChatSidebar
+              conversations={lexiConversations}
               onSelectConversation={handleSelectConversation}
               currentConversationId={currentConversation?.id || null}
               isMobileOpen={mobileDrawerOpen}
@@ -272,6 +261,7 @@ export default function LexiChatPage() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileDrawerOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-64 bg-sidebar">
             <ChatSidebar
+              conversations={lexiConversations}
               onSelectConversation={handleSelectConversation}
               currentConversationId={currentConversation?.id || null}
               isMobileOpen={mobileDrawerOpen}

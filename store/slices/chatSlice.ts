@@ -213,7 +213,7 @@ const chatSlice = createSlice({
       })
       .addCase(createConversation.fulfilled, (state, action) => {
         state.loading = false
-        state.currentConversation = action.payload
+        state.currentConversation = action.payload  
         state.messages = []
         state.conversations.unshift(action.payload)
       })
