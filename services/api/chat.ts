@@ -71,15 +71,24 @@ export const chatService = {
   },
 
   // Create new conversation (for peers)
-  async createConversation(token: string, type: ConversationType = "peer", recipientId?: string) {
-    return apiClient.post<{ success: boolean; data: Conversation }>("/chat/conversations", { type, recipientId }, token)
+  async createConversation(
+    token: string,
+    type: "lexi_ai" | "peer" | "mentor" | "group" = "peer",
+    recipientId?: string,
+    participants?: string[],
+  ) {
+    return apiClient.post<{ success: boolean; data: Conversation }>(
+      "/chat/conversations",
+      { type, recipientId, participants },
+      token,
+    )
   },
 
   // Get or create mentor conversation
-  async getMentorConversation(token: string, mentorId: string) {
+  async getMentorConversation(token: string, mentorId: string, userId: string) {
     return apiClient.post<{ success: boolean; data: Conversation }>(
       "/chat/conversations",
-      { type: "mentor", mentorId },
+      { type: "mentor", mentorId, participants: [userId, mentorId] },
       token,
     )
   },

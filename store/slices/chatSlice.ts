@@ -62,9 +62,17 @@ export const getConversation = createAsyncThunk(
 
 export const createConversation = createAsyncThunk(
   "chat/createConversation",
-  async ({ token, type }: { token: string, type: ConversationType }, { rejectWithValue }) => {
+  async (
+    {
+      token,
+      type,
+      recipientId,
+      participants,
+    }: { token: string; type?: string; recipientId?: string; participants?: string[] },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await chatService.createConversation(token, type)
+      const response = await chatService.createConversation(token, type as any, recipientId, participants)
       return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to create conversation"
@@ -213,7 +221,7 @@ const chatSlice = createSlice({
       })
       .addCase(createConversation.fulfilled, (state, action) => {
         state.loading = false
-        state.currentConversation = action.payload  
+        state.currentConversation = action.payload
         state.messages = []
         state.conversations.unshift(action.payload)
       })

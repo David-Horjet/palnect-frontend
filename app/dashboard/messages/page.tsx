@@ -30,6 +30,7 @@ export default function MessagesPage() {
   const allConversations = useSelector((state: RootState) => state.chat.conversations)
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
   const messages = useSelector((state: RootState) => state.chat.messages)
+  const user = useSelector((state: RootState) => state.auth.user)
   const messageLoading = useSelector((state: RootState) => state.chat.messageLoading)
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
   const socket = useSocket()
@@ -58,7 +59,7 @@ export default function MessagesPage() {
 
         const mentorId = searchParams?.get("mentorId")
         if (mentorId) {
-          const conversation = await chatService.getMentorConversation(token, mentorId)
+          const conversation = await chatService.getMentorConversation(token, mentorId, user!.id)
           if (conversation.data) {
             dispatch(getConversation({ token, conversationId: conversation.data.id }))
           }
