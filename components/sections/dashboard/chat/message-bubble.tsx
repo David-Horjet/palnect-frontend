@@ -11,14 +11,28 @@ interface MessageBubbleProps {
   status?: "sending" | "sent" | "delivered" | "seen" | "failed"
   isLoading?: boolean
   isNew?: boolean
+  senderId?: string
+  currentUserId?: string
 }
 
-export function MessageBubble({ role, content, createdAt, status, isLoading, isNew }: MessageBubbleProps) {
+export function MessageBubble({
+  role,
+  content,
+  createdAt,
+  status,
+  isLoading,
+  isNew,
+  senderId,
+  currentUserId,
+}: MessageBubbleProps) {
   const [displayedContent, setDisplayedContent] = useState("")
-  const isUser = role === "user"
+
+  const isCurrentUserMessage = senderId === currentUserId
+  const isAiMessage = role === "assistant"
+  const isUserMessage = role === "user" 
 
   useEffect(() => {
-    if (!isUser && content && isNew && !isLoading) {
+    if (isAiMessage && content && isNew && !isLoading) {
       let index = 0
       const interval = setInterval(() => {
         if (index <= content.length) {
@@ -33,10 +47,10 @@ export function MessageBubble({ role, content, createdAt, status, isLoading, isN
     } else {
       setDisplayedContent(content)
     }
-  }, [content, isUser, isNew, isLoading])
+  }, [content, isAiMessage, isNew, isLoading])
 
   const renderStatusIcon = () => {
-    if (role !== "user" || !status) return null
+    if (!isUserMessage || !status) return null
 
     switch (status) {
       case "sending":
@@ -52,24 +66,26 @@ export function MessageBubble({ role, content, createdAt, status, isLoading, isN
     }
   }
 
-  const messageOpacity = isUser && status === "sending" ? "opacity-50" : "opacity-100"
+  const messageOpacity = isUserMessage && status === "sending" ? "opacity-50" : "opacity-100"
 
   return (
-    <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
-      {!isUser && (
+    <div className={`flex gap-3 ${isUserMessage && isCurrentUserMessage ? "justify-end" : "justify-start"}`}>
+      {!isUserMessage || !isCurrentUserMessage ? (
         <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-          <Bot className="h-4 w-4 text-primary" />
+          {isAiMessage ? <Bot className="h-4 w-4 text-primary" /> : <User className="h-4 w-4 text-primary" />}
         </div>
-      )}
+      ) : null}
 
       <div className={`max-w-xs lg:max-w-md xl:max-w-lg flex flex-col gap-1`}>
         <div
           className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${
-            isUser ? "bg-primary text-primary-foreground rounded-br-none" : "bg-muted text-foreground rounded-bl-none"
+            isUserMessage && isCurrentUserMessage
+              ? "bg-primary text-primary-foreground rounded-br-none"
+              : "bg-muted text-foreground rounded-bl-none"
           }`}
         >
           <p className="text-sm whitespace-pre-wrap">{displayedContent}</p>
-          {!isUser && isLoading && <span className="inline-block animate-pulse">▌</span>}
+          {isAiMessage && isLoading && <span className="inline-block animate-pulse">▌</span>}
         </div>
 
         <div className="flex items-center gap-1 px-2">
@@ -80,7 +96,7 @@ export function MessageBubble({ role, content, createdAt, status, isLoading, isN
         </div>
       </div>
 
-      {isUser && (
+      {isUserMessage && isCurrentUserMessage && (
         <div className="shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
           <User className="h-4 w-4 text-accent" />
         </div>

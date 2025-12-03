@@ -186,6 +186,8 @@ export default function MessagesPage() {
                     status={msg.status}
                     isNew={msg.isNew}
                     isLoading={false}
+                    senderId={msg.sender_id}
+                    currentUserId={user?.id}
                   />
                 ))}
                 {isTyping && (
