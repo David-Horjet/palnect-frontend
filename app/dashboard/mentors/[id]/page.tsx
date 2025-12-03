@@ -47,7 +47,7 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
 
   const handleMessageClick = () => {
     if (isSubscribed && mentor) {
-      router.push(`/dashboard/messages?mentorId=${mentor.id}`)
+      router.push(`/dashboard/messages?mentorId=${mentor.user.id}`)
     } else {
       setShowSubscribeModal(true)
     }
