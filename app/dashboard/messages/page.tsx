@@ -115,7 +115,7 @@ export default function MessagesPage() {
           conversationId: currentConversation.id,
           message,
           clientMessageId,
-          senderId: ""
+          senderId: user?.id!,
         }),
       )
     }

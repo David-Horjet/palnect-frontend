@@ -58,6 +58,8 @@ export function MessageBubble({
       case "sent":
         return <Check className="h-3 w-3 text-muted-foreground" />
       case "delivered":
+        return <CheckCheck className="h-3 w-3 text-muted-foreground" />
+      case "seen":
         return <CheckCheck className="h-3 w-3 text-primary" />
       case "failed":
         return <span className="text-destructive text-xs">Failed</span>

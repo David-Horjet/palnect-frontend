@@ -8,9 +8,10 @@ import { Eye, EyeOff } from 'lucide-react'
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string
   label?: string
+  ref?: React.Ref<HTMLInputElement>
 }
 
-export function Input({ className, error, label, type = "text", ...props }: InputProps) {
+export function Input({ ref, className, error, label, type = "text", ...props }: InputProps) {
   const [showPassword, setShowPassword] = useState(false)
 
   const isPasswordInput = type === "password"
@@ -22,6 +23,7 @@ export function Input({ className, error, label, type = "text", ...props }: Inpu
       <div className="relative">
         <input
           type={displayType}
+          ref={ref}
           className={cn(
             "w-full text-sm md:text-base px-4 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed",
             error && "border-destructive focus:ring-destructive",
