@@ -4,20 +4,19 @@ import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useSearchParams } from "next/navigation"
 import type { AppDispatch, RootState } from "@/store/store"
-import { fetchConversations, getConversation, sendMessage } from "@/store/slices/chatSlice"
+import { createConversation, fetchConversations, getConversation, sendMessage } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
 import { MessageCircle } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
-import { chatService } from "@/services/api/chat"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ChatInput } from "@/components/sections/dashboard/chat/chat-input"
 import { ChatSidebar } from "@/components/sections/dashboard/chat/chat-sidebar"
 import { MessageBubble } from "@/components/sections/dashboard/chat/message-bubble"
 
-const POINT_COST_PER_MESSAGE = 10
+const POINT_COST_PER_MESSAGE = 5
 
 export default function MessagesPage() {
   const dispatch = useDispatch<AppDispatch>()
@@ -30,9 +29,9 @@ export default function MessagesPage() {
   const allConversations = useSelector((state: RootState) => state.chat.conversations)
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
   const messages = useSelector((state: RootState) => state.chat.messages)
-  const user = useSelector((state: RootState) => state.auth.user)
   const messageLoading = useSelector((state: RootState) => state.chat.messageLoading)
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
+  const user = useSelector((state: RootState) => state.auth.user)
   const socket = useSocket()
   const isTyping = useSelector((state: RootState) => state.chat.isTyping)
 
@@ -57,11 +56,27 @@ export default function MessagesPage() {
         await dispatch(fetchBalance({ token }))
         await dispatch(fetchConversations({ token, page: 1, limit: 20 }))
 
-        const mentorId = searchParams?.get("mentorId")
-        if (mentorId) {
-          const conversation = await chatService.getMentorConversation(token, mentorId, user!.id)
-          if (conversation.data) {
-            dispatch(getConversation({ token, conversationId: conversation.data.id }))
+        const mentorId = searchParams?.get("mentorId") || searchParams?.get("userId")
+        const userId = user?.id
+
+        if (mentorId && userId) {
+          const existingConversation = nonAiConversations.find(
+            (conv) => conv.participants?.includes(mentorId) && conv.participants?.includes(userId),
+          )
+
+          if (existingConversation) {
+            await dispatch(getConversation({ token, conversationId: existingConversation.id }))
+          } else {
+            const conversationType = searchParams?.get("mentorId") ? "mentor" : "peer"
+            const participants = [userId, mentorId]
+            await dispatch(
+              createConversation({
+                token,
+                type: conversationType,
+                recipientId: mentorId,
+                participants,
+              }),
+            )
           }
         }
 
@@ -73,7 +88,7 @@ export default function MessagesPage() {
     }
 
     initialize()
-  }, [dispatch, searchParams])
+  }, [dispatch, searchParams, user?.id])
 
   const handleSelectConversation = async (conversationId: string) => {
     const token = localStorage.getItem("token")
