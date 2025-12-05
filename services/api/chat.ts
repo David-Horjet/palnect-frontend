@@ -27,6 +27,12 @@ export interface Conversation {
   type: ConversationType
   title?: string
   participants: string[]
+  participant: {
+    id: string
+    first_name: string
+    last_name: string
+    avatar_url?: string
+  } 
   last_message_at?: string
   last_message_preview?: string
   metadata?: any

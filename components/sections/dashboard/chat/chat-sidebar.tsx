@@ -93,20 +93,20 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-2 flex-1 min-w-0">
-                  {conversation.metadata.participant_info ? (
+                  {conversation.participant ? (
                     <div className="">
-                      {conversation.metadata.participant_info.avatar_url ? (
+                      {conversation.participant.avatar_url ? (
                         <Image
-                          src={conversation.metadata.participant_info.avatar_url || "/placeholder.svg"}
+                          src={conversation.participant.avatar_url || "/placeholder.svg"}
                           alt="Avatar"
                           className="h-8 md:h-10 w-8 md:w-10 rounded-full object-cover"
                           width={100}
                           height={100}
                         />
                       ) : (
-                        <div className="h-15 md:h-24 w-15 md:w-24 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-primary-foreground">
-                          {conversation.metadata.participant_info.first_name[0]}
-                          {conversation.metadata.participant_info.last_name[0]}
+                        <div className="h-8 md:h-10 w-8 md:w-10 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-base font-bold text-primary-foreground">
+                          {conversation.participant.first_name[0]}
+                          {conversation.participant.last_name[0]}
                         </div>
                       )}
                     </div>
@@ -114,7 +114,7 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
                     <div className="mt-1">{getConversationIcon(conversation.type)}</div>)}
 
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-sidebar-foreground truncate">{conversation.title}</p>
+                    <p className="text-sm font-medium text-sidebar-foreground truncate">{conversation?.participant.first_name} {conversation?.participant.last_name}</p>
                     <p className="text-xs mt-1 text-muted-foreground truncate">{conversation.last_message_preview}</p>
                     {conversation.unread_count && conversation.unread_count > 0 && (
                       <span className="inline-block mt-1 px-2 py-0.5 bg-accent text-white text-xs rounded-full">
