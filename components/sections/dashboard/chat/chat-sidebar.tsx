@@ -7,7 +7,7 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { createConversation, deleteConversation } from "@/store/slices/chatSlice"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Trash2, ChevronLeft, MessageCircle, Sparkles, Users } from "lucide-react"
+import { Trash2, ChevronLeft, MessageCircle, Sparkles, Users, Bot } from "lucide-react"
 import Link from "next/link"
 import type { Conversation } from "@/services/api/chat"
 import Image from "next/image"
@@ -105,13 +105,15 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
                         />
                       ) : (
                         <div className="h-8 md:h-10 w-8 md:w-10 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-base font-bold text-primary-foreground">
-                          {conversation.participant.first_name}
-                          {conversation.participant.last_name}
+                          {conversation.participant.first_name.trim()[0]}
+                          {conversation.participant.last_name.trim()[0]}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="mt-1">{getConversationIcon(conversation.type)}</div>
+                    <div className="h-8 md:h-10 w-8 md:w-10 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-base font-bold text-primary-foreground">
+                      <Bot className="h-4 w-4" />
+                    </div>
                   )}
 
                   <div className="flex-1 min-w-0">
@@ -141,7 +143,7 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
       {/* Sidebar Footer */}
       <div className="p-4 border-t border-sidebar-border">
         <Button variant="outline" size="sm" className="w-full bg-transparent">
-          <Link href="/dashboard">Back to Dashboard</Link> 
+          <Link href="/dashboard">Back to Dashboard</Link>
         </Button>
       </div>
     </div>

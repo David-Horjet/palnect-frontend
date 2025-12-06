@@ -157,9 +157,7 @@ export default function LexiChatPage() {
       <div className="flex h-screen overflow-hidden">
         <DashboardSidebar activeTab="lexi" />
         <main className="flex-1 flex items-center justify-center">
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">Initializing Lexi...</p>
-          </Card>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </main>
       </div>
     )
