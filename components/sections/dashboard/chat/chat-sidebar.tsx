@@ -141,7 +141,7 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
       {/* Sidebar Footer */}
       <div className="p-4 border-t border-sidebar-border">
         <Button variant="outline" size="sm" className="w-full bg-transparent">
-          <Link href="/dashboard">Back to Dashboard</Link>
+          <Link href="/dashboard">Back to Dashboard</Link> 
         </Button>
       </div>
     </div>
