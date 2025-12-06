@@ -13,7 +13,7 @@ import {
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Sparkles, MessageCircle } from "lucide-react"
+import { Sparkles, MessageCircle, Bot } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
@@ -185,9 +185,9 @@ export default function LexiChatPage() {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {!currentConversation || messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <Card className="max-w-md p-8 text-center space-y-6">
+                <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
                   <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
-                    <Sparkles className="h-8 w-8 text-primary" />
+                    <Bot className="h-4 w-4" />
                   </div>
                   <div className="space-y-2">
                     <h2 className="text-2xl font-bold text-foreground">Hi, I'm Lexi!</h2>
@@ -251,6 +251,7 @@ export default function LexiChatPage() {
               pointsBalance={pointsBalance}
               pointCost={POINT_COST_PER_MESSAGE}
               conversationId={currentConversation.id}
+              role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}           
             />
           )}
         </main>
