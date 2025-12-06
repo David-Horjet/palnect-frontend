@@ -10,17 +10,20 @@ import { useSocket } from "@/hooks/useSocket"
 interface ChatInputProps {
   onSend: (message: string) => void
   isLoading: boolean
+  role: "user" | "assistant"
   pointsBalance: number
   pointCost: number
   conversationId?: string
 }
 
-export function ChatInput({ onSend, isLoading, pointsBalance, pointCost, conversationId }: ChatInputProps) {
+export function ChatInput({ onSend, isLoading, pointsBalance, pointCost, conversationId, role }: ChatInputProps) {
   const [message, setMessage] = useState("")
   const [canSend, setCanSend] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const socket = useSocket()
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const isAiMessage = role === "assistant"
 
   useEffect(() => {
     setCanSend(message.trim().length > 0 && pointsBalance >= pointCost && !isLoading)
@@ -63,23 +66,25 @@ export function ChatInput({ onSend, isLoading, pointsBalance, pointCost, convers
   return (
     <div className="border-t border-border p-4 space-y-2">
       {/* Points Info */}
-      <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-2">
-          <Zap className="h-3 w-3 text-primary" />
-          <span className="text-muted-foreground">
-            Each message costs <span className="font-semibold">{pointCost} credits</span>
+      {isAiMessage && (
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <Zap className="h-3 w-3 text-primary" />
+            <span className="text-muted-foreground">
+              Each message costs <span className="font-semibold">{pointCost} credits</span>
+            </span>
+          </div>
+          <span className={`font-semibold ${pointsBalance < pointCost ? "text-destructive" : "text-success"}`}>
+            {pointsBalance} credits available
           </span>
         </div>
-        <span className={`font-semibold ${pointsBalance < pointCost ? "text-destructive" : "text-success"}`}>
-          {pointsBalance} credits available
-        </span>
-      </div>
+      )}
 
       {/* Input Area */}
       <div className="flex gap-2">
         <Input
           ref={inputRef}
-          placeholder="Ask Lexi anything..."
+          placeholder={`${isAiMessage ? "Ask Lexi anything..." : "Type Something..."}`}
           value={message}
           onChange={handleChange}
           onKeyDown={handleKeyDown}

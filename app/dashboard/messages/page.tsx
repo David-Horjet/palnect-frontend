@@ -218,6 +218,7 @@ export default function MessagesPage() {
           {currentConversation && (
             <ChatInput
               onSend={handleSendMessage}
+              role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}
               isLoading={messageLoading}
               pointsBalance={pointsBalance}
               pointCost={POINT_COST_PER_MESSAGE}
