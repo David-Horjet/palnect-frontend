@@ -148,7 +148,7 @@ export default function LexiChatPage() {
           conversationId: currentConversation.id,
           message,
           clientMessageId,
-          senderId: ""
+          senderId: user?.id!
         }),
       )
     }
