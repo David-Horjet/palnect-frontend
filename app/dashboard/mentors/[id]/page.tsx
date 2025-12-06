@@ -9,10 +9,12 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { fetchMentorDetail } from "@/store/slices/mentorsSlice"
 import { useAuth } from "@/hooks/useAuth"
 import Link from "next/link"
-import { ArrowLeft, Star, Users, Clock, Calendar, Loader2 } from "lucide-react"
+import { ArrowLeft, Star, Users, Clock, Calendar, Loader2, MessageSquare } from "lucide-react"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { SubscribeModal } from "@/components/sections/dashboard/subscriptions/subscribe-modal"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { subscriptionsService } from "@/services/api/subscriptions"
 
 export default function MentorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params); 
@@ -20,12 +22,36 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
   const { token } = useAuth()
   const { selectedMentor: mentor, loading } = useSelector((state: RootState) => state.mentors)
   const [showSubscribeModal, setShowSubscribeModal] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     if (token) {
       dispatch(fetchMentorDetail({ token, id: id }))
     }
   }, [dispatch, token, id])
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!token || !mentor) return
+      try {
+        const response = await subscriptionsService.checkSubscriptionStatus(token, mentor.id)
+        setIsSubscribed(response.data.isSubscribed)
+      } catch (error) {
+        setIsSubscribed(false)
+      }
+    }
+
+    checkSubscription()
+  }, [token, mentor])
+
+  const handleMessageClick = () => {
+    if (isSubscribed && mentor) {
+      router.push(`/dashboard/messages?mentorId=${mentor.user.id}`)
+    } else {
+      setShowSubscribeModal(true)
+    }
+  }
 
   if (loading || !mentor) {
     return (
@@ -134,9 +160,23 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 </div>
 
-                <Button variant="primary" className="w-full" onClick={() => setShowSubscribeModal(true)}>
-                  Subscribe Now
-                </Button>
+                <div className="space-y-2">
+                  {isSubscribed ? (
+                    <>
+                      <Button variant="primary" className="w-full" onClick={handleMessageClick}>
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Message
+                      </Button>
+                      {/* <Badge variant="secondary" className="w-full text-center">
+                        Subscribed
+                      </Badge> */}
+                    </>
+                  ) : (
+                    <Button variant="primary" className="w-full" onClick={() => setShowSubscribeModal(true)}>
+                      Subscribe Now
+                    </Button>
+                  )}
+                </div>
               </Card>
             </div>
           </Card>
@@ -201,6 +241,10 @@ export default function MentorDetailPage({ params }: { params: Promise<{ id: str
           weekly: mentor.weekly_rate,
           monthly: mentor.monthly_rate,
         }}
+        // onSubscribeSuccess={() => {
+        //   setIsSubscribed(true)
+        //   setShowSubscribeModal(false)
+        // }}
       />
     </div>
   )
