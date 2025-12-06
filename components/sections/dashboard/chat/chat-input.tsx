@@ -37,7 +37,7 @@ export function ChatInput({ onSend, isLoading, pointsBalance, pointCost, convers
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown: any = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey && canSend) {
       e.preventDefault()
       handleSend()
