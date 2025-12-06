@@ -122,7 +122,7 @@ export default function MentorSubscriptionsPage() {
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="font-semibold text-accent">+{subscription.points_cost} pts earned</span>
+                              <span className="font-semibold text-accent">+{subscription.points_cost} credits earned</span>
                             </div>
                           </div>
                         </div>
