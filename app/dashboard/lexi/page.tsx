@@ -21,6 +21,8 @@ import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ChatInput } from "@/components/sections/dashboard/chat/chat-input"
 import { ChatSidebar } from "@/components/sections/dashboard/chat/chat-sidebar"
 import { MessageBubble } from "@/components/sections/dashboard/chat/message-bubble"
+import Image from "next/image"
+import robot from "../../../public/gifs/robot.gif";
 
 const POINT_COST_PER_MESSAGE = 10
 
@@ -186,8 +188,8 @@ export default function LexiChatPage() {
             {!currentConversation || messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
-                    <Bot className="h-4 w-4" />
+                  <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
+                    <Image src={robot} alt={"robot"} width={100} height={100} />
                   </div>
                   <div className="space-y-2">
                     <h2 className="text-2xl font-bold text-foreground">Hi, I'm Lexi!</h2>
