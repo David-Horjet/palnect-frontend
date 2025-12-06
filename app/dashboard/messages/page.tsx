@@ -126,9 +126,7 @@ export default function MessagesPage() {
       <div className="flex h-screen overflow-hidden">
         <DashboardSidebar activeTab="messages" />
         <main className="flex-1 flex items-center justify-center">
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">Initializing messages...</p>
-          </Card>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </main>
       </div>
     )
@@ -165,7 +163,7 @@ export default function MessagesPage() {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {!currentConversation || messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <Card className="max-w-md p-8 text-center space-y-6">
+                <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
                   <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
                     <MessageCircle className="h-8 w-8 text-primary" />
                   </div>

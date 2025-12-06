@@ -13,7 +13,7 @@ import {
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Sparkles, MessageCircle } from "lucide-react"
+import { Sparkles, MessageCircle, Bot } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
@@ -21,6 +21,8 @@ import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ChatInput } from "@/components/sections/dashboard/chat/chat-input"
 import { ChatSidebar } from "@/components/sections/dashboard/chat/chat-sidebar"
 import { MessageBubble } from "@/components/sections/dashboard/chat/message-bubble"
+import Image from "next/image"
+import robot from "../../../public/gifs/robot.gif";
 
 const POINT_COST_PER_MESSAGE = 10
 
@@ -157,9 +159,7 @@ export default function LexiChatPage() {
       <div className="flex h-screen overflow-hidden">
         <DashboardSidebar activeTab="lexi" />
         <main className="flex-1 flex items-center justify-center">
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">Initializing Lexi...</p>
-          </Card>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </main>
       </div>
     )
@@ -187,9 +187,9 @@ export default function LexiChatPage() {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {!currentConversation || messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <Card className="max-w-md p-8 text-center space-y-6">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
-                    <Sparkles className="h-8 w-8 text-primary" />
+                <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
+                  <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
+                    <Image src={robot} alt={"robot"} width={100} height={100} />
                   </div>
                   <div className="space-y-2">
                     <h2 className="text-2xl font-bold text-foreground">Hi, I'm Lexi!</h2>
@@ -253,6 +253,7 @@ export default function LexiChatPage() {
               pointsBalance={pointsBalance}
               pointCost={POINT_COST_PER_MESSAGE}
               conversationId={currentConversation.id}
+              role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}           
             />
           )}
         </main>
