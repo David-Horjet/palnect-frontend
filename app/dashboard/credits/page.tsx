@@ -106,7 +106,7 @@ export default function PointsPage() {
                   Buy
                 </Button>
                 <Button variant="outline">
-                  <Link href="/dashboard/request-payout">Request Payout</Link>
+                  <Link href="/dashboard/payout">Request Payout</Link>
                 </Button>
               </div>
             </div>
