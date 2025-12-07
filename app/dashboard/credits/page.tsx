@@ -12,6 +12,7 @@ import { Zap, History, ArrowDown, ArrowUp, CheckCircle, Loader2 } from "lucide-r
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { PurchaseModal } from "@/components/sections/dashboard/points/purchase-modal"
+import Link from "next/link"
 
 interface PointsPackage {
   id: string
@@ -91,7 +92,7 @@ export default function PointsPage() {
         <div className="p-6 space-y-8 max-w-5xl">
           {/* Current Balance */}
           <Card className="bg-linear-to-br from-primary/20 via-accent/20 to-primary/10 border-primary/30 lg:p-8">
-            <div className="flex items-start justify-between gap-6">
+            <div className="flex flex-col md:flex-row items-start justify-between gap-6">
               <div>
                 <p className="text-xs md:text-sm text-muted-foreground mb-2 flex items-center gap-2">
                   <Zap className="h-4 w-4 text-primary" />
@@ -100,9 +101,14 @@ export default function PointsPage() {
                 <p className="text-2xl md:text-4xl font-bold text-foreground mb-2">{balance} Credits</p>
                 <p className="text-xs md:text-sm text-muted-foreground">Use credits to subscribe to mentors and unlock services</p>
               </div>
-              <Button onClick={() => setSelectedPackage(null)}>
-                Buy
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={() => setSelectedPackage(null)}>
+                  Buy
+                </Button>
+                <Button variant="outline">
+                  <Link href="/dashboard/request-payout">Request Payout</Link>
+                </Button>
+              </div>
             </div>
           </Card>
 
@@ -114,8 +120,8 @@ export default function PointsPage() {
                 <Card
                   key={pkg.id}
                   className={`p-4 md:p-6 cursor-pointer transition-all relative ${selectedPackage === pkg.id
-                      ? "border-primary bg-primary/5 ring-2 ring-primary"
-                      : "hover:border-primary/50"
+                    ? "border-primary bg-primary/5 ring-2 ring-primary"
+                    : "hover:border-primary/50"
                     } ${pkg.popular ? "ring-1 ring-accent" : ""}`}
                   onClick={() => setSelectedPackage(pkg.id)}
                 >
