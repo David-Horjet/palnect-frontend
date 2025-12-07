@@ -137,7 +137,7 @@ export default function LexiChatPage() {
             conversationId: (result.payload as any).id,
             message,
             clientMessageId,
-            senderId: ""
+            senderId: user?.id!
           }),
         )
       }
@@ -148,7 +148,7 @@ export default function LexiChatPage() {
           conversationId: currentConversation.id,
           message,
           clientMessageId,
-          senderId: ""
+          senderId: user?.id!
         }),
       )
     }

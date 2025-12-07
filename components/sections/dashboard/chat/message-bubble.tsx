@@ -28,6 +28,7 @@ export function MessageBubble({
   const [displayedContent, setDisplayedContent] = useState("")
 
   const isCurrentUserMessage = senderId === currentUserId
+  console.log("isCurrentUserMessage:", isCurrentUserMessage, "senderId: ", senderId, "currentUserId: ", currentUserId)
   const isAiMessage = role === "assistant"
   const isUserMessage = role === "user" 
 
