@@ -105,7 +105,7 @@ export const fetchPayoutHistory = createAsyncThunk(
   async ({ token, page, limit }: { token: string; page?: number; limit?: number }, { rejectWithValue }) => {
     try {
       const response = await payoutService.getPayoutHistory(token, { page, limit })
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch payout history"
       return rejectWithValue(message)
@@ -181,7 +181,7 @@ const payoutSlice = createSlice({
       })
       .addCase(fetchPayoutHistory.fulfilled, (state, action) => {
         state.loading = false
-        state.payoutHistory = action.payload
+        state.payoutHistory = action.payload.data
         state.pagination = action.payload.pagination
       })
       .addCase(fetchPayoutHistory.rejected, (state, action) => {
