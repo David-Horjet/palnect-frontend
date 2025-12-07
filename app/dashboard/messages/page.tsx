@@ -153,7 +153,7 @@ export default function MessagesPage() {
             title={currentConversation ? currentConversation.title || "Conversation" : "Messages"}
             subtitle={
               currentConversation?.type === "mentor"
-                ? "Chat with your mentor"
+                ? "Chat with your mentor/mentee"
                 : currentConversation?.type === "group"
                   ? "Group conversation"
                   : "Direct message"
