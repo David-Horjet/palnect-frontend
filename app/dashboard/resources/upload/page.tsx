@@ -59,7 +59,7 @@ export default function UploadResourcePage() {
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0]
-      if (droppedFile.type === "application/pdf") {
+      if (droppedFile.type === "application/pdf" || droppedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
         handleFileCompression(droppedFile)
       } else {
         toast.error("Please drop a PDF file")
