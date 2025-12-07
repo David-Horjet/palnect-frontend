@@ -6,6 +6,7 @@ import subscriptionsReducer from "./slices/subscriptionsSlice"
 import pointsReducer from "./slices/pointsSlice"
 import adminReducer from "./slices/adminSlice"
 import chatReducer from "./slices/chatSlice"
+import payoutReducer from "./slices/payoutSlice"
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     points: pointsReducer,
     admin: adminReducer,
     chat: chatReducer,
+    payout: payoutReducer,
   },
 })
 
