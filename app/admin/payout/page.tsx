@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import { fetchPayoutStats, fetchAdminPayouts } from "@/store/slices/payoutSlice"
 import { useAuth } from "@/hooks/useAuth"
+import { PayoutStatsCard } from "@/components/sections/admin/payout/payout-stats-card"
 
 export default function AdminPayoutPage() {
   const dispatch = useDispatch<AppDispatch>()
