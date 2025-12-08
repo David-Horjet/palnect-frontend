@@ -46,6 +46,14 @@ export const apiClient = {
     })
   },
 
+  async patch<T>(endpoint: string, body?: unknown, token?: string): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "PATCH",
+      body: body ? JSON.stringify(body) : undefined,
+      token,
+    })
+  },
+
   async delete<T>(endpoint: string, token?: string): Promise<T> {
     return this.request<T>(endpoint, { method: "DELETE", token })
   },
