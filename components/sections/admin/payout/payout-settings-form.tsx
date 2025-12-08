@@ -118,9 +118,9 @@ export function PayoutSettingsForm() {
                   id="is_payout_enabled"
                   name="is_payout_enabled"
                   checked={formData.is_payout_enabled}
-                  onCheckedChange={(checked) =>
-                    setFormData((prev) => ({ ...prev, is_payout_enabled: checked as boolean }))
-                  }
+                //   onCheckedChange={(checked) =>
+                //     setFormData((prev) => ({ ...prev, is_payout_enabled: checked as boolean }))
+                //   }
                 />
                 <label htmlFor="is_payout_enabled" className="text-sm font-medium cursor-pointer">
                   Enable Payouts
