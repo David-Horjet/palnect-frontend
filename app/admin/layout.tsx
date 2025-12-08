@@ -52,6 +52,12 @@ export default function AdminLayout({
                 >
                   Points
                 </Link>
+                <Link
+                  href="/admin/payout"
+                  className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  Payouts
+                </Link>
               </nav>
             </div>
             <div className="flex items-center gap-4">
