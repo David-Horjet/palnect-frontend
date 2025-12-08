@@ -6,6 +6,9 @@ interface PayoutState {
   accountDetails: AccountDetails | null
   payoutHistory: PayoutRequest[]
   conversionRate: number
+  minPayoutPoints: number
+  maxPayoutPoints: number
+  isPayoutEnabled: boolean
   loading: boolean
   error: string | null
   pagination: {
@@ -20,6 +23,9 @@ const initialState: PayoutState = {
   accountDetails: null,
   payoutHistory: [],
   conversionRate: 0.01,
+  minPayoutPoints: 1000,
+  maxPayoutPoints: 100000,
+  isPayoutEnabled: true,
   loading: false,
   error: null,
   pagination: {
@@ -118,7 +124,7 @@ export const getConversionRate = createAsyncThunk(
   async ({ token }: { token: string }, { rejectWithValue }) => {
     try {
       const response = await payoutService.getConversionRate(token)
-      return response.data.rate
+      return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch conversion rate"
       return rejectWithValue(message)
@@ -191,7 +197,10 @@ const payoutSlice = createSlice({
 
       // Get Conversion Rate
       .addCase(getConversionRate.fulfilled, (state, action) => {
-        state.conversionRate = action.payload
+        state.conversionRate = action.payload.rate
+        state.minPayoutPoints = action.payload.min_payout_points
+        state.maxPayoutPoints = action.payload.max_payout_points
+        state.isPayoutEnabled = action.payload.is_payout_enabled
       })
   },
 })

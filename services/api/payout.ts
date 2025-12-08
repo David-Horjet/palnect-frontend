@@ -47,6 +47,17 @@ export interface PayoutRequestResponse {
   data: PayoutRequest
 }
 
+export interface ConversionRateResponse {
+  success: boolean
+  message: string
+  data: {
+    rate: number
+    min_payout_points: number
+    max_payout_points: number
+    is_payout_enabled: boolean
+  }
+}
+
 export const payoutService = {
   // Save or update account details
   async saveAccountDetails(
@@ -96,6 +107,6 @@ export const payoutService = {
 
   // Get conversion rate (points to naira)
   async getConversionRate(token: string) {
-    return apiClient.get<{ success: boolean; data: { rate: number } }>("/payout/conversion-rate", token)
+    return apiClient.get<ConversionRateResponse>("/payout/conversion-rate", token)
   },
 }
