@@ -5,10 +5,6 @@ import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import { fetchPayoutStats, fetchAdminPayouts } from "@/store/slices/payoutSlice"
 import { useAuth } from "@/hooks/useAuth"
-import { PayoutStatsCard } from "@/components/admin/payout-stats-card"
-import { PayoutRequestsTable } from "@/components/admin/payout-requests-table"
-import { PayoutSettingsForm } from "@/components/admin/payout-settings-form"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AdminPayoutPage() {
   const dispatch = useDispatch<AppDispatch>()

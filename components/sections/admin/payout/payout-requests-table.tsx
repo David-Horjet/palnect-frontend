@@ -49,11 +49,11 @@ export function PayoutRequestsTable({ status }: PayoutRequestsTableProps) {
   }
 
   const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { variant: "default" | "secondary" | "outline" | "destructive"; icon: any }> = {
+    const statusConfig: Record<string, { variant: "default" | "secondary" | "outline" | "error"; icon: any }> = {
       pending: { variant: "outline", icon: Clock },
       approved: { variant: "secondary", icon: CheckCircle },
       paid: { variant: "default", icon: DollarSign },
-      declined: { variant: "destructive", icon: XCircle },
+      declined: { variant: "error", icon: XCircle },
     }
 
     const config = statusConfig[status] || statusConfig.pending
@@ -131,7 +131,7 @@ export function PayoutRequestsTable({ status }: PayoutRequestsTableProps) {
                           <>
                             <Button
                               size="sm"
-                              variant="default"
+                              variant="primary"
                               onClick={() => handleApprove(payout.id)}
                               disabled={adminLoading}
                             >
