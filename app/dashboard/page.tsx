@@ -6,7 +6,7 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap } from "lucide-react"
+import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap, File } from "lucide-react"
 import Link from "next/link"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
@@ -15,6 +15,7 @@ import { fetchMentors } from "@/store/slices/mentorsSlice"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ActivityFeed } from "@/components/sections/activity-feed"
+import Image from "next/image"
 import { StatCard } from "@/components/shared/stat-card"
 
 export default function DashboardPage() {
@@ -212,15 +213,20 @@ export default function DashboardPage() {
                     {resources.slice(0, 3).map((resource: any) => (
                       <Card key={resource.id} className="p-2 md:p-4 hover:shadow-md transition-shadow cursor-pointer">
                         <Link href={`/dashboard/resources/${resource.id}`}>
-                          <div className="w-full flex flex-col items-start justify-between">
-                            <div className="mb-2">
-                              <h3 className="text-sm md:text-base font-semibold text-foreground mb-1">{resource.title}</h3>
-                              <p className="text-xs text-muted-foreground">
-                                by {resource.uploader.first_name || "Unknown"} • {resource.downloads || 0} downloads •{" "}
-                                {new Date(resource.created_at).toLocaleDateString()}
-                              </p>
+                          <div className="flex items-center gap-4">
+                            <div className="">
+                              <File className="h-12 w-9 md:h-16 md:w-12" />
                             </div>
-                            <Badge className="text-[10px]" variant="secondary">{resource.category}</Badge>
+                            <div className="w-full flex flex-col items-start justify-between">
+                              <div className="mb-2">
+                                <h3 className="text-sm md:text-base font-semibold text-foreground mb-1">{resource.title}</h3>
+                                <p className="text-xs text-muted-foreground">
+                                  by {resource.uploader.first_name || "Unknown"} • {resource.downloads || 0} downloads •{" "}
+                                  {new Date(resource.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <Badge className="text-[10px]" variant="secondary">{resource.category}</Badge>
+                            </div>
                           </div>
                         </Link>
                       </Card>
@@ -246,17 +252,35 @@ export default function DashboardPage() {
                     {mentors.slice(0, 2).map((mentor: any) => (
                       <Card key={mentor.id} className="hover:shadow-md transition-shadow">
                         <Link href={`/dashboard/mentors/${mentor.id}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="font-semibold text-sm">
-                                {mentor?.user?.first_name || "Unknown"}{" "}
-                                {mentor?.user?.last_name || ""}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {mentor?.expertise?.slice(0, 2).join(", ") || "Expert"}
-                              </p>
+                          <div className="flex items-center gap-2">
+                            <div className="shrink-0">
+                              {mentor?.user?.avatar_url ? (
+                                <Image
+                                  src={mentor?.user?.avatar_url || "/placeholder.svg"}
+                                  alt="Avatar"
+                                  className="h-10 w-10 rounded-full object-cover"
+                                  width={96}
+                                  height={96}
+                                />
+                              ) : (
+                                <div className="h-15 md:h-24 w-15 md:w-24 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-primary-foreground">
+                                  {mentor?.user?.first_name[0]}
+                                  {mentor?.user?.last_name[0]}
+                                </div>
+                              )}
                             </div>
-                            <Badge className="text-xs">View</Badge>
+                            <div className="w-full flex items-start justify-between gap-3">
+                              <div>
+                                <p className="font-semibold text-sm">
+                                  {mentor?.user?.first_name || "Unknown"}{" "}
+                                  {mentor?.user?.last_name || ""}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {mentor?.expertise?.slice(0, 2).join(", ") || "Expert"}
+                                </p>
+                              </div>
+                              <Badge className="text-xs">View</Badge>
+                            </div>
                           </div>
                         </Link>
                       </Card>
