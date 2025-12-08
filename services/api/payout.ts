@@ -58,6 +58,53 @@ export interface ConversionRateResponse {
   }
 }
 
+export interface AdminPayoutResponse {
+  success: boolean
+  data: Array<{
+    id: string
+    user: {
+      id: string
+      first_name: string
+      last_name: string
+      email: string
+      points: number
+    }
+    amount_naira: number
+    amount_points: number
+    status: "pending" | "approved" | "paid" | "declined"
+    bank_account: AccountDetails
+    created_at: string
+  }>
+  pagination: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+}
+
+export interface PayoutStatsResponse {
+  success: boolean
+  data: {
+    pending_count: number
+    conversion_rate: number
+    min_payout: number
+    max_payout: number
+    is_enabled: boolean
+  }
+}
+
+export interface PayoutSettingsResponse {
+  success: boolean
+  message: string
+  data: {
+    points_to_naira_rate: number
+    min_payout_points: number
+    max_payout_points: number
+    is_payout_enabled: boolean
+  }
+}
+
 export const payoutService = {
   // Save or update account details
   async saveAccountDetails(
@@ -108,5 +155,65 @@ export const payoutService = {
   // Get conversion rate (points to naira)
   async getConversionRate(token: string) {
     return apiClient.get<ConversionRateResponse>("/payout/conversion-rate", token)
+  },
+}
+
+export const adminPayoutService = {
+  // Get all payouts
+  async getAllPayouts(
+    token: string,
+    options?: {
+      page?: number
+      limit?: number
+      status?: "pending" | "approved" | "paid" | "declined"
+    },
+  ) {
+    const params = new URLSearchParams()
+    if (options?.page) params.append("page", options.page.toString())
+    if (options?.limit) params.append("limit", options.limit.toString())
+    if (options?.status) params.append("status", options.status)
+
+    const query = params.toString()
+    const endpoint = query ? `/payout/admin/all?${query}` : "/payout/admin/all"
+
+    return apiClient.get<AdminPayoutResponse>(endpoint, token)
+  },
+
+  // Approve payout
+  async approvePayout(token: string, payoutId: string) {
+    return apiClient.patch<PayoutRequestResponse>(`/payout/admin/${payoutId}/approve`, {}, token)
+  },
+
+  // Mark as paid
+  async markAsPaid(token: string, payoutId: string) {
+    return apiClient.patch<PayoutRequestResponse>(`/payout/admin/${payoutId}/paid`, {}, token)
+  },
+
+  // Decline payout
+  async declinePayout(token: string, payoutId: string, reason: string) {
+    return apiClient.patch<PayoutRequestResponse>(`/payout/admin/${payoutId}/decline`, { reason }, token)
+  },
+
+  // Get payout stats
+  async getPayoutStats(token: string) {
+    return apiClient.get<PayoutStatsResponse>("/payout/admin/stats", token)
+  },
+
+  // Get payout settings
+  async getPayoutSettings(token: string) {
+    return apiClient.get<PayoutSettingsResponse>("/payout/admin/settings", token)
+  },
+
+  // Update payout settings
+  async updatePayoutSettings(
+    token: string,
+    settings: {
+      points_to_naira_rate: number
+      min_payout_points: number
+      max_payout_points: number
+      is_payout_enabled: boolean
+    },
+  ) {
+    return apiClient.patch<PayoutSettingsResponse>("/payout/admin/settings", settings, token)
   },
 }
