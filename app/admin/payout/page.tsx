@@ -6,6 +6,9 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { fetchPayoutStats, fetchAdminPayouts } from "@/store/slices/payoutSlice"
 import { useAuth } from "@/hooks/useAuth"
 import { PayoutStatsCard } from "@/components/sections/admin/payout/payout-stats-card"
+import { PayoutRequestsTable } from "@/components/sections/admin/payout/payout-requests-table"
+import { PayoutSettingsForm } from "@/components/sections/admin/payout/payout-settings-form"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 export default function AdminPayoutPage() {
   const dispatch = useDispatch<AppDispatch>()
