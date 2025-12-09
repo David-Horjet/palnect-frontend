@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useSearchParams } from "next/navigation"
 import type { AppDispatch, RootState } from "@/store/store"
-import { clearCurrentConversation, createConversation, fetchConversations, getConversation, sendMessage } from "@/store/slices/chatSlice"
+import { addIncomingMessage, clearCurrentConversation, createConversation, fetchConversations, getConversation, sendMessage, setTyping } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
 import { ChevronLeft, MessageCircle } from "lucide-react"
@@ -91,6 +91,50 @@ export default function MessagesPage() {
     initialize()
     dispatch(clearCurrentConversation())
   }, [dispatch, searchParams, user?.id])
+
+  useEffect(() => {
+    if (!socket || !currentConversation) return
+
+    const handleNewMessage = (data: any) => {
+      if (data.conversationId === currentConversation.id) {
+        dispatch(
+          addIncomingMessage({
+            id: data.id,
+            conversation_id: data.conversationId,
+            role: "assistant",
+            content: data.content,
+            created_at: data.createdAt || new Date().toISOString(),
+            status: "delivered",
+            isNew: true,
+            sender_id: data.senderId,
+            is_deleted: false,
+          }),
+        )
+      }
+    }
+
+    const handleTyping = (data: any) => {
+      if (data.conversationId === currentConversation.id) {
+        dispatch(setTyping(true))
+      }
+    }
+
+    const handleStopTyping = (data: any) => {
+      if (data.conversationId === currentConversation.id) {
+        dispatch(setTyping(false))
+      }
+    }
+
+    socket.on("message:received", handleNewMessage)
+    socket.on("message:typing", handleTyping)
+    socket.on("message:stopTyping", handleStopTyping)
+
+    return () => {
+      socket.off("message:received", handleNewMessage)
+      socket.off("message:typing", handleTyping)
+      socket.off("message:stopTyping", handleStopTyping)
+    }
+  }, [socket, currentConversation, dispatch])
 
   const handleSelectConversation = async (conversationId: string) => {
     const token = localStorage.getItem("token")
