@@ -4,10 +4,10 @@ import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useSearchParams } from "next/navigation"
 import type { AppDispatch, RootState } from "@/store/store"
-import { createConversation, fetchConversations, getConversation, sendMessage } from "@/store/slices/chatSlice"
+import { clearCurrentConversation, createConversation, fetchConversations, getConversation, sendMessage } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
-import { MessageCircle } from "lucide-react"
+import { ChevronLeft, MessageCircle } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
@@ -25,6 +25,7 @@ export default function MessagesPage() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [showSidebarOnly, setShowSidebarOnly] = useState(isMobile)
 
   const allConversations = useSelector((state: RootState) => state.chat.conversations)
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
@@ -88,12 +89,16 @@ export default function MessagesPage() {
     }
 
     initialize()
+    dispatch(clearCurrentConversation())
   }, [dispatch, searchParams, user?.id])
 
   const handleSelectConversation = async (conversationId: string) => {
     const token = localStorage.getItem("token")
     if (token) {
       await dispatch(getConversation({ token, conversationId }))
+      if (isMobile) {
+        setShowSidebarOnly(false)
+      }
     }
   }
 
@@ -137,8 +142,8 @@ export default function MessagesPage() {
       <DashboardSidebar activeTab="messages" />
 
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {!isMobile && (
-          <div className="w-64 border-r border-border overflow-hidden">
+        {(!isMobile || showSidebarOnly) && (
+          <div className={`${isMobile ? "w-full" : "w-64"} border-r border-border overflow-hidden flex flex-col`}>
             <ChatSidebar
               conversations={nonAiConversations}
               onSelectConversation={handleSelectConversation}
@@ -148,82 +153,94 @@ export default function MessagesPage() {
           </div>
         )}
 
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader
-            title={currentConversation ? currentConversation.title || "Conversation" : "Messages"}
-            subtitle={
-              currentConversation?.type === "mentor"
-                ? "Chat with your mentor/mentee"
-                : currentConversation?.type === "group"
-                  ? "Group conversation"
-                  : "Direct message"
-            }
-          />
-
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {!currentConversation || messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
-                    <MessageCircle className="h-8 w-8 text-primary" />
-                  </div>
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-foreground">Welcome to Messages</h2>
-                    <p className="text-muted-foreground">Select a conversation from the sidebar to begin chatting.</p>
-                  </div>
-                </Card>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {messages.map((msg) => (
-                  <MessageBubble
-                    key={msg.id}
-                    role={msg.role}
-                    content={msg.content}
-                    createdAt={msg.created_at}
-                    status={msg.status}
-                    isNew={msg.isNew}
-                    isLoading={false}
-                    senderId={msg.sender_id}
-                    currentUserId={user?.id}
-                  />
-                ))}
-                {isTyping && (
-                  <div className="flex gap-3">
-                    <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
-                        <div
-                          className="w-2 h-2 rounded-full bg-primary animate-bounce"
-                          style={{ animationDelay: "0.1s" }}
-                        ></div>
-                        <div
-                          className="w-2 h-2 rounded-full bg-primary animate-bounce"
-                          style={{ animationDelay: "0.2s" }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div className="bg-muted text-foreground rounded-lg rounded-bl-none px-4 py-2">
-                      <p className="text-sm text-muted-foreground italic">Typing...</p>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
+        {(!isMobile || !showSidebarOnly) && (
+          <main className="flex-1 flex flex-col overflow-hidden">
+            {isMobile && !showSidebarOnly && (
+              <div className="border-b border-border px-4 py-3 flex items-center gap-3">
+                <button onClick={() => setShowSidebarOnly(true)} className="p-2 hover:bg-accent/10 rounded-lg">
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <h2 className="font-semibold flex-1">Messages</h2>
               </div>
             )}
-          </div>
 
-          {currentConversation && (
-            <ChatInput
-              onSend={handleSendMessage}
-              role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}
-              isLoading={messageLoading}
-              pointsBalance={pointsBalance}
-              pointCost={POINT_COST_PER_MESSAGE}
-              conversationId={currentConversation.id}
+            <DashboardHeader
+              title={currentConversation ? currentConversation.title || "Conversation" : "Messages"}
+              subtitle={
+                currentConversation?.type === "mentor"
+                  ? "Chat with your mentor/mentee"
+                  : currentConversation?.type === "group"
+                    ? "Group conversation"
+                    : "Direct message"
+              }
             />
-          )}
-        </main>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {!currentConversation || messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
+                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
+                      <MessageCircle className="h-8 w-8 text-primary" />
+                    </div>
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-bold text-foreground">Welcome to Messages</h2>
+                      <p className="text-muted-foreground">Select a conversation from the sidebar to begin chatting.</p>
+                    </div>
+                  </Card>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((msg) => (
+                    <MessageBubble
+                      key={msg.id}
+                      role={msg.role}
+                      content={msg.content}
+                      createdAt={msg.created_at}
+                      status={msg.status}
+                      isNew={msg.isNew}
+                      isLoading={false}
+                      senderId={msg.sender_id}
+                      currentUserId={user?.id}
+                    />
+                  ))}
+                  {isTyping && (
+                    <div className="flex gap-3">
+                      <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
+                          <div
+                            className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                            style={{ animationDelay: "0.1s" }}
+                          ></div>
+                          <div
+                            className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                            style={{ animationDelay: "0.2s" }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="bg-muted text-foreground rounded-lg rounded-bl-none px-4 py-2">
+                        <p className="text-sm text-muted-foreground italic">Typing...</p>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              )}
+            </div>
+
+            {currentConversation && (
+              <ChatInput
+                onSend={handleSendMessage}
+                role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}
+                isLoading={messageLoading}
+                pointsBalance={pointsBalance}
+                pointCost={POINT_COST_PER_MESSAGE}
+                conversationId={currentConversation.id}
+              />
+            )}
+          </main>
+
+        )}
       </div>
 
       {isMobile && mobileDrawerOpen && (
