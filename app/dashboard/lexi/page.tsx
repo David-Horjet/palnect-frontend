@@ -9,11 +9,12 @@ import {
   sendMessage,
   createConversation,
   setTyping,
+  clearCurrentConversation,
 } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Sparkles, MessageCircle, Bot } from "lucide-react"
+import { Sparkles, MessageCircle, Bot, ChevronLeft } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
@@ -32,6 +33,7 @@ export default function LexiChatPage() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [showSidebarOnly, setShowSidebarOnly] = useState(isMobile)
 
   const allConversations = useSelector((state: RootState) => state.chat.conversations)
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
@@ -68,6 +70,8 @@ export default function LexiChatPage() {
     }
 
     initialize()
+
+    dispatch(clearCurrentConversation())
   }, [dispatch])
 
   useEffect(() => {
@@ -104,6 +108,9 @@ export default function LexiChatPage() {
     const token = localStorage.getItem("token")
     if (token) {
       await dispatch(getConversation({ token, conversationId }))
+      if (isMobile) {
+        setShowSidebarOnly(false)
+      }
     }
   }
 
@@ -159,7 +166,7 @@ export default function LexiChatPage() {
       <div className="flex h-screen overflow-hidden">
         <DashboardSidebar activeTab="lexi" />
         <main className="flex-1 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </main>
       </div>
     )
@@ -170,8 +177,8 @@ export default function LexiChatPage() {
       <DashboardSidebar activeTab="lexi" />
 
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {!isMobile && (
-          <div className="w-64 border-r border-border overflow-hidden">
+        {(!isMobile || showSidebarOnly) && (
+          <div className={`${isMobile ? "w-full" : "w-64"} border-r border-border overflow-hidden flex flex-col`}>
             <ChatSidebar
               conversations={lexiConversations}
               onSelectConversation={handleSelectConversation}
@@ -181,82 +188,93 @@ export default function LexiChatPage() {
           </div>
         )}
 
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader title="Lexi - AI Study Mentor" subtitle="Your personal academic assistant" />
-
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {!currentConversation || messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
-                  <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
-                    <Image src={robot} alt={"robot"} width={100} height={100} />
-                  </div>
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-foreground">Hi, I'm Lexi!</h2>
-                    <p className="text-muted-foreground">
-                      I'm your sweet and gentle AI study mentor here to help you with any academic questions.
-                    </p>
-                  </div>
-                  <div className="space-y-3 pt-4">
-                    <p className="text-sm text-muted-foreground">What do you need help with today?</p>
-                    <Button onClick={handleNewChat} className="w-full">
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Start a New Chat
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {messages.map((msg) => (
-                  <MessageBubble
-                    key={msg.id}
-                    role={msg.role}
-                    content={msg.content}
-                    createdAt={msg.created_at}
-                    status={msg.status}
-                    isNew={msg.isNew}
-                    isLoading={false}
-                    senderId={msg.sender_id}
-                    currentUserId={user?.id}
-                  />
-                ))}
-                {isTyping && (
-                  <div className="flex gap-3">
-                    <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
-                        <div
-                          className="w-2 h-2 rounded-full bg-primary animate-bounce"
-                          style={{ animationDelay: "0.1s" }}
-                        ></div>
-                        <div
-                          className="w-2 h-2 rounded-full bg-primary animate-bounce"
-                          style={{ animationDelay: "0.2s" }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div className="bg-muted text-foreground rounded-lg rounded-bl-none px-4 py-2">
-                      <p className="text-sm text-muted-foreground italic">Lexi is typing...</p>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
+        {(!isMobile || !showSidebarOnly) && (
+          <main className="flex-1 flex flex-col overflow-hidden">
+            {isMobile && !showSidebarOnly && (
+              <div className="border-b border-border px-4 py-3 flex items-center gap-3">
+                <button onClick={() => setShowSidebarOnly(true)} className="p-2 hover:bg-accent/10 rounded-lg">
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <h2 className="font-semibold flex-1">Lexi</h2>
               </div>
             )}
-          </div>
+            <DashboardHeader title="Lexi - AI Study Mentor" subtitle="Your personal academic assistant" />
 
-          {currentConversation && (
-            <ChatInput
-              onSend={handleSendMessage}
-              isLoading={messageLoading}
-              pointsBalance={pointsBalance}
-              pointCost={POINT_COST_PER_MESSAGE}
-              conversationId={currentConversation.id}
-              role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}           
-            />
-          )}
-        </main>
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {!currentConversation || messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
+                    <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
+                      <Image src={robot} alt={"robot"} width={100} height={100} />
+                    </div>
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-bold text-foreground">Hi, I'm Lexi!</h2>
+                      <p className="text-muted-foreground">
+                        I'm your sweet and gentle AI study mentor here to help you with any academic questions.
+                      </p>
+                    </div>
+                    <div className="space-y-3 pt-4">
+                      <p className="text-sm text-muted-foreground">What do you need help with today?</p>
+                      <Button onClick={handleNewChat} className="w-full">
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Start a New Chat
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((msg) => (
+                    <MessageBubble
+                      key={msg.id}
+                      role={msg.role}
+                      content={msg.content}
+                      createdAt={msg.created_at}
+                      status={msg.status}
+                      isNew={msg.isNew}
+                      isLoading={false}
+                      senderId={msg.sender_id}
+                      currentUserId={user?.id}
+                    />
+                  ))}
+                  {isTyping && (
+                    <div className="flex gap-3">
+                      <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
+                          <div
+                            className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                            style={{ animationDelay: "0.1s" }}
+                          ></div>
+                          <div
+                            className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                            style={{ animationDelay: "0.2s" }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="bg-muted text-foreground rounded-lg rounded-bl-none px-4 py-2">
+                        <p className="text-sm text-muted-foreground italic">Lexi is typing...</p>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              )}
+            </div>
+
+            {currentConversation && (
+              <ChatInput
+                onSend={handleSendMessage}
+                isLoading={messageLoading}
+                pointsBalance={pointsBalance}
+                pointCost={POINT_COST_PER_MESSAGE}
+                conversationId={currentConversation.id}
+                role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}
+              />
+            )}
+          </main>
+
+        )}
       </div>
 
       {isMobile && mobileDrawerOpen && (
