@@ -47,7 +47,7 @@ export const faqData = [
       },
       {
         question: "Are credits refundable?",
-        answer: "No, all credits purchases are final and non-refundable.",
+        answer: "Yes, credits earned or bought can be converted to your local currency by requesting a payout",
       },
       {
         question: "Do credits expire?",
