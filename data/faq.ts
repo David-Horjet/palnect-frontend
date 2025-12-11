@@ -22,7 +22,7 @@ export const faqData = [
     items: [
       {
         question: "What file types can I upload?",
-        answer: "Currently only PDF files up to 10MB.",
+        answer: "Currently only PDF and DocX files up to 50MB.",
       },
       {
         question: "Can I download resources for free?",
