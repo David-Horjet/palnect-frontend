@@ -38,7 +38,7 @@ export const faqData = [
     category: "Credits",
     items: [
       {
-        question: "How do I get coints?",
+        question: "How do I get credits?",
         answer: "Purchase with card/bank transfer, earn through platform activities, or receive welcome bonus.",
       },
       {
