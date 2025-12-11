@@ -70,7 +70,7 @@ export const faqData = [
       {
         question: "How do mentors get paid?",
         answer:
-          "Mentors receive credits from subscriptions which can be withdrawn (future feature) or used on the platform.",
+          "Mentors receive credits from subscriptions which can be withdrawn or used on the platform.",
       },
       {
         question: "Can I cancel a subscription?",
@@ -83,7 +83,7 @@ export const faqData = [
     items: [
       {
         question: "How does AI summarization work?",
-        answer: "Our AI reads your PDF and generates a structured summary with key topics, concepts, and study tips.",
+        answer: "Our AI reads your document and generates a structured summary with key topics, concepts, and study tips.",
       },
       {
         question: "Is there a limit on AI summaries?",
