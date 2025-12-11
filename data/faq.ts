@@ -87,7 +87,7 @@ export const faqData = [
       },
       {
         question: "Is there a limit on AI summaries?",
-        answer: "Free users get 3 summaries per day. Premium users get unlimited (coming soon).",
+        answer: "No, AI summarization of documents is unlimited as far as you have credits to cover for it",
       },
       {
         question: "How accurate are AI summaries?",
