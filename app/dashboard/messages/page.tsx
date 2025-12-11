@@ -101,7 +101,7 @@ export default function MessagesPage() {
           addIncomingMessage({
             id: data.id,
             conversation_id: data.conversationId,
-            role: "assistant",
+            role: data.role,
             content: data.content,
             created_at: data.createdAt || new Date().toISOString(),
             status: "delivered",
