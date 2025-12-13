@@ -72,7 +72,7 @@ export function SummaryRenderer({ summary, isLoading = false }: SummaryRendererP
           </div>
         ) : (
           <div><ReactMarkdown remarkPlugins={[remarkGfm]}>{displayedText}</ReactMarkdown></div>
-        )}
+        )} 
       </div>
     </div>
   )
