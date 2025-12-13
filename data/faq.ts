@@ -22,7 +22,7 @@ export const faqData = [
     items: [
       {
         question: "What file types can I upload?",
-        answer: "Currently only PDF files up to 10MB.",
+        answer: "Currently only PDF and DocX files up to 50MB.",
       },
       {
         question: "Can I download resources for free?",
@@ -38,7 +38,7 @@ export const faqData = [
     category: "Credits",
     items: [
       {
-        question: "How do I get coints?",
+        question: "How do I get credits?",
         answer: "Purchase with card/bank transfer, earn through platform activities, or receive welcome bonus.",
       },
       {
@@ -47,7 +47,7 @@ export const faqData = [
       },
       {
         question: "Are credits refundable?",
-        answer: "No, all credits purchases are final and non-refundable.",
+        answer: "Yes, credits earned or bought can be converted to your local currency by requesting a payout",
       },
       {
         question: "Do credits expire?",
@@ -70,7 +70,7 @@ export const faqData = [
       {
         question: "How do mentors get paid?",
         answer:
-          "Mentors receive credits from subscriptions which can be withdrawn (future feature) or used on the platform.",
+          "Mentors receive credits from subscriptions which can be withdrawn or used on the platform.",
       },
       {
         question: "Can I cancel a subscription?",
@@ -83,11 +83,11 @@ export const faqData = [
     items: [
       {
         question: "How does AI summarization work?",
-        answer: "Our AI reads your PDF and generates a structured summary with key topics, concepts, and study tips.",
+        answer: "Our AI reads your document and generates a structured summary with key topics, concepts, and study tips.",
       },
       {
         question: "Is there a limit on AI summaries?",
-        answer: "Free users get 3 summaries per day. Premium users get unlimited (coming soon).",
+        answer: "No, AI summarization of documents is unlimited as far as you have credits to cover for it",
       },
       {
         question: "How accurate are AI summaries?",

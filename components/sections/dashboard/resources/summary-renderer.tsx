@@ -1,6 +1,8 @@
 "use client"
 
 import { useTypewriter } from "@/hooks/useTypewriter"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface SummaryRendererProps {
   summary: string
@@ -69,7 +71,7 @@ export function SummaryRenderer({ summary, isLoading = false }: SummaryRendererP
             <div className="h-4 bg-muted rounded animate-pulse w-5/6"></div>
           </div>
         ) : (
-          <div>{renderSummary(displayedText)}</div>
+          <div><ReactMarkdown remarkPlugins={[remarkGfm]}>{displayedText}</ReactMarkdown></div>
         )}
       </div>
     </div>

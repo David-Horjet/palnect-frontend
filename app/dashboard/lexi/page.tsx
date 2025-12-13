@@ -10,6 +10,7 @@ import {
   createConversation,
   setTyping,
   clearCurrentConversation,
+  addIncomingMessage,
 } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
@@ -78,7 +79,21 @@ export default function LexiChatPage() {
     if (!socket || !currentConversation) return
 
     const handleNewMessage = (data: any) => {
-      // Handle message via socket
+      if (data.conversationId === currentConversation.id) {
+        dispatch(
+          addIncomingMessage({
+            id: data.id,
+            conversation_id: data.conversationId,
+            role: "assistant",
+            content: data.content,
+            created_at: data.createdAt || new Date().toISOString(),
+            status: "delivered",
+            isNew: true,
+            sender_id: data.senderId,
+            is_deleted: false,
+          }),
+        )
+      }
     }
 
     const handleTyping = (data: any) => {
