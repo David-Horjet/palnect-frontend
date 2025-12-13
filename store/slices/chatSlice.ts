@@ -174,6 +174,14 @@ const chatSlice = createSlice({
         state.messageLoading = false
       }
     },
+    // addIncomingMessage: (state, action) => {
+    //   const newMessage = action.payload
+    //   state.messages.push({
+    //     ...newMessage,
+    //      isNew: newMessage.role === 'assistant',
+    //     status: "delivered",
+    //   })
+    // },
     markMessageAsRead: (state, action) => {
       const { messageId } = action.payload
       const message = state.messages.find((m) => m.id === messageId)

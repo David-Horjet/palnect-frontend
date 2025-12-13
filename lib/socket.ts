@@ -1,6 +1,7 @@
 import { io, type Socket } from "socket.io-client"
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+const SOCKET_URL = API_URL.replace(/\/api\/?$/, "")
 
 export const socket: Socket = io(SOCKET_URL, {
   autoConnect: false,
