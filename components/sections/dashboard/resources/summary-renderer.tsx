@@ -77,4 +77,3 @@ export function SummaryRenderer({ summary, isLoading = false }: SummaryRendererP
     </div> 
   )
 }
-  
