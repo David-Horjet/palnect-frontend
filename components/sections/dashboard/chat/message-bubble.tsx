@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import { Bot, User, Check, CheckCheck, Clock } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface MessageBubbleProps {
   role: "user" | "assistant"
@@ -30,7 +32,7 @@ export function MessageBubble({
   const isCurrentUserMessage = senderId === currentUserId
   // console.log("isCurrentUserMessage:", isCurrentUserMessage, "senderId: ", senderId, "currentUserId: ", currentUserId)
   const isAiMessage = role === "assistant"
-  const isUserMessage = role === "user" 
+  const isUserMessage = role === "user"
 
   useEffect(() => {
     if (isAiMessage && content && isNew && !isLoading) {
@@ -81,13 +83,12 @@ export function MessageBubble({
 
       <div className={`max-w-xs lg:max-w-md xl:max-w-lg flex flex-col gap-1`}>
         <div
-          className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${
-            isUserMessage && isCurrentUserMessage
+          className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${isUserMessage && isCurrentUserMessage
               ? "bg-primary text-primary-foreground rounded-br-none"
               : "bg-muted text-foreground rounded-bl-none"
-          }`}
+            }`}
         >
-          <p className="text-sm whitespace-pre-wrap">{displayedContent}</p>
+          <p className="text-sm whitespace-pre-wrap"><ReactMarkdown remarkPlugins={[remarkGfm]}>{displayedContent}</ReactMarkdown></p>
           {isAiMessage && isLoading && <span className="inline-block animate-pulse">▌</span>}
         </div>
 
