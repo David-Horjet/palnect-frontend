@@ -139,7 +139,11 @@ export default function LexiChatPage() {
     }
   }
 
-  const handleSendMessage = async (message: string) => {
+  const handleSendMessage = async (message: string, attachments?: {
+    url: string
+    type: string
+    name?: string
+  }[]) => {
     const token = localStorage.getItem("token")
     if (!token) return
 
@@ -158,6 +162,7 @@ export default function LexiChatPage() {
             token,
             conversationId: (result.payload as any).id,
             message,
+            attachments,
             clientMessageId,
             senderId: user?.id!
           }),
@@ -169,6 +174,7 @@ export default function LexiChatPage() {
           token,
           conversationId: currentConversation.id,
           message,
+          attachments,
           clientMessageId,
           senderId: user?.id!
         }),

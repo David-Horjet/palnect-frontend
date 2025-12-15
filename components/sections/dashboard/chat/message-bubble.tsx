@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Image from "next/image"
+import { MessageAttachment } from "./message-attachment"
 
 interface MessageBubbleProps {
   role: "user" | "assistant"
@@ -17,6 +18,7 @@ interface MessageBubbleProps {
   isNew?: boolean
   senderId?: string
   currentUserId?: string
+  attachments?: Array<{ url: string; type: string; name?: string }>
 }
 
 export function MessageBubble({
@@ -29,11 +31,11 @@ export function MessageBubble({
   isNew,
   senderId,
   currentUserId,
+  attachments,
 }: MessageBubbleProps) {
   const [displayedContent, setDisplayedContent] = useState("")
 
   const isCurrentUserMessage = senderId === currentUserId
-  // console.log("isCurrentUserMessage:", isCurrentUserMessage, "senderId: ", senderId, "currentUserId: ", currentUserId)
   const isAiMessage = role === "assistant"
   const isUserMessage = role === "user"
 
@@ -80,33 +82,56 @@ export function MessageBubble({
     <div className={`flex gap-3 ${isUserMessage && isCurrentUserMessage ? "justify-end" : "justify-start"}`}>
       {!isUserMessage || !isCurrentUserMessage ? (
         <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-          {isAiMessage ? <Bot className="h-4 w-4 text-primary" /> : <>
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl || "/placeholder.svg"}
-                alt="Avatar"
-                className="h-6 w-6 rounded-full object-cover"
-                width={100}
-                height={100}
-              />
-            ) : (
-              <User className="h-4 w-4 text-primary" />
-            )}
-          </>}
+          {isAiMessage ? (
+            <Bot className="h-4 w-4 text-primary" />
+          ) : avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt="Avatar"
+              className="h-6 w-6 rounded-full object-cover"
+              width={100}
+              height={100}
+            />
+          ) : (
+            <User className="h-4 w-4 text-primary" />
+          )}
         </div>
       ) : null}
 
-      <div className={`max-w-xs lg:max-w-md xl:max-w-lg flex flex-col gap-1`}>
-        <div
-          className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${isUserMessage && isCurrentUserMessage
-            ? "bg-primary text-primary-foreground rounded-br-none"
-            : "bg-muted text-foreground rounded-bl-none"
-            }`}
-        >
-          <p className="text-sm whitespace-pre-wrap"><ReactMarkdown remarkPlugins={[remarkGfm]}>{displayedContent}</ReactMarkdown></p>
-          {isAiMessage && isLoading && <span className="inline-block animate-pulse">▌</span>}
-        </div>
+      <div className="max-w-xs lg:max-w-md xl:max-w-lg flex flex-col gap-1">
+        {/* Attachments */}
+        {attachments && attachments.length > 0 && (
+          <div className="space-y-2 mb-2">
+            {attachments.map((attachment, index) => (
+              <MessageAttachment
+                key={index}
+                url={attachment.url}
+                type={attachment.type}
+                name={attachment.name}
+              />
+            ))}
+          </div>
+        )}
 
+        {/* Message Bubble */}
+        {content && (
+          <div
+            className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${
+              isUserMessage && isCurrentUserMessage
+                ? "bg-primary text-primary-foreground rounded-br-none"
+                : "bg-muted text-foreground rounded-bl-none"
+            }`}
+          >
+            <p className="text-sm whitespace-pre-wrap">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {displayedContent}
+              </ReactMarkdown>
+            </p>
+            {isAiMessage && isLoading && <span className="inline-block animate-pulse">▌</span>}
+          </div>
+        )}
+
+        {/* Meta */}
         <div className="flex items-center gap-1 px-2">
           <span className="text-xs text-muted-foreground">
             {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
@@ -114,12 +139,6 @@ export function MessageBubble({
           {renderStatusIcon()}
         </div>
       </div>
-
-      {/* {isUserMessage && isCurrentUserMessage && (
-        <div className="shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-          <User className="h-4 w-4 text-accent" />
-        </div>
-      )} */}
     </div>
   )
 }
