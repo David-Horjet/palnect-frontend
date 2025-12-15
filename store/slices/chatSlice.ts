@@ -145,6 +145,7 @@ const chatSlice = createSlice({
     // Append (or merge) an incoming message from socket/server
     addIncomingMessage: (state, action) => {
       const { conversationId, message } = action.payload
+      console.log("addIncomingMessage", action.payload)
 
       // If this message has a client_message_id then find the temporary message
       // and replace it with the server message (idempotency & status update)
