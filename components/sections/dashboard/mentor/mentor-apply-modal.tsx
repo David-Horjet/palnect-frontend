@@ -159,7 +159,7 @@ export function MentorApplyModal({ isOpen, onClose }: MentorApplyModalProps) {
                 value={currentSkill}
                 onChange={(e) => setCurrentSkill(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddSkill())}
-                placeholder="e.g., React, Python, Calculus"
+                placeholder="e.g., Calculus, Human Anatomy, Data Structures"
                 className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm"
               />
               <Button type="button" onClick={handleAddSkill} variant="secondary">
@@ -192,7 +192,7 @@ export function MentorApplyModal({ isOpen, onClose }: MentorApplyModalProps) {
                 type="number"
                 value={formData.dailyRate}
                 onChange={handleChange}
-                placeholder="e.g., 5"
+                placeholder="e.g., 5000"
               />
               <FormField
                 label="Weekly Rate"
@@ -200,7 +200,7 @@ export function MentorApplyModal({ isOpen, onClose }: MentorApplyModalProps) {
                 type="number"
                 value={formData.weeklyRate}
                 onChange={handleChange}
-                placeholder="e.g., 30"
+                placeholder="e.g., 30000"
               />
               <FormField
                 label="Monthly Rate"
@@ -208,7 +208,7 @@ export function MentorApplyModal({ isOpen, onClose }: MentorApplyModalProps) {
                 type="number"
                 value={formData.monthlyRate}
                 onChange={handleChange}
-                placeholder="e.g., 100"
+                placeholder="e.g., 100000"
               />
             </div>
           </div>
@@ -227,7 +227,7 @@ export function MentorApplyModal({ isOpen, onClose }: MentorApplyModalProps) {
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.weekdays.includes(day)
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        : "bg-muted/20 text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
                     {day}

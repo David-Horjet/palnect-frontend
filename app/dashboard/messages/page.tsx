@@ -30,6 +30,7 @@ export default function MessagesPage() {
   const allConversations = useSelector((state: RootState) => state.chat.conversations)
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
   const messages = useSelector((state: RootState) => state.chat.messages)
+  console.log("messages:", messages)
   const messageLoading = useSelector((state: RootState) => state.chat.messageLoading)
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
   const user = useSelector((state: RootState) => state.auth.user)
@@ -95,20 +96,21 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!socket || !currentConversation) return
 
+    socket.emit("joinConversation", currentConversation.id)
+
+    return () => {
+      socket.emit("leaveConversation", currentConversation.id)
+    }
+  }, [socket, currentConversation])
+
+
+  useEffect(() => {
+    if (!socket || !currentConversation) return
+
     const handleNewMessage = (data: any) => {
       if (data.conversationId === currentConversation.id) {
         dispatch(
-          addIncomingMessage({
-            id: data.id,
-            conversation_id: data.conversationId,
-            role: data.role,
-            content: data.content,
-            created_at: data.createdAt || new Date().toISOString(),
-            status: "delivered",
-            isNew: true,
-            sender_id: data.senderId,
-            is_deleted: false,
-          }),
+          addIncomingMessage(data),
         )
       }
     }
@@ -240,6 +242,7 @@ export default function MessagesPage() {
                       role={msg.role}
                       content={msg.content}
                       createdAt={msg.created_at}
+                      avatarUrl={currentConversation.participant.avatar_url!}
                       status={msg.status}
                       isNew={msg.isNew}
                       isLoading={false}
