@@ -9,7 +9,7 @@ export interface Message {
   role: "user" | "assistant"
   content: string
   status: "sent" | "sending" | "delivered" | "seen" | "failed"
-  attachments?: Array<{ url: string; type: string }>
+  attachments?: Array<{ url: string; type: string; name?: string }>
   client_message_id?: string
   is_deleted: boolean
   created_at: string
@@ -67,13 +67,13 @@ export const chatService = {
   },
 
   // Send message (works for all conversation types)
-  async sendMessage(token: string, conversationId: string, clientMessageId: string, message: string) {
+  async sendMessage(token: string, conversationId: string, clientMessageId: string, message: string, attachments?: Array<{ url: string; type: string; name?: string }>) {
     // Server returns { success, message, data: { response, pointsDeducted, conversation } }
     return apiClient.post<{
       success: boolean
       message: string
       data: { response: string; pointsDeducted: number; conversation: Conversation }
-    }>(`/chat/messages?conversationId=${conversationId}`, { message, clientMessageId }, token)
+    }>(`/chat/messages?conversationId=${conversationId}`, { message, clientMessageId, attachments }, token)
   },
 
   // Create new conversation (for peers)
