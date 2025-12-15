@@ -107,7 +107,6 @@ export default function MessagesPage() {
     if (!socket || !currentConversation) return
 
     const handleNewMessage = (data: any) => {
-      console.log("message:received", data)
       if (data.conversationId === currentConversation.id) {
         dispatch(
           addIncomingMessage(data),
