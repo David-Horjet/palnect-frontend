@@ -2,6 +2,9 @@ import { getSupabaseAdmin } from "@/lib/supabase"
 
 const supabase = getSupabaseAdmin()
 
+const { data } = await supabase.auth.getSession()
+console.log("Supabase session:", data)
+
 export interface UploadProgress {
   progress: number
   fileName: string
