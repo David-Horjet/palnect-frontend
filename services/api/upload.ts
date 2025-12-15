@@ -14,7 +14,8 @@ export interface UploadResponse {
   size: number
 }
 
-const BUCKET = "chat-attachments"
+const BUCKET = "user-uploads"
+const CHAT_FOLDER = "chat-attachments"
 
 const uploadService = {
   async uploadChatAttachment(
@@ -23,7 +24,7 @@ const uploadService = {
     onProgress?: (progress: number) => void
   ): Promise<UploadResponse> {
     const fileExt = file.name.split(".").pop()
-    const filePath = `chat/${crypto.randomUUID()}.${fileExt}`
+    const filePath = `${CHAT_FOLDER}/chat/${crypto.randomUUID()}.${fileExt}`
 
     if (onProgress) {
       let fakeProgress = 0
@@ -41,7 +42,6 @@ const uploadService = {
           })
 
         clearInterval(interval)
-
         if (error) throw error
 
         onProgress(100)
@@ -92,9 +92,7 @@ const uploadService = {
       .from(BUCKET)
       .remove([filePath])
 
-    if (error) {
-      throw error
-    }
+    if (error) throw error
   },
 }
 
