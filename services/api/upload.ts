@@ -17,8 +17,8 @@ export interface UploadResponse {
   size: number
 }
 
-const BUCKET = "user-uploads"
-const CHAT_FOLDER = "chat-attachments"
+const BUCKET = "chat-attachments"
+const CHAT_FOLDER = "all-users"
 
 const uploadService = {
   async uploadChatAttachment(
@@ -28,51 +28,57 @@ const uploadService = {
     const fileExt = file.name.split(".").pop()
     const filePath = `${CHAT_FOLDER}/chat/${crypto.randomUUID()}.${fileExt}`
 
-    try {
-      // 1️⃣ Create signed URL for PUT (valid 60s)
-      const { data: signedData, error: signedError } = await supabase
-        .storage
-        .from(BUCKET)
-        .createSignedUrl(filePath, 60, { transform: {  method: "PUT" } })
+    if (onProgress) {
+      let fakeProgress = 0
+      const interval = setInterval(() => {
+        fakeProgress = Math.min(fakeProgress + 10, 90)
+        onProgress(fakeProgress)
+      }, 200)
 
-      if (signedError || !signedData) throw signedError || new Error("Failed to create signed URL")
+      try {
+        const { error } = await supabase.storage
+          .from(BUCKET)
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: false,
+          })
 
-      const signedUrl = signedData.signedUrl
+        clearInterval(interval)
+        if (error) throw error
 
-      // 2️⃣ Upload using XMLHttpRequest to track progress
-      const xhr = new XMLHttpRequest()
-      xhr.open("PUT", signedUrl)
+        onProgress(100)
 
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable && onProgress) {
-          const progress = Math.round((e.loaded * 100) / e.total)
-          onProgress(progress)
+        const { data } = supabase.storage
+          .from(BUCKET)
+          .getPublicUrl(filePath)
+
+        return {
+          url: data.publicUrl,
+          type: file.type,
+          name: file.name,
+          size: file.size,
         }
+      } catch (err) {
+        clearInterval(interval)
+        throw err
       }
+    }
 
-      const uploadPromise = new Promise<UploadResponse>((resolve, reject) => {
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            const publicUrlData = supabase.storage.from(BUCKET).getPublicUrl(filePath)
-            resolve({
-              url: publicUrlData.data.publicUrl,
-              type: file.type,
-              name: file.name,
-              size: file.size,
-            })
-          } else {
-            reject(new Error(`Upload failed with status ${xhr.status}`))
-          }
-        }
+    const { error } = await supabase.storage
+      .from(BUCKET)
+      .upload(filePath, file)
 
-        xhr.onerror = () => reject(new Error("Upload failed"))
+    if (error) throw error
 
-        xhr.send(file)
-      })
+    const { data } = supabase.storage
+      .from(BUCKET)
+      .getPublicUrl(filePath)
 
-      return await uploadPromise
-    } catch (err) {
-      throw err
+    return {
+      url: data.publicUrl,
+      type: file.type,
+      name: file.name,
+      size: file.size,
     }
   },
 
@@ -84,7 +90,10 @@ const uploadService = {
       throw new Error("Invalid attachment URL")
     }
 
-    const { error } = await supabase.storage.from(BUCKET).remove([filePath])
+    const { error } = await supabase.storage
+      .from(BUCKET)
+      .remove([filePath])
+
     if (error) throw error
   },
 }
