@@ -85,7 +85,7 @@ export function MessageBubble({
               <Image
                 src={avatarUrl || "/placeholder.svg"}
                 alt="Avatar"
-                className="h-8 md:h-10 w-8 md:w-10 rounded-full object-cover"
+                className="h-6 w-6 rounded-full object-cover"
                 width={100}
                 height={100}
               />
@@ -115,11 +115,11 @@ export function MessageBubble({
         </div>
       </div>
 
-      {isUserMessage && isCurrentUserMessage && (
+      {/* {isUserMessage && isCurrentUserMessage && (
         <div className="shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
           <User className="h-4 w-4 text-accent" />
         </div>
-      )}
+      )} */}
     </div>
   )
 }
