@@ -95,6 +95,17 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!socket || !currentConversation) return
 
+    socket.emit("joinConversation", currentConversation.id)
+
+    return () => {
+      socket.emit("leaveConversation", currentConversation.id)
+    }
+  }, [socket, currentConversation])
+
+
+  useEffect(() => {
+    if (!socket || !currentConversation) return
+
     const handleNewMessage = (data: any) => {
       if (data.conversationId === currentConversation.id) {
         dispatch(
