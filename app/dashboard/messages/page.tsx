@@ -30,6 +30,7 @@ export default function MessagesPage() {
   const allConversations = useSelector((state: RootState) => state.chat.conversations)
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
   const messages = useSelector((state: RootState) => state.chat.messages)
+  console.log("messages:", messages)
   const messageLoading = useSelector((state: RootState) => state.chat.messageLoading)
   const pointsBalance = useSelector((state: RootState) => state.points.balance)
   const user = useSelector((state: RootState) => state.auth.user)
@@ -241,6 +242,7 @@ export default function MessagesPage() {
                       role={msg.role}
                       content={msg.content}
                       createdAt={msg.created_at}
+                      avatarUrl={currentConversation.participant.avatar_url}
                       status={msg.status}
                       isNew={msg.isNew}
                       isLoading={false}
