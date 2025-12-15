@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Home, BookOpen, Users, Settings, LogOut, Menu, X, Zap, User, UserPlus2, MessageCircle, MessageSquareReply } from "lucide-react"
 import { useState } from "react"
 import Logo from "@/components/shared/logo"
+import { logout } from "@/store/slices/authSlice"
+import { AppDispatch } from "@/store/store"
+import router from "next/router"
+import { useDispatch } from "react-redux"
+import { useRouter } from "next/navigation"
 
 interface DashboardSidebarProps {
   activeTab?: string
@@ -12,6 +17,8 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+  const dispatch = useDispatch<AppDispatch>()
 
   const navItems = [
     { id: "home", label: "Dashboard", icon: Home, href: "/dashboard" },
@@ -23,6 +30,12 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
     { id: "points", label: "Credits", icon: Zap, href: "/dashboard/credits" },
     { id: "profile", label: "Profile", icon: User, href: "/dashboard/profile" },
   ]
+
+  const handleLogout = () => {
+    dispatch(logout()).then(() => {
+      router.push("/auth/signin")
+    })
+  }
 
   return (
     <>
@@ -37,9 +50,8 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 border-r border-border bg-background transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        } md:relative md:translate-x-0 z-30`}
+        className={`fixed left-0 top-0 h-screen w-64 border-r border-border bg-background transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          } md:relative md:translate-x-0 z-30`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
@@ -56,11 +68,10 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`flex text-sm md:text-base items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
+                  className={`flex text-sm md:text-base items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                       ? "bg-primary text-white"
                       : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
@@ -82,6 +93,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
               variant="ghost"
               size="sm"
               className="w-full text-sm md:text-base justify-start gap-3 text-muted-foreground hover:text-foreground"
+              onClick={handleLogout}
             >
               <LogOut className="h-5 w-5" />
               <span>Sign Out</span>
