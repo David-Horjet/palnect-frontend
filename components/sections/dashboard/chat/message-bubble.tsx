@@ -11,7 +11,7 @@ interface MessageBubbleProps {
   role: "user" | "assistant"
   content: string
   createdAt: string
-  avatarUrl: string
+  avatarUrl?: string
   status?: "sending" | "sent" | "delivered" | "seen" | "failed"
   isLoading?: boolean
   isNew?: boolean
