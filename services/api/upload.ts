@@ -1,3 +1,7 @@
+import { getSupabaseAdmin } from "@/lib/supabase"
+
+const supabase = getSupabaseAdmin()
+
 export interface UploadProgress {
   progress: number
   fileName: string
@@ -10,61 +14,86 @@ export interface UploadResponse {
   size: number
 }
 
+const BUCKET = "chat-attachments"
+
 const uploadService = {
   async uploadChatAttachment(
     file: File,
-    token: string,
-    onProgress?: (progress: number) => void,
+    _token: string,
+    onProgress?: (progress: number) => void
   ): Promise<UploadResponse> {
-    const formData = new FormData()
-    formData.append("file", file)
-    formData.append("type", "chat-attachment")
+    const fileExt = file.name.split(".").pop()
+    const filePath = `chat/${crypto.randomUUID()}.${fileExt}`
 
-    const xhr = new XMLHttpRequest()
+    if (onProgress) {
+      let fakeProgress = 0
+      const interval = setInterval(() => {
+        fakeProgress = Math.min(fakeProgress + 10, 90)
+        onProgress(fakeProgress)
+      }, 200)
 
-    return new Promise((resolve, reject) => {
-      xhr.upload.addEventListener("progress", (e) => {
-        if (e.lengthComputable && onProgress) {
-          const progress = Math.round((e.loaded * 100) / e.total)
-          onProgress(progress)
+      try {
+        const { error } = await supabase.storage
+          .from(BUCKET)
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: false,
+          })
+
+        clearInterval(interval)
+
+        if (error) throw error
+
+        onProgress(100)
+
+        const { data } = supabase.storage
+          .from(BUCKET)
+          .getPublicUrl(filePath)
+
+        return {
+          url: data.publicUrl,
+          type: file.type,
+          name: file.name,
+          size: file.size,
         }
-      })
+      } catch (err) {
+        clearInterval(interval)
+        throw err
+      }
+    }
 
-      xhr.addEventListener("load", () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const response = JSON.parse(xhr.responseText)
-            resolve(response.data)
-          } catch (error) {
-            reject(new Error("Failed to parse upload response"))
-          }
-        } else {
-          reject(new Error(`Upload failed with status: ${xhr.status}`))
-        }
-      })
+    const { error } = await supabase.storage
+      .from(BUCKET)
+      .upload(filePath, file)
 
-      xhr.addEventListener("error", () => {
-        reject(new Error("Upload failed"))
-      })
+    if (error) throw error
 
-      xhr.open("POST", `${process.env.NEXT_PUBLIC_API_URL}/upload/chat-attachment`)
-      xhr.setRequestHeader("Authorization", `Bearer ${token}`)
-      xhr.send(formData)
-    })
+    const { data } = supabase.storage
+      .from(BUCKET)
+      .getPublicUrl(filePath)
+
+    return {
+      url: data.publicUrl,
+      type: file.type,
+      name: file.name,
+      size: file.size,
+    }
   },
 
-  async deleteAttachment(url: string, token: string): Promise<void> {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/chat-attachment`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ url }),
-    })
+  async deleteAttachment(url: string, _token: string): Promise<void> {
+    const pathname = new URL(url).pathname
+    const filePath = pathname.split(`/${BUCKET}/`)[1]
 
-    if (!response.ok) {
-      throw new Error("Failed to delete attachment")
+    if (!filePath) {
+      throw new Error("Invalid attachment URL")
+    }
+
+    const { error } = await supabase.storage
+      .from(BUCKET)
+      .remove([filePath])
+
+    if (error) {
+      throw error
     }
   },
 }
