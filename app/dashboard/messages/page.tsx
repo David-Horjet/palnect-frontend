@@ -107,19 +107,10 @@ export default function MessagesPage() {
     if (!socket || !currentConversation) return
 
     const handleNewMessage = (data: any) => {
+      console.log("message:received", data)
       if (data.conversationId === currentConversation.id) {
         dispatch(
-          addIncomingMessage({
-            id: data.id,
-            conversation_id: data.conversationId,
-            role: data.role,
-            content: data.content,
-            created_at: data.createdAt || new Date().toISOString(),
-            status: "delivered",
-            isNew: true,
-            sender_id: data.senderId,
-            is_deleted: false,
-          }),
+          addIncomingMessage(data),
         )
       }
     }
