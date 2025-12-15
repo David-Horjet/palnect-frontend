@@ -242,7 +242,7 @@ export default function MessagesPage() {
                       role={msg.role}
                       content={msg.content}
                       createdAt={msg.created_at}
-                      avatarUrl={currentConversation.participant.avatar_url}
+                      avatarUrl={currentConversation.participant.avatar_url!}
                       status={msg.status}
                       isNew={msg.isNew}
                       isLoading={false}
