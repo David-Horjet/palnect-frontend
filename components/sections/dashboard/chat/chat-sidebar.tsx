@@ -104,14 +104,14 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
                           height={100}
                         />
                       ) : (
-                        <div className="h-8 md:h-10 w-8 md:w-10 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-base font-bold text-primary-foreground">
+                        <div className="h-8 md:h-10 w-8 md:w-10 rounded-full bg-primary flex items-center justify-center text-base font-bold text-primary-foreground">
                           {conversation.participant.first_name.trim()[0]}
                           {conversation.participant.last_name.trim()[0]}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="h-8 md:h-10 w-8 md:w-10 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-base font-bold text-primary-foreground">
+                    <div className="h-8 md:h-10 w-8 md:w-10 rounded-full bg-primary flex items-center justify-center text-base font-bold text-primary-foreground">
                       <Bot className="h-4 w-4" />
                     </div>
                   )}
