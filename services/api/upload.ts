@@ -33,7 +33,7 @@ const uploadService = {
       const interval = setInterval(() => {
         fakeProgress = Math.min(fakeProgress + 10, 90)
         onProgress(fakeProgress)
-      }, 200)
+      }, 500)
 
       try {
         const { error } = await supabase.storage
