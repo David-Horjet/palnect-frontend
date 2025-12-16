@@ -251,6 +251,7 @@ export default function LexiChatPage() {
                       role={msg.role}
                       content={msg.content}
                       createdAt={msg.created_at}
+                      attachments={msg.attachments}
                       status={msg.status}
                       isNew={msg.isNew}
                       isLoading={false}
