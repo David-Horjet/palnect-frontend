@@ -42,7 +42,7 @@ export function AttachmentPreview({ file, uploadProgress, onRemove }: Attachment
         variant="ghost"
         size="sm"
         onClick={onRemove}
-        className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+        className="p-0 hover:bg-destructive/10 hover:text-destructive"
         disabled={uploadProgress > 0 && uploadProgress < 100}
       >
         <X className="h-4 w-4" />
