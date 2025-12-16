@@ -74,8 +74,8 @@ export function ChatInput({
       return
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File size must be less than 10MB")
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("File size must be less than 50MB")
       return
     }
 
