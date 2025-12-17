@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
       <main className="max-w-4xl mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">Privacy Policy</h1>
-          <p className="text-muted-foreground">Last updated: November 2025</p>
+          <p className="text-muted-foreground">Last updated: December 2025</p>
         </div>
 
         <div className="prose prose-invert max-w-none space-y-8">
@@ -84,6 +84,16 @@ export default function PrivacyPolicy() {
                 <p>
                   Your data is used to create your account, facilitate mentorship connections, process transactions, and
                   deliver all features of the Palnect platform.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium text-foreground mb-2">AI Personalization & Memory</h3>
+                <p>
+                  Palnect’s AI assistant (“Lexi”) may retain limited, user-provided information such as your name,
+                  academic field, or study preferences to personalize conversations and improve your experience.
+                  This information is only saved when explicitly shared by you during interactions and is not used
+                  for profiling, advertising, or shared with third parties.
                 </p>
               </div>
 
@@ -199,7 +209,7 @@ export default function PrivacyPolicy() {
             <h2 className="text-2xl font-semibold text-foreground mb-4">Contact Us</h2>
             <p className="text-muted-foreground">
               If you have any questions about this Privacy Policy or our data practices, please contact us at
-              privacy@palnect.com
+              support@palnect.com
             </p>
           </section>
         </div>
