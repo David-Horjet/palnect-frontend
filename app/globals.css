@@ -159,6 +159,29 @@ body {
   color: var(--foreground);
 }
 
+/* Scroll-bar customization */
+
+/* width */
+::-webkit-scrollbar {
+  width: 2px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+}
+
 /* Replaced @layer utilities with pure CSS keyframes and classes */
 @keyframes fadeIn {
   from {
