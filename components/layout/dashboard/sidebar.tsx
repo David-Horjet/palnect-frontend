@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Home, BookOpen, Users, Settings, LogOut, Menu, X, Zap, User, UserPlus2, MessageCircle, MessageSquareReply } from "lucide-react"
+import { GraduationCap } from "lucide-react"
 import { useState } from "react"
 import Logo from "@/components/shared/logo"
 import { logout } from "@/store/slices/authSlice"
@@ -23,6 +24,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
   const navItems = [
     { id: "home", label: "Dashboard", icon: Home, href: "/dashboard" },
     { id: "resources", label: "Resources", icon: BookOpen, href: "/dashboard/resources" },
+      { id: "tools", label: "Tools", icon: GraduationCap, href: "/dashboard/tools" },
     { id: "mentors", label: "Find Mentors", icon: Users, href: "/dashboard/mentors" },
     { id: "lexi", label: "Chat Lexi", icon: MessageCircle, href: "/dashboard/lexi" },
     { id: "messages", label: "Messages", icon: MessageSquareReply, href: "/dashboard/messages" },
