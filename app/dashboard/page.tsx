@@ -148,6 +148,20 @@ export default function DashboardPage() {
                   </div>
                 </Link>
               </Button>
+
+              <Button
+                variant="outline"
+                className="h-auto p-5 justify-center flex-col items-start hover:bg-accent/5 bg-transparent"
+
+              >
+                <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/tools">
+                  <GraduationCap className="h-5 w-5" />
+                  <div className="flex flex-col gap-1 items-start">
+                    <span className="font-semibold">Tools</span>
+                    <span className="text-xs text-muted-foreground">Academic calculators & utilities</span>
+                  </div>
+                </Link>
+              </Button>
             </div>
           </div>
 
