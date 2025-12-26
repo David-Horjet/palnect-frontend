@@ -8,7 +8,7 @@ export function Footer() {
   return (
     <footer className="relative z-10 pb-20 lg:pb-28 xl:pb-36 px-4 sm:px-8 xl:px-0"> 
       {/* Decorative gradients */}
-      <div className="absolute bottom-0 left-0 -z-1 flex w-full flex-col gap-3 opacity-20"> 
+      <div className="absolute bottom-0 left-0 -z-1 flex w-full flex-col gap-3 opacity-20">
         <div
           className="h-[1.24px] w-full"
           style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.5), transparent)" }}
