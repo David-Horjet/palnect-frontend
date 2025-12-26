@@ -6,7 +6,7 @@ import Logo from "../shared/logo"
 
 export function Footer() { 
   return (
-    <footer className="relative z-10 pb-20 lg:pb-28 xl:pb-36 px-4 sm:px-8 xl:px-0">
+    <footer className="relative z-10 pb-20 lg:pb-28 xl:pb-36 px-4 sm:px-8 xl:px-0"> 
       {/* Decorative gradients */}
       <div className="absolute bottom-0 left-0 -z-1 flex w-full flex-col gap-3 opacity-20"> 
         <div
