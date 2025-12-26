@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Facebook, Twitter, Github, Instagram, Linkedin } from "lucide-react"
 import Logo from "../shared/logo"
 
-export function Footer() {
+export function Footer() { 
   return (
     <footer className="relative z-10 pb-20 lg:pb-28 xl:pb-36 px-4 sm:px-8 xl:px-0">
       {/* Decorative gradients */}
