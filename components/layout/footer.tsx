@@ -41,14 +41,14 @@ export function Footer() {
               </p>
               <div className="flex items-center gap-5">
                 <Link
-                  href="https://facebook.com/palnect"
+                  href="https://web.facebook.com/profile.php?id=61583222502037"
                   aria-label="facebook"
                   className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
                 >
                   <Facebook size={24} />
                 </Link>
                 <Link
-                  href="https://linkedin.com/in/palnect"
+                  href="https://www.linkedin.com/company/palnect/"
                   aria-label="linkedin"
                   className="text-foreground/80 hover:text-purple-400 transition-colors duration-300"
                 >

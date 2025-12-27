@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
-import { Wrench } from "lucide-react"
+import { CornerRightUp, CornerUpRight, SquareArrowUpRight, Wrench } from "lucide-react"
 
 export default function ToolsIndexPage() {
   const tools = [
@@ -29,16 +29,21 @@ export default function ToolsIndexPage() {
             {tools.map((t) => (
               <Card key={t.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
                 <div className="flex flex-col md:flex-row items-start gap-4 md:items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-primary/10 p-5 relative mx-auto mb-8 inline-flex items-center justify-center rounded-full">
+                    <Wrench className="h-5 w-5 text-primary" />
+                  </div>
                   <div>
                     <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
-                      <Wrench className="h-5 w-5 text-primary" /> {t.title}
+                      {t.title}
                     </h3>
                     <p className="text-sm text-muted-foreground">{t.description}</p>
+                  </div>
                   </div>
 
                   <div className="mt-4 md:mt-0">
                     <Link href={t.href}>
-                      <Button variant="outline">Open</Button>
+                      <Button variant="outline"><CornerUpRight size={20}/></Button>
                     </Link>
                   </div>
                 </div>
