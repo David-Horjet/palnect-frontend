@@ -10,11 +10,11 @@ export function Footer() {
       {/* Decorative gradients */}
       <div className="absolute bottom-0 left-0 -z-1 flex w-full flex-col gap-3 opacity-20">
         <div
-          className="h-[1.24px] w-full"
+          className="h-[1.24px] w-full" 
           style={{ background: "linear-gradient(to right, transparent, rgba(168, 85, 247, 0.5), transparent)" }}
         />
         <div
-          className="h-[2.47px] w-full"
+          className="h-[2.47px] w-full" 
           style={{ background: "linear-gradient(to right, transparent, rgba(99, 96, 224, 0.5), transparent)" }}
         />
         <div
