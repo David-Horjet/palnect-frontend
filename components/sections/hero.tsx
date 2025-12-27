@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Sparkles } from "lucide-react"
+import { GraduationCap, Sparkles } from "lucide-react"
 import { Button } from "../ui/button"
 
 export function HeroSection() {
@@ -11,8 +11,8 @@ export function HeroSection() {
         <div className="relative z-1 mx-auto max-w-[900px]">
           <div className="text-center">
             {/* Badge */}
-            <span className="relative mb-5 inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-sm font-medium bg-white/10 border border-border/30 hover:border-blue-500/50 transition-colors">
-              <Sparkles size={16} className="text-primary" />
+            <span className="relative mb-5 inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-sm font-medium bg-white/10 border border-border/30 hover:border-primary/50 transition-colors">
+              <GraduationCap size={16} className="text-primary" />
               <span className="text-white/80">Built for Students & Mentors</span>
             </span>
 

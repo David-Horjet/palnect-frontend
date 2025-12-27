@@ -24,6 +24,15 @@ export default function CgpaPage() {
   const [errors, setErrors] = useState<string | null>(null)
   const [result, setResult] = useState<{ cgpa: number; totalUnits: number; totalPoints: number } | null>(null)
 
+  const getCgpaClass = (cgpa: number) => {
+    if (cgpa >= 4.5) return { label: "First Class", color: "text-emerald-500" }
+    if (cgpa >= 3.5) return { label: "Second Class Upper", color: "text-blue-500" }
+    if (cgpa >= 2.4) return { label: "Second Class Lower", color: "text-yellow-500" }
+    if (cgpa >= 1.5) return { label: "Third Class", color: "text-orange-500" }
+    return { label: "Pass", color: "text-red-500" }
+  }
+
+
   const initCourses = (n: number) => {
     setCourses(Array.from({ length: n }).map(() => ({ unit: 3, grade: "A" })))
   }
@@ -77,6 +86,63 @@ export default function CgpaPage() {
     setResult({ cgpa: Number(cgpa.toFixed(2)), totalUnits, totalPoints })
     setStep(3)
   }
+
+  function CgpaCircle({ value }: { value: number }) {
+    const radius = 70
+    const stroke = 10
+    const normalizedRadius = radius - stroke * 2
+    const circumference = normalizedRadius * 2 * Math.PI
+    const progress = Math.min(value / 5, 1)
+    const strokeDashoffset = circumference - progress * circumference
+
+    return (
+      <svg height={radius * 2} width={radius * 2}>
+        {/* background */}
+        <circle
+          stroke="currentColor"
+          className="text-muted/20"
+          fill="transparent"
+          strokeWidth={stroke}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+        {/* progress */}
+        <circle
+          stroke="currentColor"
+          className="text-primary transition-all duration-700"
+          fill="transparent"
+          strokeWidth={stroke}
+          strokeDasharray={`${circumference} ${circumference}`}
+          style={{ strokeDashoffset }}
+          strokeLinecap="round"
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+        {/* value */}
+        <text
+          x="50%"
+          y="50%"
+          dominantBaseline="middle"
+          textAnchor="middle"
+          className="fill-foreground font-bold text-xl"
+        >
+          {value.toFixed(2)}
+        </text>
+        <text
+          x="50%"
+          y="62%"
+          dominantBaseline="middle"
+          textAnchor="middle"
+          className="fill-muted-foreground text-xs"
+        >
+          / 5.00
+        </text>
+      </svg>
+    )
+  }
+
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -188,28 +254,78 @@ export default function CgpaPage() {
                 </div>
               )}
 
-              {step === 3 && result && (
-                <div>
-                  <h3 className="text-xl font-bold">Results</h3>
-                  <p className="mt-2">Level: <strong>{level}</strong></p>
-                  <p>Total Credit Units: <strong>{result.totalUnits}</strong></p>
-                  <p>Total Grade Points: <strong>{result.totalPoints}</strong></p>
-                  <p className="text-2xl font-bold mt-3">CGPA: <span className="text-primary">{result.cgpa}</span></p>
-                  <div className="flex gap-2 mt-4">
-                    <Button variant="outline" onClick={() => { setStep(2); setResult(null) }}>Edit Courses</Button>
-                    <Button onClick={() => { setStep(1); setResult(null) }}>Start Over</Button>
-                  </div>
-                </div>
-              )}
+              {step === 3 && result && (() => {
+                const cgpaMeta = getCgpaClass(result.cgpa)
 
-              
+                return (
+                  <div className="space-y-6 text-center">
+                    <h3 className="text-xl font-bold">Your CGPA Result</h3>
+
+                    {/* GPA Circle */}
+                    <div className="flex justify-center">
+                      <CgpaCircle value={result.cgpa} />
+                    </div>
+
+                    {/* Classification */}
+                    <p className={`text-lg font-semibold ${cgpaMeta.color}`}>
+                      {cgpaMeta.label}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Nigerian 5.0 grading scale
+                    </p>
+
+                    {/* Stats */}
+                    <div className="grid sm:grid-cols-3 gap-4 mt-4">
+                      <Card className="p-4 text-center">
+                        <p className="text-sm text-muted-foreground">Level</p>
+                        <p className="text-lg font-bold">{level}</p>
+                      </Card>
+
+                      <Card className="p-4 text-center">
+                        <p className="text-sm text-muted-foreground">Total Units</p>
+                        <p className="text-lg font-bold">{result.totalUnits}</p>
+                      </Card>
+
+                      <Card className="p-4 text-center">
+                        <p className="text-sm text-muted-foreground">Total Points</p>
+                        <p className="text-lg font-bold">{result.totalPoints}</p>
+                      </Card>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap justify-center gap-3 mt-6">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setStep(2)
+                          setResult(null)
+                        }}
+                      >
+                        Edit Courses
+                      </Button>
+
+                      <Button
+                        onClick={() => {
+                          setStep(1)
+                          setResult(null)
+                        }}
+                      >
+                        Start Over
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })()}
+
+
+
             </div>
           </Card>
 
-          <Card className="bg-muted/10 p-4">
+          {/* <Card className="bg-muted/10 p-4">
             <h4 className="font-semibold">How CGPA is calculated</h4>
             <p className="text-sm text-muted-foreground mt-1">Total Grade Points ÷ Total Credit Units (Nigerian 5.0 scale where A=5, B=4, C=3, D=2, E=1, F=0).</p>
-          </Card>
+          </Card> */}
         </div>
       </main>
     </div>
