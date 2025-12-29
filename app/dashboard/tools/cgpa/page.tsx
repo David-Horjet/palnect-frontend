@@ -236,7 +236,7 @@ export default function CgpaPage() {
                           </select>
                         </div>
 
-                        <div className="md:col-span-2 text-sm text-muted-foreground">Points: {c.unit} × {gradeMap[c.grade]} = {c.unit * gradeMap[c.grade]}</div>
+                        {/* <div className="md:col-span-2 text-sm text-muted-foreground">Points: {c.unit} × {gradeMap[c.grade]} = {c.unit * gradeMap[c.grade]}</div> */}
                       </div>
                     ))}
                   </div>
@@ -270,9 +270,9 @@ export default function CgpaPage() {
                     <p className={`text-lg font-semibold ${cgpaMeta.color}`}>
                       {cgpaMeta.label}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    {/* <p className="text-sm text-muted-foreground">
                       Nigerian 5.0 grading scale
-                    </p>
+                    </p> */}
 
                     {/* Stats */}
                     <div className="grid sm:grid-cols-3 gap-4 mt-4">
