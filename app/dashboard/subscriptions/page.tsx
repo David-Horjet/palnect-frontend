@@ -19,12 +19,17 @@ export default function SubscriptionsPage() {
   const { studentSubscriptions, loading, pagination } = useSelector((state: RootState) => state.subscriptions)
   console.log("studentSubscriptions: ", studentSubscriptions)
   const [currentPage, setCurrentPage] = useState(1)
+  const [statusFilter, setStatusFilter] = useState<"active" | "expired">("active")
 
   useEffect(() => {
     if (token) {
       dispatch(fetchStudentSubscriptions({ token, page: currentPage }))
     }
   }, [dispatch, token, currentPage])
+
+  const filteredSubscriptions = studentSubscriptions.filter(
+    (sub) => sub.status === statusFilter
+  )
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -56,25 +61,43 @@ export default function SubscriptionsPage() {
         <DashboardHeader title="My Subscriptions" subtitle="Manage your active and expired mentor subscriptions" />
 
         <div className="p-6 space-y-6 max-w-4xl">
-          {loading && !studentSubscriptions.length ? (
+              <div className="flex gap-2">
+                <Button
+                  variant={statusFilter === "active" ? "primary" : "outline"}
+                  onClick={() => setStatusFilter("active")}
+                >
+                  Active
+                </Button>
+
+                <Button
+                  variant={statusFilter === "expired" ? "primary" : "outline"}
+                  onClick={() => setStatusFilter("expired")}
+                >
+                  Expired
+                </Button>
+              </div>
+          {loading && !filteredSubscriptions.length ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : studentSubscriptions.length === 0 ? (
+          ) : filteredSubscriptions.length === 0 ? (
             <Card className="p-12 text-center">
               <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Active Subscriptions</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                No {statusFilter === "active" ? "Active" : "Expired"} Subscriptions
+              </h3>
               <p className="text-muted-foreground mb-6">
                 You haven't subscribed to any mentors yet. Browse mentors and subscribe to get started.
               </p>
               <Button>
-                <a href="/dashboard/mentors">Browse Mentors</a>
+                <Link href="/dashboard/mentors">Browse Mentors</Link>
               </Button>
             </Card>
           ) : (
             <>
+
               <div className="space-y-4">
-                {studentSubscriptions.map((subscription) => (
+                {filteredSubscriptions.map((subscription) => (
                   <Card key={subscription.id} className="hover:border-primary/50 transition-colors">
                     <Link href={`/dashboard/mentors/${subscription.mentor_profile_id}`} className="flex items-start justify-between gap-4">
                       <div className="flex gap-2 md:gap-4 flex-1">
