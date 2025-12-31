@@ -36,9 +36,9 @@ export function HeroSection() {
             {/* CTA Button */}
             {loading ?
               (
-                <Skeleton className="h-4 w-20" />
+                <div className="flex w-full justify-center"><Skeleton className="h-8 w-24" /></div>
               ) : user ? (
-                <Button size="md"><Link href="/dashboard" className="flex items-center">Dashboard <ArrowRight className="ml-1" size={16} /></Link></Button>
+                <Button size="lg"><Link href="/dashboard" className="flex items-center">Dashboard <ArrowRight className="ml-1" size={16} /></Link></Button>
               ) : (
                 <Button size="lg">
                   <Link href={"/auth/signup"}>

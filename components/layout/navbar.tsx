@@ -82,7 +82,7 @@ export function Navbar() {
           <div className="flex items-center gap-3">
             {loading ?
               (
-                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-5 w-20" />
               ) : user ? (
                 <Button size="md"><Link href="/dashboard" className="flex items-center">Dashboard <ArrowRight className="ml-1" size={16} /></Link></Button>
               ) : (
