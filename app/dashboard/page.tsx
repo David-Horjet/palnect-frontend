@@ -35,7 +35,7 @@ export default function DashboardPage() {
   console.log("mentors:", mentors)
   const mentorsLoading = useSelector((state: RootState) => state.mentors.loading)
 
-  const resources = useSelector((state: RootState) => state.resources.resources)
+  const { resources, myResources } = useSelector((state: RootState) => state.resources)
   console.log("resources:", resources)
   const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
 
@@ -61,8 +61,8 @@ export default function DashboardPage() {
   }, [dispatch])
 
   const getStatValue = (label: string): string => {
-    if (label === "Resources Completed" && resources.length > 0) {
-      return resources.length.toString()
+    if (label === "Resources Uploaded" && myResources.length > 0) {
+      return myResources.length.toString()
     }
     if (label === "Mentors Connected" && studentSubscriptions.length > 0) {
       return studentSubscriptions.length.toString()
@@ -106,7 +106,7 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           <div>
             <h3 className="text-base md:text-lg font-bold mb-4">Quick Actions</h3>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               <Button
                 variant="outline"
                 className="h-auto justify-start flex-col items-start hover:bg-primary/5 bg-transparent"
@@ -168,9 +168,9 @@ export default function DashboardPage() {
           {/* Stats Grid */}
           <div className="grid md:grid-cols-4 gap-4">
             <StatCard
-              label="Resources Completed"
-              value={getStatValue("Resources Completed")}
-              change={resources.length > 0 ? `+${resources.length} available` : "No resources yet"}
+              label="Resources Uploaded"
+              value={getStatValue("Resources Uploaded")}
+              change={myResources.length > 0 ? `+${myResources.length} available` : "No resource uploaded yet"}
               trend="up"
               icon={<BookOpen className="h-5 w-5" />}
             />
@@ -184,7 +184,15 @@ export default function DashboardPage() {
             <StatCard
               label="Mentors Connected"
               value={studentSubscriptions.length.toString()}
-              change={studentSubscriptions.length > 0 ? `${studentSubscriptions.length} active` : "No mentors yet"}
+              change={
+                studentSubscriptions.filter(
+                  (sub) => sub.status === "active"
+                ).length > 0
+                  ? `${studentSubscriptions.filter(
+                    (sub) => sub.status === "active"
+                  ).length} active`
+                  : "No active mentors"
+              }
               trend="up"
               icon={<Users className="h-5 w-5" />}
             />
