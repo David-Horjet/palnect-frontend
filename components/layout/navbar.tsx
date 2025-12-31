@@ -24,7 +24,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { theme, toggleTheme } = useTheme()
-  const { user, dispatch: dispatchAuth, loading } = useAuth()
+  const { user, loading } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 0)
