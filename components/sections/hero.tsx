@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, GraduationCap, Sparkles } from "lucide-react"
+import { ArrowRight, GraduationCap } from "lucide-react"
 import { Button } from "../ui/button"
 import { Skeleton } from "../ui/skeleton"
 import { useAuth } from "@/hooks/useAuth"
