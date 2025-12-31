@@ -8,7 +8,6 @@ import { useState } from "react"
 import Logo from "@/components/shared/logo"
 import { logout } from "@/store/slices/authSlice"
 import { AppDispatch } from "@/store/store"
-import router from "next/router"
 import { useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
 
