@@ -23,7 +23,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
 
   const navItems = [
     { id: "home", label: "Dashboard", icon: Home, href: "/dashboard" },
-    { id: "resources", label: "Resources", icon: BookOpen, href: "/dashboard/resources" },
+    { id: "resources", label: "Library", icon: BookOpen, href: "/dashboard/resources" },
       { id: "tools", label: "Tools", icon: GraduationCap, href: "/dashboard/tools" },
     { id: "mentors", label: "Find Mentors", icon: Users, href: "/dashboard/mentors" },
     { id: "lexi", label: "Chat Lexi", icon: MessageCircle, href: "/dashboard/lexi" },
