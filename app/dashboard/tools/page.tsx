@@ -26,7 +26,7 @@ export default function ToolsIndexPage() {
 
         <div className="p-6 space-y-8 max-w-5xl">
           <div className="grid md:grid-cols-2 gap-4"> 
-            {tools.map((t) => (
+            {tools.map((t) => ( 
               <Card key={t.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
                 <Link href={t.href} className="flex w-full">  
                   <div className="flex flex-col md:flex-row items-start gap-4 md:items-center justify-between">
