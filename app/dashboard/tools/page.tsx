@@ -33,7 +33,7 @@ export default function ToolsIndexPage() {
                     <div className="flex gap-4">
                       <div className="bg-primary/10 p-5 relative mx-auto mb-8 inline-flex items-center justify-center rounded-full">
                         <Wrench className="h-5 w-5 text-primary" />
-                      </div>
+                      </div> 
                       <div>
                         <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
                           {t.title} 
