@@ -35,7 +35,7 @@ export default function ToolsIndexPage() {
                         <Wrench className="h-5 w-5 text-primary" />
                       </div> 
                       <div>
-                        <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2"> 
                           {t.title} 
                         </h3>
                         <p className="text-sm text-muted-foreground">{t.description}</p>
