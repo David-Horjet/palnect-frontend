@@ -25,7 +25,7 @@ export default function ToolsIndexPage() {
         <DashboardHeader title="Academic Tools" subtitle="Useful calculators and utilities for students" />
 
         <div className="p-6 space-y-8 max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-4"> 
             {tools.map((t) => (
               <Card key={t.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer">
                 <Link href={t.href} className="flex w-full">  
