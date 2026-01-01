@@ -36,7 +36,7 @@ export default function ToolsIndexPage() {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
-                          {t.title}
+                          {t.title} 
                         </h3>
                         <p className="text-sm text-muted-foreground">{t.description}</p>
                       </div>
