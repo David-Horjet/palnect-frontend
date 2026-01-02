@@ -6,8 +6,29 @@ import { CtaSection } from "@/components/sections/cta"
 import { FaqSection } from "@/components/sections/faq"
 import { FeaturesSection } from "@/components/sections/features"
 import { HeroSection } from "@/components/sections/hero"
+import { initializeAuth } from "@/store/slices/authSlice"
+import { AppDispatch, RootState } from "@/store/store"
+import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
 
 export default function Home() {
+  const router = useRouter()
+  const dispatch = useDispatch<AppDispatch>()
+  const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth)
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+
+    if (token && !isInitialized) {
+      dispatch(initializeAuth()).then(() => {
+        setIsInitialized(true)
+      })
+    } else if (!token) {
+      setIsInitialized(true)
+    }
+  }, [dispatch, isInitialized])
   return (
     <div className="min-h-screen">
       <section
