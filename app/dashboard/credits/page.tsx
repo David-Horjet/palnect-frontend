@@ -125,7 +125,7 @@ export default function PointsPage() {
                     } ${pkg.popular ? "ring-1 ring-accent" : ""}`}
                   onClick={() => setSelectedPackage(pkg.id)}
                 >
-                  {pkg.popular && <Badge className="absolute top-2 right-2 bg-accent text-foreground">Popular</Badge>}
+                  {pkg.popular && <Badge className="absolute top-2 right-2 bg-accent text-foreground/30">Popular</Badge>}
 
                   <div className="space-y-3">
                     <div>
@@ -145,9 +145,9 @@ export default function PointsPage() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-muted-foreground pt-2">
+                    {/* <p className="text-xs text-muted-foreground pt-2">
                       {Math.round((pkg.points / pkg.naira) * 100) / 100} pts per naira
-                    </p>
+                    </p> */}
                   </div>
                 </Card>
               ))}

@@ -8,6 +8,8 @@ import { useTheme } from "@/lib/contexts/ThemeContext";
 import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 import Logo from "../shared/logo";
+import { useAuth } from "@/hooks/useAuth";
+import { Skeleton } from "../ui/skeleton";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -22,6 +24,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const { user, loading } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 0)
@@ -77,7 +80,14 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button size="md"><Link href="/auth/signin" className="flex items-center">Sign In <ArrowRight className="ml-1" size={16} /></Link></Button>
+            {loading ?
+              (
+                <Skeleton className="h-5 w-20" />
+              ) : user ? (
+                <Button size="md"><Link href="/dashboard" className="flex items-center">Dashboard <ArrowRight className="ml-1" size={16} /></Link></Button>
+              ) : (
+                <Button size="md"><Link href="/auth/signin" className="flex items-center">Sign In <ArrowRight className="ml-1" size={16} /></Link></Button>
+              )}
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

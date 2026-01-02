@@ -1,10 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { GraduationCap, Sparkles } from "lucide-react"
+import { ArrowRight, GraduationCap } from "lucide-react"
 import { Button } from "../ui/button"
+import { Skeleton } from "../ui/skeleton"
+import { useAuth } from "@/hooks/useAuth"
 
 export function HeroSection() {
+  const { user, loading } = useAuth()
+  console.log("HeroSection user:", user, loading)
   return (
     <section id="home" className="relative z-10 overflow-hidden pt-44 md:pt-48 xl:pt-56 px-4 sm:px-8 xl:px-0">
       <div className="mx-auto max-w-7xl">
@@ -30,11 +34,17 @@ export function HeroSection() {
             </p>
 
             {/* CTA Button */}
-            <Button size="lg">
-              <Link href={"/auth/signup"}>
-                Join now
-              </Link>
-            </Button>
+            {loading ?
+              (
+                <div className="flex w-full justify-center"><Skeleton className="h-8 w-24" /></div>
+              ) : user ? (
+                <Button size="lg"><Link href="/dashboard" className="flex items-center">Dashboard <ArrowRight className="ml-1" size={16} /></Link></Button>
+              ) : (
+                <Button size="lg">
+                  <Link href={"/auth/signup"}>
+                    Join now
+                  </Link>
+                </Button>)}
 
             {/* Secondary CTA (optional) */}
             {/* <div className="mt-4">
