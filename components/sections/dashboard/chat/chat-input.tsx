@@ -4,13 +4,14 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, Zap, Paperclip } from "lucide-react"
+import { Send, Zap, Paperclip, Video } from "lucide-react"
 import { useSocket } from "@/hooks/useSocket"
 import { AttachmentPreview } from "./attachment-preview"
 import uploadService from "@/services/api/upload"
 import { toast } from "@/lib/toast"
 import { useSelector } from "react-redux"
 import { RootState } from "@/store/store"
+import clsx from "clsx"
 
 interface Attachment {
   url: string
@@ -18,8 +19,10 @@ interface Attachment {
   name?: string
 }
 
+type GenerationMode = "text" | "video"
+
 interface ChatInputProps {
-  onSend: (message: string, attachments?: Attachment[]) => void
+  onSend: (message: string, attachments?: Attachment[], mode?: GenerationMode) => void
   isLoading: boolean
   role: "user" | "assistant"
   pointsBalance: number
@@ -38,6 +41,11 @@ export function ChatInput({
   const [message, setMessage] = useState("")
   const [canSend, setCanSend] = useState(false)
 
+  const [mode, setMode] = useState<GenerationMode>("text")
+
+  const VIDEO_MULTIPLIER = 5
+  const effectiveCost = mode === "video" ? pointCost * VIDEO_MULTIPLIER : pointCost
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadedAttachment, setUploadedAttachment] = useState<Attachment | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -54,11 +62,11 @@ export function ChatInput({
   useEffect(() => {
     setCanSend(
       (message.trim().length > 0 || uploadedAttachment !== null) &&
-        pointsBalance >= pointCost &&
+        pointsBalance >= effectiveCost &&
         !isLoading &&
         !isUploading
     )
-  }, [message, uploadedAttachment, pointsBalance, pointCost, isLoading, isUploading])
+  }, [message, uploadedAttachment, pointsBalance, effectiveCost, isLoading, isUploading])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -126,7 +134,7 @@ export function ChatInput({
     if (!canSend) return
 
     const attachments = uploadedAttachment ? [uploadedAttachment] : undefined
-    onSend(message, attachments)
+    onSend(message, attachments, mode)
 
     setMessage("")
     setSelectedFile(null)
@@ -160,17 +168,55 @@ export function ChatInput({
   }
 
   return (
-    <div className="border-t border-border p-4 space-y-2">
-      {/* Points Info */}
+    <div className="border-t border-border p-4 space-y-3">
+      {/* Mode Selector */}
+      {isAiMessage && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => setMode("text")}
+            className={clsx(
+              "px-3 py-1.5 rounded-full text-xs font-medium transition",
+              mode === "text"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            )}
+          >
+            Text
+          </button>
+
+          <button
+            onClick={() => setMode("video")}
+            className={clsx(
+              "px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 transition",
+              mode === "video"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            )}
+          >
+            <Video className="h-3 w-3" />
+            Explainer Video
+          </button>
+        </div>
+      )}
+
+      {/* Credits Info */}
       {isAiMessage && (
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <Zap className="h-3 w-3 text-primary" />
             <span className="text-muted-foreground">
-              Each message costs <span className="font-semibold">{pointCost} credits</span>
+              This request costs{" "}
+              <span className="font-semibold">{effectiveCost} credits</span>
+              {mode === "video" && " (video generation)"}
             </span>
           </div>
-          <span className={`font-semibold ${pointsBalance < pointCost ? "text-destructive" : "text-success"}`}>
+
+          <span
+            className={clsx(
+              "font-semibold",
+              pointsBalance < effectiveCost ? "text-destructive" : "text-success"
+            )}
+          >
             {pointsBalance} credits available
           </span>
         </div>
@@ -206,11 +252,15 @@ export function ChatInput({
 
         <Input
           ref={inputRef}
-          placeholder={isAiMessage ? "Ask Lexi anything..." : "Type something..."}
+          placeholder={
+            mode === "video"
+              ? "Describe the explainer video you want (e.g. explain like I’m 10)…"
+              : "Ask Lexi to summarize or explain the material…"
+          }
           value={message}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          disabled={isLoading || pointsBalance < pointCost || isUploading}
+          disabled={isLoading || pointsBalance < effectiveCost || isUploading}
           className="flex-1"
         />
 
@@ -219,9 +269,9 @@ export function ChatInput({
         </Button>
       </div>
 
-      {pointsBalance < pointCost && (
+      {pointsBalance < effectiveCost && (
         <p className="text-xs text-destructive">
-          Insufficient points. You need {pointCost - pointsBalance} more points.
+          Insufficient credits. You need {effectiveCost - pointsBalance} more.
         </p>
       )}
     </div>
