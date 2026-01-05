@@ -84,11 +84,11 @@ export const createConversation = createAsyncThunk(
 export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
   async (
-    { token, conversationId, clientMessageId, message, senderId, attachments }: { token: string; conversationId: string; clientMessageId: string; message: string; senderId: string; attachments?: Array<{ url: string; type: string; name?: string }> },
+    { token, conversationId, clientMessageId, message, mode, senderId, attachments }: { token: string; conversationId: string; clientMessageId: string; message: string; mode?: "text" | "video", senderId: string; attachments?: Array<{ url: string; type: string; name?: string }> },
     { rejectWithValue },
   ) => {
     try {
-      const response = await chatService.sendMessage(token, conversationId, clientMessageId, message, attachments)
+      const response = await chatService.sendMessage(token, conversationId, clientMessageId, message, mode, attachments)
       return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to send message"

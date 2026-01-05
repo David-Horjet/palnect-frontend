@@ -143,7 +143,7 @@ export default function LexiChatPage() {
     url: string
     type: string
     name?: string
-  }[]) => {
+  }[], mode?: "text" | "video") => {
     const token = localStorage.getItem("token")
     if (!token) return
 
@@ -162,6 +162,7 @@ export default function LexiChatPage() {
             token,
             conversationId: (result.payload as any).id,
             message,
+            mode,
             attachments,
             clientMessageId,
             senderId: user?.id!
@@ -174,6 +175,7 @@ export default function LexiChatPage() {
           token,
           conversationId: currentConversation.id,
           message,
+          mode,
           attachments,
           clientMessageId,
           senderId: user?.id!

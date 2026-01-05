@@ -67,13 +67,13 @@ export const chatService = {
   },
 
   // Send message (works for all conversation types)
-  async sendMessage(token: string, conversationId: string, clientMessageId: string, message: string, attachments?: Array<{ url: string; type: string; name?: string }>) {
+  async sendMessage(token: string, conversationId: string, clientMessageId: string, message: string, mode?: "text" | "video", attachments?: Array<{ url: string; type: string; name?: string }>) {
     // Server returns { success, message, data: { response, pointsDeducted, conversation } }
     return apiClient.post<{
       success: boolean
       message: string
       data: { response: string; pointsDeducted: number; conversation: Conversation }
-    }>(`/chat/messages?conversationId=${conversationId}`, { message, clientMessageId, attachments }, token)
+    }>(`/chat/messages?conversationId=${conversationId}`, { message, mode, clientMessageId, attachments }, token)
   },
 
   // Create new conversation (for peers)
