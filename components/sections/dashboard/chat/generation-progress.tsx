@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux"
 import { RootState } from "@/store/store"
-// import { Progress } from "@/components/ui/progress"
 
 const STAGE_LABELS: Record<string, string> = {
     analyzing_prompt: "Analyzing content",
