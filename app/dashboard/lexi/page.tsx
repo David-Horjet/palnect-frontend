@@ -160,7 +160,7 @@ export default function LexiChatPage() {
         await dispatch(
           sendMessage({
             token,
-            conversationId: (result.payload as any).id,
+            conversationId: (result.payload as any).id, 
             message,
             mode,
             attachments,
