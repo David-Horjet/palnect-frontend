@@ -91,7 +91,8 @@ export const sendMessage = createAsyncThunk(
     try {
       const response = await chatService.sendMessage(token, conversationId, clientMessageId, message, mode, attachments)
 
-      // If backend created a generation job, dispatch jobStarted so UI shows progress immediately
+      console.log("sendMessage api response: ", response)
+
       if (response?.data?.job) {
         const job = response.data.job
         dispatch(
@@ -295,7 +296,6 @@ const chatSlice = createSlice({
         if (conversation?.messages) {
           state.messages = conversation.messages.map((msg: Message) => ({
             ...msg,
-            // user messages are delivered; assistant messages are sent
             status: msg.role === 'user' ? 'delivered' : 'sent',
             isNew: msg.role === 'assistant',
           }))
