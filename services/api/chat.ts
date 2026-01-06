@@ -72,7 +72,7 @@ export const chatService = {
     return apiClient.post<{
       success: boolean
       message: string
-      data: { response: string; pointsDeducted: number; conversation: Conversation }
+      data: { response: string; pointsDeducted: number; conversation: Conversation; job?: any }
     }>(`/chat/messages?conversationId=${conversationId}`, { message, mode, clientMessageId, attachments }, token)
   },
 

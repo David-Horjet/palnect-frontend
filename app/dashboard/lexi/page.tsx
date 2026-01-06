@@ -26,6 +26,8 @@ import { MessageBubble } from "@/components/sections/dashboard/chat/message-bubb
 import Image from "next/image"
 import robot from "../../../public/gifs/robot.gif";
 import { jobProgressUpdated, jobCompleted, jobFailed } from "@/store/slices/generationSlice"
+import { GenerationProgress } from "@/components/sections/dashboard/chat/generation-progress"
+import { updateMessage } from "@/store/slices/chatSlice"
 
 const POINT_COST_PER_MESSAGE = 10
 
@@ -117,15 +119,19 @@ export default function LexiChatPage() {
       if (data.conversationId === currentConversation.id) {
         dispatch(
           addIncomingMessage({
-            id: data.id,
-            conversation_id: data.conversationId,
-            role: "assistant",
-            content: data.content,
-            created_at: data.createdAt || new Date().toISOString(),
-            status: "delivered",
-            isNew: true,
-            sender_id: data.senderId,
-            is_deleted: false,
+            conversationId: data.conversationId,
+            message: {
+              id: data.id,
+              conversation_id: data.conversationId,
+              role: "assistant",
+              content: data.content,
+              created_at: data.createdAt || new Date().toISOString(),
+              status: "delivered",
+              isNew: true,
+              sender_id: data.senderId,
+              attachments: data.attachments || [],
+              is_deleted: false,
+            }
           }),
         )
       }
@@ -147,10 +153,20 @@ export default function LexiChatPage() {
     socket.on("ai:typing", handleTyping)
     socket.on("ai:stopTyping", handleStopTyping)
 
+    // Listen for message updates (e.g., video finished and message attachment updated)
+    const handleMessageUpdate = (data: any) => {
+      if (data?.message && data.message.conversation_id === currentConversation?.id) {
+        dispatch(updateMessage(data.message))
+      }
+    }
+
+    socket.on('message:update', handleMessageUpdate)
+
     return () => {
       socket.off("ai:message", handleNewMessage)
       socket.off("ai:typing", handleTyping)
       socket.off("ai:stopTyping", handleStopTyping)
+      socket.off('message:update', handleMessageUpdate)
     }
   }, [socket, currentConversation, dispatch])
 
@@ -296,6 +312,7 @@ export default function LexiChatPage() {
                       currentUserId={user?.id}
                     />
                   ))}
+                  <GenerationProgress />
                   {isTyping && (
                     <div className="flex gap-3">
                       <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">

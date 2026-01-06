@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { chatService, type Message, type Conversation, ConversationType } from "@/services/api/chat"
 import { toast } from "@/lib/toast"
+import { jobStarted } from "@/store/slices/generationSlice"
 
 interface ChatState {
   conversations: Conversation[]
@@ -85,10 +86,26 @@ export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
   async (
     { token, conversationId, clientMessageId, message, mode, senderId, attachments }: { token: string; conversationId: string; clientMessageId: string; message: string; mode?: "text" | "video", senderId: string; attachments?: Array<{ url: string; type: string; name?: string }> },
-    { rejectWithValue },
+    { rejectWithValue, dispatch },
   ) => {
     try {
       const response = await chatService.sendMessage(token, conversationId, clientMessageId, message, mode, attachments)
+
+      // If backend created a generation job, dispatch jobStarted so UI shows progress immediately
+      if (response?.data?.job) {
+        const job = response.data.job
+        dispatch(
+          jobStarted({
+            jobId: job.jobId,
+            type: job.type || 'video',
+            status: job.status || 'queued',
+            stage: job.stage || 'queued',
+            progress: job.progress || 0,
+            estimatedDuration: job.estimatedDuration,
+          })
+        )
+      }
+
       return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to send message"
@@ -190,6 +207,19 @@ const chatSlice = createSlice({
         message.isNew = false
       }
     },
+
+    updateMessage: (state, action) => {
+      const msg = action.payload
+      const idx = state.messages.findIndex((m) => m.id === msg.id)
+      if (idx !== -1) {
+        state.messages[idx] = {
+          ...state.messages[idx],
+          ...msg,
+        }
+      } else {
+        state.messages.push(msg)
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -272,6 +302,8 @@ const chatSlice = createSlice({
         }
 
         state.currentConversation = conversation
+
+
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.messageLoading = false
@@ -298,5 +330,5 @@ const chatSlice = createSlice({
   },
 })
 
-export const { clearCurrentConversation, setTyping, updateMessageStatus, addIncomingMessage, markMessageAsRead } = chatSlice.actions
+export const { clearCurrentConversation, setTyping, updateMessageStatus, addIncomingMessage, markMessageAsRead, updateMessage } = chatSlice.actions
 export default chatSlice.reducer
