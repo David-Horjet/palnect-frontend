@@ -259,13 +259,9 @@ const chatSlice = createSlice({
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.messageLoading = false
 
-        // The API returns { response, pointsDeducted, conversation } in data
-        // our thunk returns response.data so action.payload may be either
-        // the conversation directly (older shape) or an object containing conversation
         const payload: any = action.payload
         const conversation = payload?.conversation ?? payload
 
-        // Defensive: if conversation has messages, update them and currentConversation
         if (conversation?.messages) {
           state.messages = conversation.messages.map((msg: Message) => ({
             ...msg,
