@@ -25,6 +25,7 @@ import { ChatSidebar } from "@/components/sections/dashboard/chat/chat-sidebar"
 import { MessageBubble } from "@/components/sections/dashboard/chat/message-bubble"
 import Image from "next/image"
 import robot from "../../../public/gifs/robot.gif";
+import { jobProgressUpdated, jobCompleted, jobFailed } from "@/store/slices/generationSlice"
 
 const POINT_COST_PER_MESSAGE = 10
 
@@ -74,6 +75,40 @@ export default function LexiChatPage() {
 
     dispatch(clearCurrentConversation())
   }, [dispatch])
+
+  useEffect(() => {
+    if (!socket) return
+
+    const onProgress = (data: any) => {
+      dispatch(
+        jobProgressUpdated({
+          status: data.status,
+          stage: data.stage,
+          progress: data.progress,
+          message: data.message,
+        })
+      )
+    }
+
+    const onCompleted = (data: any) => {
+      dispatch(jobCompleted({ videoUrl: data.videoUrl }))
+    }
+
+    const onFailed = (data: any) => {
+      dispatch(jobFailed({ error: data.error }))
+    }
+
+    socket.on("generation:progress", onProgress)
+    socket.on("generation:completed", onCompleted)
+    socket.on("generation:failed", onFailed)
+
+    return () => {
+      socket.off("generation:progress", onProgress)
+      socket.off("generation:completed", onCompleted)
+      socket.off("generation:failed", onFailed)
+    }
+  }, [socket, dispatch])
+
 
   useEffect(() => {
     if (!socket || !currentConversation) return
@@ -160,7 +195,7 @@ export default function LexiChatPage() {
         await dispatch(
           sendMessage({
             token,
-            conversationId: (result.payload as any).id, 
+            conversationId: (result.payload as any).id,
             message,
             mode,
             attachments,

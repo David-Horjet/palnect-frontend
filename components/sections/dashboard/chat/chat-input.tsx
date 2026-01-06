@@ -59,14 +59,35 @@ export function ChatInput({
   const { token } = useSelector((state: RootState) => state.auth)
   const isAiMessage = role === "assistant"
 
+
+
+  const activeJob = useSelector(
+    (state: RootState) => state.generation.activeJob
+  )
+
+  const isJobRunning: boolean =
+    activeJob &&
+    activeJob.status !== "completed" &&
+    activeJob.status !== "failed" ? true : false
+
   useEffect(() => {
     setCanSend(
       (message.trim().length > 0 || uploadedAttachment !== null) &&
-        pointsBalance >= effectiveCost &&
-        !isLoading &&
-        !isUploading
+      pointsBalance >= effectiveCost &&
+      !isLoading &&
+      !isUploading &&
+      !isJobRunning 
     )
-  }, [message, uploadedAttachment, pointsBalance, effectiveCost, isLoading, isUploading])
+  }, [
+    message,
+    uploadedAttachment,
+    pointsBalance,
+    effectiveCost,
+    isLoading,
+    isUploading,
+    isJobRunning,
+  ])
+
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -167,6 +188,7 @@ export function ChatInput({
     handleTyping()
   }
 
+
   return (
     <div className="border-t border-border p-4 space-y-3">
       {/* Mode Selector */}
@@ -260,11 +282,11 @@ export function ChatInput({
           value={message}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          disabled={isLoading || pointsBalance < effectiveCost || isUploading}
+          disabled={isLoading || pointsBalance < effectiveCost || isUploading || isJobRunning}
           className="flex-1"
         />
 
-        <Button onClick={handleSend} disabled={!canSend} size="md">
+        <Button  onClick={handleSend} disabled={!canSend || isJobRunning} size="md">
           <Send className="h-4 w-4" />
         </Button>
       </div>
