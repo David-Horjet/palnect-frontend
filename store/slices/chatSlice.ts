@@ -212,13 +212,19 @@ const chatSlice = createSlice({
     updateMessage: (state, action) => {
       const msg = action.payload
       const idx = state.messages.findIndex((m) => m.id === msg.id)
+      const normalized = {
+        ...msg,
+        status: msg.status || 'delivered',
+        isNew: false,
+      }
+
       if (idx !== -1) {
         state.messages[idx] = {
           ...state.messages[idx],
-          ...msg,
+          ...normalized,
         }
       } else {
-        state.messages.push(msg)
+        state.messages.push(normalized)
       }
     },
   },

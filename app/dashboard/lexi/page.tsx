@@ -25,7 +25,7 @@ import { ChatSidebar } from "@/components/sections/dashboard/chat/chat-sidebar"
 import { MessageBubble } from "@/components/sections/dashboard/chat/message-bubble"
 import Image from "next/image"
 import robot from "../../../public/gifs/robot.gif";
-import { jobProgressUpdated, jobCompleted, jobFailed } from "@/store/slices/generationSlice"
+import { jobProgressUpdated, jobCompleted, jobFailed, clearJob as clearGenerationJob } from "@/store/slices/generationSlice"
 import { GenerationProgress } from "@/components/sections/dashboard/chat/generation-progress"
 import { updateMessage } from "@/store/slices/chatSlice"
 
@@ -94,10 +94,18 @@ export default function LexiChatPage() {
 
     const onCompleted = (data: any) => {
       dispatch(jobCompleted({ videoUrl: data.videoUrl }))
+      // Clear the UI after a short delay so progress UI disappears
+      setTimeout(() => {
+        dispatch(clearGenerationJob())
+      }, 2500)
     }
 
     const onFailed = (data: any) => {
       dispatch(jobFailed({ error: data.error }))
+      // Remove job UI on failure after short delay
+      setTimeout(() => {
+        dispatch(clearGenerationJob())
+      }, 3000)
     }
 
     socket.on("generation:progress", onProgress)
@@ -110,6 +118,16 @@ export default function LexiChatPage() {
       socket.off("generation:failed", onFailed)
     }
   }, [socket, dispatch])
+
+  useEffect(() => {
+    if (!socket || !currentConversation) return
+
+    socket.emit("joinConversation", currentConversation.id)
+
+    return () => {
+      socket.emit("leaveConversation", currentConversation.id)
+    }
+  }, [socket, currentConversation])
 
 
   useEffect(() => {
