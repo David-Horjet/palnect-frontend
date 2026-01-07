@@ -217,6 +217,7 @@ export function ChatInput({
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             )}
+            disabled={true}
           >
             <Video className="h-3 w-3" />
             Explainer Video
@@ -242,7 +243,7 @@ export function ChatInput({
               pointsBalance < effectiveCost ? "text-destructive" : "text-success"
             )}
           >
-            {pointsBalance} credits available
+            {pointsBalance} credits
           </span>
         </div>
       )}
