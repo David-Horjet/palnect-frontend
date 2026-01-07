@@ -292,7 +292,7 @@ export default function LexiChatPage() {
             )}
             <DashboardHeader title="Lexi - AI Study Mentor" subtitle="Your personal academic assistant" />
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-2 md:p-6 space-y-6">
               {!currentConversation || messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
