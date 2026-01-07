@@ -115,7 +115,8 @@ export function ChatInput({
     try {
       const uploadedFile = await uploadService.uploadChatAttachment(
         file,
-        setUploadProgress
+        setUploadProgress,
+        token
       )
 
       setUploadedAttachment({
@@ -140,7 +141,7 @@ export function ChatInput({
   const handleRemoveFile = async () => {
     if (uploadedAttachment && token) {
       try {
-        await uploadService.deleteAttachment(uploadedAttachment.url)
+        await uploadService.deleteAttachment(uploadedAttachment.url, token)
       } catch (err) {
         console.error("Failed to delete attachment:", err)
       }
