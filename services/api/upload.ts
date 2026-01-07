@@ -44,7 +44,7 @@ const uploadService = {
         onProgress(100)
 
         return {
-          url: result.publicUrl || (result as any).url,
+          url: result.url || (result as any).url,
           type: file.type,
           name: file.name,
           size: file.size,
@@ -60,7 +60,7 @@ const uploadService = {
     const result = await apiClient.postFormData<UploadResponse>('/upload', formData, token)
 
     return {
-      url: result.publicUrl || (result as any).url,
+      url: result.url || (result as any).url,
       type: file.type,
       name: file.name,
       size: file.size,
