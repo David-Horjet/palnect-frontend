@@ -35,9 +35,15 @@ export function MessageBubble({
 }: MessageBubbleProps) {
   const [displayedContent, setDisplayedContent] = useState("")
 
+  const hasVideoAttachment = attachments?.some((a) => a.type === 'video')
+
+  // Treat messages with video attachments as AI/assistant messages (left side)
+  const isAiMessage = role === "assistant" || !!hasVideoAttachment
+
+  // Consider a message a user message only if role is 'user' and it doesn't contain video
+  const isUserMessage = role === "user" && !hasVideoAttachment
+
   const isCurrentUserMessage = senderId === currentUserId
-  const isAiMessage = role === "assistant"
-  const isUserMessage = role === "user"
 
   useEffect(() => {
     if (isAiMessage && content && isNew && !isLoading) {
@@ -99,17 +105,19 @@ export function MessageBubble({
       ) : null}
 
       <div className="max-w-xs lg:max-w-md xl:max-w-lg flex flex-col gap-1">
-        {/* Attachments */}
+        {/* Attachments (hide generation_job placeholders) */}
         {attachments && attachments.length > 0 && (
           <div className="space-y-2 mb-2">
-            {attachments.map((attachment, index) => (
-              <MessageAttachment
-                key={index}
-                url={attachment.url}
-                type={attachment.type}
-                name={attachment.name}
-              />
-            ))}
+            {attachments
+              .filter((a) => a.type !== 'generation_job')
+              .map((attachment, index) => (
+                <MessageAttachment
+                  key={index}
+                  url={attachment.url}
+                  type={attachment.type}
+                  name={attachment.name}
+                />
+              ))}
           </div>
         )}
 

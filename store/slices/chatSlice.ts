@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { chatService, type Message, type Conversation, ConversationType } from "@/services/api/chat"
 import { toast } from "@/lib/toast"
+import { jobStarted } from "@/store/slices/generationSlice"
 
 interface ChatState {
   conversations: Conversation[]
@@ -84,11 +85,28 @@ export const createConversation = createAsyncThunk(
 export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
   async (
-    { token, conversationId, clientMessageId, message, senderId, attachments }: { token: string; conversationId: string; clientMessageId: string; message: string; senderId: string; attachments?: Array<{ url: string; type: string; name?: string }> },
-    { rejectWithValue },
+    { token, conversationId, clientMessageId, message, mode, senderId, attachments }: { token: string; conversationId: string; clientMessageId: string; message: string; mode?: "text" | "video", senderId: string; attachments?: Array<{ url: string; type: string; name?: string }> },
+    { rejectWithValue, dispatch },
   ) => {
     try {
-      const response = await chatService.sendMessage(token, conversationId, clientMessageId, message, attachments)
+      const response = await chatService.sendMessage(token, conversationId, clientMessageId, message, mode, attachments)
+
+      console.log("sendMessage api response: ", response)
+
+      if (response?.data?.job) {
+        const job = response.data.job
+        dispatch(
+          jobStarted({
+            jobId: job.jobId,
+            type: job.type || 'video',
+            status: job.status || 'queued',
+            stage: job.stage || 'queued',
+            progress: job.progress || 0,
+            estimatedDuration: job.estimatedDuration,
+          })
+        )
+      }
+
       return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to send message"
@@ -190,6 +208,25 @@ const chatSlice = createSlice({
         message.isNew = false
       }
     },
+
+    updateMessage: (state, action) => {
+      const msg = action.payload
+      const idx = state.messages.findIndex((m) => m.id === msg.id)
+      const normalized = {
+        ...msg,
+        status: msg.status || 'delivered',
+        isNew: false,
+      }
+
+      if (idx !== -1) {
+        state.messages[idx] = {
+          ...state.messages[idx],
+          ...normalized,
+        }
+      } else {
+        state.messages.push(normalized)
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -259,23 +296,20 @@ const chatSlice = createSlice({
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.messageLoading = false
 
-        // The API returns { response, pointsDeducted, conversation } in data
-        // our thunk returns response.data so action.payload may be either
-        // the conversation directly (older shape) or an object containing conversation
         const payload: any = action.payload
         const conversation = payload?.conversation ?? payload
 
-        // Defensive: if conversation has messages, update them and currentConversation
         if (conversation?.messages) {
           state.messages = conversation.messages.map((msg: Message) => ({
             ...msg,
-            // user messages are delivered; assistant messages are sent
             status: msg.role === 'user' ? 'delivered' : 'sent',
             isNew: msg.role === 'assistant',
           }))
         }
 
         state.currentConversation = conversation
+
+
       })
       .addCase(sendMessage.rejected, (state, action) => {
         state.messageLoading = false
@@ -302,5 +336,5 @@ const chatSlice = createSlice({
   },
 })
 
-export const { clearCurrentConversation, setTyping, updateMessageStatus, addIncomingMessage, markMessageAsRead } = chatSlice.actions
+export const { clearCurrentConversation, setTyping, updateMessageStatus, addIncomingMessage, markMessageAsRead, updateMessage } = chatSlice.actions
 export default chatSlice.reducer

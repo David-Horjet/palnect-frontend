@@ -11,6 +11,7 @@ import { Calendar, Clock, Loader2, AlertCircle, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import Image from "next/image"
 
 export default function MentorSubscriptionsPage() {
   const dispatch = useDispatch() as AppDispatch
@@ -77,10 +78,12 @@ export default function MentorSubscriptionsPage() {
                         {/* Student Avatar */}
                         <div className="h-16 w-16 rounded-full bg-linear-to-br from-primary to-accent shrink-0 overflow-hidden">
                           {subscription.student?.avatar_url ? (
-                            <img
+                            <Image
                               src={subscription.student.avatar_url || "/placeholder.svg"}
                               alt={subscription.student.first_name}
                               className="h-full w-full object-cover"
+                              width={64}
+                              height={64}
                             />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center text-white font-bold">
