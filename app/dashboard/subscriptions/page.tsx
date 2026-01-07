@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function SubscriptionsPage() {
   const dispatch = useDispatch() as AppDispatch
@@ -104,10 +105,12 @@ export default function SubscriptionsPage() {
                         {/* Mentor Avatar */}
                         <div className="h-10 md:h-16 w-10 md:w-16 rounded-full bg-linear-to-br from-primary to-accent shrink-0 overflow-hidden">
                           {subscription.mentor?.avatar_url ? (
-                            <img
+                            <Image
                               src={subscription.mentor.avatar_url || "/placeholder.svg"}
                               alt={subscription.mentor.first_name}
                               className="h-full w-full object-cover"
+                              width={64}
+                              height={64}
                             />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center text-white font-bold">

@@ -1,9 +1,4 @@
-import { getSupabaseAdmin } from "@/lib/supabase"
-
-const supabase = getSupabaseAdmin()
-
-const { data } = await supabase.auth.getSession()
-console.log("Supabase session:", data)
+import { apiClient } from "@/lib/api"
 
 export interface UploadProgress {
   progress: number
@@ -11,10 +6,14 @@ export interface UploadProgress {
 }
 
 export interface UploadResponse {
-  url: string
-  type: string
-  name: string
-  size: number
+  data: {
+    publicUrl: string
+    fileType: string
+    name: string
+    size: number
+    bucket?: string
+    path?: string
+  }
 }
 
 const BUCKET = "chat-attachments"
@@ -23,10 +22,23 @@ const CHAT_FOLDER = "all-users"
 const uploadService = {
   async uploadChatAttachment(
     file: File,
-    onProgress?: (progress: number) => void
-  ): Promise<UploadResponse> {
+    onProgress?: (progress: number) => void,
+    token?: string
+  ): Promise<{
+    publicUrl: string
+    type: string
+    name: string
+    size: number
+    bucket?: string
+    path?: string
+  }> {
     const fileExt = file.name.split(".").pop()
     const filePath = `${CHAT_FOLDER}/chat/${crypto.randomUUID()}.${fileExt}`
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('bucket', BUCKET)
+    formData.append('pathPrefix', `${CHAT_FOLDER}/chat`)
 
     if (onProgress) {
       let fakeProgress = 0
@@ -36,27 +48,19 @@ const uploadService = {
       }, 500)
 
       try {
-        const { error } = await supabase.storage
-          .from(BUCKET)
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            upsert: false,
-          })
-
+        const result = await apiClient.postFormData<UploadResponse>('/upload', formData, token)
         clearInterval(interval)
-        if (error) throw error
-
         onProgress(100)
 
-        const { data } = supabase.storage
-          .from(BUCKET)
-          .getPublicUrl(filePath)
+        console.log("Upload result:", result)
 
         return {
-          url: data.publicUrl,
+          publicUrl: result.data.publicUrl || (result as any).url,
           type: file.type,
           name: file.name,
           size: file.size,
+          bucket: result.data.bucket,
+          path: result.data.path,
         }
       } catch (err) {
         clearInterval(interval)
@@ -64,25 +68,19 @@ const uploadService = {
       }
     }
 
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(filePath, file)
-
-    if (error) throw error
-
-    const { data } = supabase.storage
-      .from(BUCKET)
-      .getPublicUrl(filePath)
+    const result = await apiClient.postFormData<UploadResponse>('/upload', formData, token)
 
     return {
-      url: data.publicUrl,
-      type: file.type,
+      publicUrl: result.data.publicUrl || (result as any).url,
+      type: result.data.fileType,
       name: file.name,
       size: file.size,
+      bucket: result.data.bucket,
+      path: result.data.path,
     }
   },
 
-  async deleteAttachment(url: string): Promise<void> {
+  async deleteAttachment(url: string, token?: string): Promise<void> {
     const pathname = new URL(url).pathname
     const filePath = pathname.split(`/${BUCKET}/`)[1]
 
@@ -90,11 +88,11 @@ const uploadService = {
       throw new Error("Invalid attachment URL")
     }
 
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .remove([filePath])
-
-    if (error) throw error
+    await apiClient.request('/upload', {
+      method: 'DELETE',
+      body: JSON.stringify({ bucket: BUCKET, path: filePath }),
+      token,
+    })
   },
 }
 
