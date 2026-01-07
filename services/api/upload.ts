@@ -6,12 +6,14 @@ export interface UploadProgress {
 }
 
 export interface UploadResponse {
-  url: string
-  type: string
-  name: string
-  size: number
-  bucket?: string
-  path?: string
+  data: {
+    publicUrl: string
+    fileType: string
+    name: string
+    size: number
+    bucket?: string
+    path?: string
+  }
 }
 
 const BUCKET = "chat-attachments"
@@ -22,7 +24,14 @@ const uploadService = {
     file: File,
     onProgress?: (progress: number) => void,
     token?: string
-  ): Promise<UploadResponse> {
+  ): Promise<{
+    publicUrl: string
+    type: string
+    name: string
+    size: number
+    bucket?: string
+    path?: string
+  }> {
     const fileExt = file.name.split(".").pop()
     const filePath = `${CHAT_FOLDER}/chat/${crypto.randomUUID()}.${fileExt}`
 
@@ -43,13 +52,15 @@ const uploadService = {
         clearInterval(interval)
         onProgress(100)
 
+        console.log("Upload result:", result)
+
         return {
-          url: result.publicUrl || (result as any).url,
+          publicUrl: result.data.publicUrl || (result as any).url,
           type: file.type,
           name: file.name,
           size: file.size,
-          bucket: result.bucket,
-          path: result.path,
+          bucket: result.data.bucket,
+          path: result.data.path,
         }
       } catch (err) {
         clearInterval(interval)
@@ -60,12 +71,12 @@ const uploadService = {
     const result = await apiClient.postFormData<UploadResponse>('/upload', formData, token)
 
     return {
-      url: result.publicUrl || (result as any).url,
-      type: file.type,
+      publicUrl: result.data.publicUrl || (result as any).url,
+      type: result.data.fileType,
       name: file.name,
       size: file.size,
-      bucket: result.bucket,
-      path: result.path,
+      bucket: result.data.bucket,
+      path: result.data.path,
     }
   },
 

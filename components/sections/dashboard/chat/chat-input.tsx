@@ -119,8 +119,10 @@ export function ChatInput({
         token
       )
 
+      console.log("Uploaded file:", uploadedFile)
+
       setUploadedAttachment({
-        url: uploadedFile.url,
+        url: uploadedFile.publicUrl,
         type: uploadedFile.type,
         name: file.name,
       })
