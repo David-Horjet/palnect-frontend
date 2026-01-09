@@ -196,7 +196,7 @@ export function ChatInput({
     <div className="border-t border-border p-3 md:p-4 space-y-3">
       {/* Mode Selector */}
       {isAiMessage && (
-        <div className="flex gap-2">
+        <div className="flex gap-2"> 
           <button 
             onClick={() => setMode("text")}
             className={clsx(
