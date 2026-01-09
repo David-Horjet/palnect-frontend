@@ -207,7 +207,7 @@ export function ChatInput({
             )}
           >
             Text
-          </button>
+          </button> 
 
           <button
             onClick={() => setMode("video")}
