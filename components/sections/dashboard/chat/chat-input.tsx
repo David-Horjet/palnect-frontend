@@ -197,7 +197,7 @@ export function ChatInput({
       {/* Mode Selector */}
       {isAiMessage && (
         <div className="flex gap-2">
-          <button
+          <button 
             onClick={() => setMode("text")}
             className={clsx(
               "px-3 py-1.5 rounded-full text-xs font-medium transition",
