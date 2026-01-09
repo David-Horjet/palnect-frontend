@@ -203,7 +203,7 @@ export function ChatInput({
               "px-3 py-1.5 rounded-full text-xs font-medium transition",
               mode === "text"
                 ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                : "bg-muted text-muted-foreground hover:bg-muted/80" 
             )}
           >
             Text
