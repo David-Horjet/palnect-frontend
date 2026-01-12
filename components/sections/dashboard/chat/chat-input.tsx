@@ -195,19 +195,19 @@ export function ChatInput({
   return (
     <div className="border-t border-border p-3 md:p-4 space-y-3">
       {/* Mode Selector */}
-      {isAiMessage && (
-        <div className="flex gap-2">
-          <button
+      {isAiMessage && ( 
+        <div className="flex gap-2">  
+          <button  
             onClick={() => setMode("text")}
             className={clsx(
               "px-3 py-1.5 rounded-full text-xs font-medium transition",
               mode === "text"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            )}
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted text-muted-foreground hover:bg-muted/80" 
+            )}  
           >
             Text
-          </button>
+          </button>  
 
           <button
             onClick={() => setMode("video")}
@@ -217,7 +217,7 @@ export function ChatInput({
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             )}
-            disabled={true}
+            // disabled={true}
           >
             <Video className="h-3 w-3" />
             Explainer Video
