@@ -7,6 +7,8 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Image from "next/image"
 import { MessageAttachment } from "./message-attachment"
+import remarkMath from "remark-math"
+import rehypeKatex from "rehype-katex"
 
 interface MessageBubbleProps {
   role: "user" | "assistant"
@@ -124,14 +126,16 @@ export function MessageBubble({
         {/* Message Bubble */}
         {content && (
           <div
-            className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${
-              isUserMessage && isCurrentUserMessage
+            className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${isUserMessage && isCurrentUserMessage
                 ? "bg-primary text-primary-foreground rounded-br-none"
                 : "bg-muted text-foreground rounded-bl-none"
-            }`}
+              }`}
           >
             <p className="text-sm whitespace-pre-wrap">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+              >
                 {displayedContent}
               </ReactMarkdown>
             </p>
