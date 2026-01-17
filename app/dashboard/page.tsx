@@ -179,7 +179,7 @@ export default function DashboardPage() {
               label="Resources Uploaded"
               value={getStatValue("Resources Uploaded")}
               change={myResources.length > 0 ? `+${myResources.length} available` : "No resource uploaded yet"}
-              trend="up"
+              trend="up" 
               icon={<BookOpen className="h-5 w-5" />}
             />
             <StatCard 
