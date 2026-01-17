@@ -12,6 +12,7 @@ import { fetchBalance } from "@/store/slices/pointsSlice"
 import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
 import { listResources } from "@/store/slices/resourcesSlice"
 import { fetchMentors } from "@/store/slices/mentorsSlice"
+import { fetchUserStreak } from "@/store/slices/streakSlice"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ActivityFeed } from "@/components/sections/activity-feed"
@@ -35,6 +36,9 @@ export default function DashboardPage() {
   console.log("mentors:", mentors)
   const mentorsLoading = useSelector((state: RootState) => state.mentors.loading)
 
+  const streak = useSelector((state: RootState) => state.streak.streak)
+  const streakLoading = useSelector((state: RootState) => state.streak.loading)
+
   const { resources, myResources } = useSelector((state: RootState) => state.resources)
   console.log("resources:", resources)
   const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
@@ -51,6 +55,7 @@ export default function DashboardPage() {
           dispatch(fetchStudentSubscriptions({ token, page: 1, limit: 5 })),
           dispatch(listResources({ page: 1, limit: 3 })),
           dispatch(fetchMentors({ token, page: 1, limit: 2 })),
+          dispatch(fetchUserStreak()),
         ])
       } finally {
         setIsLoading(false)
@@ -66,6 +71,9 @@ export default function DashboardPage() {
     }
     if (label === "Mentors Connected" && studentSubscriptions.length > 0) {
       return studentSubscriptions.length.toString()
+    }
+    if (label === "Learning Streak" && streak) {
+      return `${streak.current_streak} day${streak.current_streak !== 1 ? 's' : ''}`
     }
     return "0"
   }
@@ -176,9 +184,15 @@ export default function DashboardPage() {
             />
             <StatCard
               label="Learning Streak"
-              value="1 day(s)"
-              change="Keep it up!"
-              trend="neutral"
+              value={getStatValue("Learning Streak")}
+              change={
+                streak
+                  ? streak.current_streak > 0
+                    ? `Longest: ${streak.longest_streak} days`
+                    : "Start your learning journey!"
+                  : "Loading..."
+              }
+              trend={streak && streak.current_streak > 0 ? "up" : "neutral"}
               icon={<TrendingUp className="h-5 w-5" />}
             />
             <StatCard
