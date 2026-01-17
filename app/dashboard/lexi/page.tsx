@@ -295,7 +295,7 @@ export default function LexiChatPage() {
             <div className="flex-1 overflow-y-auto p-2 md:p-6 space-y-6">
               {!currentConversation || messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
-                  <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
+                  <Card className="max-w-2xl p-8 bg-transparent border-none text-center space-y-6">
                     <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
                       <Image src={robot} alt={"robot"} width={100} height={100} />
                     </div>
@@ -305,12 +305,14 @@ export default function LexiChatPage() {
                         I'm your AI study mentor here to help you with any academic questions.
                       </p>
                     </div>
-                    <div className="space-y-3 pt-4">
-                      <p className="text-sm text-muted-foreground">What do you need help with today?</p>
-                      <Button onClick={handleNewChat} className="w-full">
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Start a New Chat
-                      </Button>
+                    <div>
+                      <ChatInput
+                        onSend={handleSendMessage}
+                        isLoading={messageLoading}
+                        pointsBalance={pointsBalance}
+                        pointCost={POINT_COST_PER_MESSAGE}
+                        role="assistant"
+                      />
                     </div>
                   </Card>
                 </div>
