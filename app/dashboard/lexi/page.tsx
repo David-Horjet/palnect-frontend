@@ -14,8 +14,7 @@ import {
 } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Sparkles, MessageCircle, Bot, ChevronLeft } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
@@ -290,7 +289,7 @@ export default function LexiChatPage() {
                 <h2 className="font-semibold flex-1">Lexi</h2>
               </div>
             )}
-            <DashboardHeader title="Lexi - AI Study Mentor" subtitle="Your personal academic assistant" />
+            <DashboardHeader title="Lexi" subtitle="Your personal academic assistant" />
 
             <div className="flex-1 overflow-y-auto p-2 md:p-6 space-y-6">
               {!currentConversation || messages.length === 0 ? (

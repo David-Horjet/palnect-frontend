@@ -9,6 +9,7 @@ import Image from "next/image"
 import { MessageAttachment } from "./message-attachment"
 import remarkMath from "remark-math"
 import rehypeKatex from "rehype-katex"
+import robot from "../../../../public/gifs/robot.gif";
 
 interface MessageBubbleProps {
   role: "user" | "assistant"
@@ -39,10 +40,8 @@ export function MessageBubble({
 
   const hasVideoAttachment = attachments?.some((a) => a.type === 'video')
 
-  // Treat messages with video attachments as AI/assistant messages (left side)
   const isAiMessage = role === "assistant" || !!hasVideoAttachment
 
-  // Consider a message a user message only if role is 'user' and it doesn't contain video
   const isUserMessage = role === "user" && !hasVideoAttachment
 
   const isCurrentUserMessage = senderId === currentUserId
@@ -91,7 +90,7 @@ export function MessageBubble({
       {!isUserMessage || !isCurrentUserMessage ? (
         <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
           {isAiMessage ? (
-            <Bot className="h-4 w-4 text-primary" />
+            <Image src={robot} alt={"robot"} width={100} height={100} />
           ) : avatarUrl ? (
             <Image
               src={avatarUrl}
@@ -107,7 +106,6 @@ export function MessageBubble({
       ) : null}
 
       <div className="max-w-xs lg:max-w-md xl:max-w-lg flex flex-col gap-1">
-        {/* Attachments (hide generation_job placeholders) */}
         {attachments && attachments.length > 0 && (
           <div className="space-y-2 mb-2">
             {attachments
