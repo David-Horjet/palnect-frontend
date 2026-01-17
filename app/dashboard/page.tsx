@@ -188,7 +188,7 @@ export default function DashboardPage() {
               change={
                 streak
                   ? streak.current_streak > 0
-                    ? `Longest: ${streak.longest_streak} days`
+                    ? `Longest: ${streak.longest_streak} day(s)`
                     : "Start your learning journey!"
                   : "Loading..."
               }
