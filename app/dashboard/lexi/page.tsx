@@ -311,6 +311,7 @@ export default function LexiChatPage() {
                         pointsBalance={pointsBalance}
                         pointCost={POINT_COST_PER_MESSAGE}
                         role="assistant"
+                        isAtBottom={false}
                       />
                     </div>
                   </Card>
@@ -365,6 +366,7 @@ export default function LexiChatPage() {
                 pointCost={POINT_COST_PER_MESSAGE}
                 conversationId={currentConversation.id}
                 role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}
+                isAtBottom={true}
               />
             )}
           </main>
