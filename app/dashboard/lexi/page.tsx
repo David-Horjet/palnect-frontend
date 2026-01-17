@@ -302,7 +302,7 @@ export default function LexiChatPage() {
                     <div className="space-y-2">
                       <h2 className="text-2xl font-bold text-foreground">Hi, I'm Lexi!</h2>
                       <p className="text-muted-foreground">
-                        I'm your sweet and gentle AI study mentor here to help you with any academic questions.
+                        I'm your AI study mentor here to help you with any academic questions.
                       </p>
                     </div>
                     <div className="space-y-3 pt-4">
