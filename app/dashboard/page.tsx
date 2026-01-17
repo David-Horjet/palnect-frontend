@@ -170,7 +170,7 @@ export default function DashboardPage() {
                   </div>
                 </Link>
               </Button> 
-            </div>
+            </div> 
           </div>
 
           {/* Stats Grid */}
