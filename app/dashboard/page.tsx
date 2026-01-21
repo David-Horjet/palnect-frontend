@@ -184,7 +184,7 @@ export default function DashboardPage() {
             />
             <StatCard  
               label="Learning Streak" 
-              value={getStatValue("Learning Streak")}
+              value={getStatValue("Learning Streak")} 
               change={
                 streak
                   ? streak.current_streak > 0
