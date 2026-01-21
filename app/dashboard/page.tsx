@@ -174,7 +174,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-4 gap-4"> 
             <StatCard
               label="Resources Uploaded"
               value={getStatValue("Resources Uploaded")}
