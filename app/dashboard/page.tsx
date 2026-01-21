@@ -182,7 +182,7 @@ export default function DashboardPage() {
               trend="up" 
               icon={<BookOpen className="h-5 w-5" />}
             />
-            <StatCard 
+            <StatCard  
               label="Learning Streak" 
               value={getStatValue("Learning Streak")}
               change={
