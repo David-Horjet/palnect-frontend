@@ -171,7 +171,7 @@ export default function DashboardPage() {
                 </Link>
               </Button>  
             </div> 
-          </div>
+          </div> 
 
           {/* Stats Grid */}
           <div className="grid md:grid-cols-4 gap-4"> 
