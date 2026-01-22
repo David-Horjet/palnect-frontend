@@ -31,7 +31,7 @@ function References({ sources }: ReferencesProps) {
       <h4 className="text-sm font-semibold text-foreground">References</h4>
       <div className="space-y-2">
         {sources.map((source, index) => (
-          <div key={index} className="border rounded-lg p-3 bg-card">
+          <div key={index} className="border border-foreground/10 rounded-lg p-3 bg-background/10">
             {source.type === 'youtube' ? (
               <div className="flex gap-3">
                 {source.thumbnailUrl && (
