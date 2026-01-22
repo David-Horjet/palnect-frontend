@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Bot, User, Check, CheckCheck, Clock } from "lucide-react"
+import { Bot, User, Check, CheckCheck, Clock, ExternalLink, Play } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -10,6 +10,78 @@ import { MessageAttachment } from "./message-attachment"
 import remarkMath from "remark-math"
 import rehypeKatex from "rehype-katex"
 import robot from "../../../../public/gifs/robot.gif";
+
+interface Source {
+  type: 'website' | 'youtube';
+  title: string;
+  url: string;
+  description: string;
+  videoTitle?: string;
+  channelName?: string;
+  thumbnailUrl?: string;
+}
+
+interface ReferencesProps {
+  sources: Source[];
+}
+
+function References({ sources }: ReferencesProps) {
+  return (
+    <div className="mt-4 space-y-3">
+      <h4 className="text-sm font-semibold text-foreground">References</h4>
+      <div className="space-y-2">
+        {sources.map((source, index) => (
+          <div key={index} className="border rounded-lg p-3 bg-card">
+            {source.type === 'youtube' ? (
+              <div className="flex gap-3">
+                {source.thumbnailUrl && (
+                  <div className="relative shrink-0">
+                    <Image
+                      src={source.thumbnailUrl}
+                      alt={source.videoTitle || source.title}
+                      width={120}
+                      height={68}
+                      className="rounded object-cover"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Play className="h-6 w-6 text-white drop-shadow-lg" />
+                    </div>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h5 className="font-medium text-sm truncate">{source.videoTitle || source.title}</h5>
+                  <p className="text-xs text-muted-foreground">{source.channelName}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{source.description}</p>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
+                  >
+                    Watch on YouTube <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h5 className="font-medium text-sm">{source.title}</h5>
+                <p className="text-xs text-muted-foreground mt-1">{source.description}</p>
+                <a
+                  href={source.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1"
+                >
+                  Visit website <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface MessageBubbleProps {
   role: "user" | "assistant"
@@ -36,7 +108,9 @@ export function MessageBubble({
   currentUserId,
   attachments,
 }: MessageBubbleProps) {
-  const [displayedContent, setDisplayedContent] = useState("")
+  const [fullContent, setFullContent] = useState("")
+  const [animatedContent, setAnimatedContent] = useState("")
+  const [references, setReferences] = useState<Source[] | null>(null)
 
   const hasVideoAttachment = attachments?.some((a) => a.type === 'video')
 
@@ -46,12 +120,36 @@ export function MessageBubble({
 
   const isCurrentUserMessage = senderId === currentUserId
 
+  // Parse content for references
   useEffect(() => {
-    if (isAiMessage && content && isNew && !isLoading) {
+    if (content) {
+      const researchBlockRegex = /```research\s*\n([\s\S]*?)\n```/
+      const match = content.match(researchBlockRegex)
+      if (match) {
+        try {
+          const sources = JSON.parse(match[1]) as Source[]
+          setReferences(sources)
+          // Remove the research block from content
+          const cleanContent = content.replace(researchBlockRegex, '').trim()
+          setFullContent(cleanContent)
+        } catch (error) {
+          console.error('Failed to parse research references:', error)
+          setReferences(null)
+          setFullContent(content)
+        }
+      } else {
+        setReferences(null)
+        setFullContent(content)
+      }
+    }
+  }, [content])
+
+  useEffect(() => {
+    if (isAiMessage && fullContent && isNew && !isLoading) {
       let index = 0
       const interval = setInterval(() => {
-        if (index <= content.length) {
-          setDisplayedContent(content.substring(0, index))
+        if (index <= fullContent.length) {
+          setAnimatedContent(fullContent.substring(0, index))
           index++
         } else {
           clearInterval(interval)
@@ -60,9 +158,9 @@ export function MessageBubble({
 
       return () => clearInterval(interval)
     } else {
-      setDisplayedContent(content)
+      setAnimatedContent(fullContent)
     }
-  }, [content, isAiMessage, isNew, isLoading])
+  }, [fullContent, isAiMessage, isNew, isLoading])
 
   const renderStatusIcon = () => {
     if (!isUserMessage || !status) return null
@@ -125,20 +223,26 @@ export function MessageBubble({
         {content && (
           <div
             className={`px-4 py-2 rounded-lg transition-opacity ${messageOpacity} ${isUserMessage && isCurrentUserMessage
-                ? "bg-primary text-primary-foreground rounded-br-none"
-                : "bg-muted text-foreground rounded-bl-none"
+              ? "bg-primary text-primary-foreground rounded-br-none"
+              : "bg-muted text-foreground rounded-bl-none"
               }`}
           >
-            <p className="text-sm whitespace-pre-wrap">
+            <div className="text-sm whitespace-pre-wrap prose prose-sm max-w-none">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeKatex]}
               >
-                {displayedContent}
+                {animatedContent}
               </ReactMarkdown>
-            </p>
+            </div>
+
             {isAiMessage && isLoading && <span className="inline-block animate-pulse">▌</span>}
           </div>
+        )}
+
+        {/* References */}
+        {references && (
+          <References sources={references} />
         )}
 
         {/* Meta */}
