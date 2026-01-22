@@ -21,6 +21,124 @@ interface Source {
   thumbnailUrl?: string;
 }
 
+// Validation functions for references
+function validateYouTubeUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    
+    // Check for valid YouTube domains
+    if (!['www.youtube.com', 'youtube.com', 'youtu.be'].includes(urlObj.hostname)) {
+      return false;
+    }
+    
+    // For youtube.com/watch?v= format
+    if (urlObj.hostname.includes('youtube.com')) {
+      const videoId = urlObj.searchParams.get('v');
+      if (!videoId || videoId.length !== 11) {
+        return false;
+      }
+      // Ensure video ID contains only valid characters
+      return /^[a-zA-Z0-9_-]{11}$/.test(videoId);
+    }
+    
+    // For youtu.be format
+    if (urlObj.hostname === 'youtu.be') {
+      const path = urlObj.pathname.slice(1); // Remove leading slash
+      if (!path || path.length !== 11) {
+        return false;
+      }
+      return /^[a-zA-Z0-9_-]{11}$/.test(path);
+    }
+    
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function validateYouTubeThumbnailUrl(url: string, videoUrl: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    if (urlObj.hostname !== 'img.youtube.com') {
+      return false;
+    }
+    
+    // Extract video ID from video URL to validate thumbnail
+    let videoId = '';
+    const videoUrlObj = new URL(videoUrl);
+    
+    if (videoUrlObj.hostname.includes('youtube.com')) {
+      videoId = videoUrlObj.searchParams.get('v') || '';
+    } else if (videoUrlObj.hostname === 'youtu.be') {
+      videoId = videoUrlObj.pathname.slice(1);
+    }
+    
+    if (!videoId) return false;
+    
+    // Check if thumbnail URL contains the correct video ID
+    return urlObj.pathname.includes(`/vi/${videoId}/`);
+  } catch {
+    return false;
+  }
+}
+
+function validateWebsiteUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    
+    // Must be absolute URL
+    if (!urlObj.protocol.startsWith('http')) {
+      return false;
+    }
+    
+    // Must have a valid hostname
+    if (!urlObj.hostname || urlObj.hostname.length === 0) {
+      return false;
+    }
+    
+    // Avoid localhost/private IPs in production
+    if (process.env.NODE_ENV === 'production') {
+      const hostname = urlObj.hostname.toLowerCase();
+      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
+        return false;
+      }
+    }
+    
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function validateSource(source: Source): boolean {
+  // Basic required fields
+  if (!source.type || !source.title || !source.url || !source.description) {
+    return false;
+  }
+  
+  // Type-specific validation
+  if (source.type === 'youtube') {
+    if (!validateYouTubeUrl(source.url)) {
+      return false;
+    }
+    // For YouTube, ensure required metadata is present and thumbnail URL is valid
+    if (!source.videoTitle || !source.channelName || !source.thumbnailUrl) {
+      return false;
+    }
+    if (!validateYouTubeThumbnailUrl(source.thumbnailUrl, source.url)) {
+      return false;
+    }
+  } else if (source.type === 'website') {
+    if (!validateWebsiteUrl(source.url)) {
+      return false;
+    }
+  } else {
+    return false; // Unknown type
+  }
+  
+  return true;
+}
+
 interface ReferencesProps {
   sources: Source[];
 }
@@ -42,6 +160,10 @@ function References({ sources }: ReferencesProps) {
                       width={120}
                       height={68}
                       className="rounded object-cover"
+                      onError={(e) => {
+                        // Hide the image if it fails to load
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Play className="h-6 w-6 text-white drop-shadow-lg" />
@@ -127,8 +249,10 @@ export function MessageBubble({
       const match = content.match(researchBlockRegex)
       if (match) {
         try {
-          const sources = JSON.parse(match[1]) as Source[]
-          setReferences(sources)
+          const parsedSources = JSON.parse(match[1]) as Source[]
+          // Validate and filter sources
+          const validSources = parsedSources.filter(validateSource)
+          setReferences(validSources.length > 0 ? validSources : null)
           // Remove the research block from content
           const cleanContent = content.replace(researchBlockRegex, '').trim()
           setFullContent(cleanContent)
