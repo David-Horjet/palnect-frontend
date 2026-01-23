@@ -111,7 +111,7 @@ export function Footer() {
           {/* Bottom */}
           <div className="border-t border-white/10 pt-8 text-center lg:text-left">
             <p className="text-sm text-foreground/80">
-              © {new Date().getFullYear()} Palnect. All rights reserved. Built by Horjet.
+              © {new Date().getFullYear()} Palnect. All rights reserved. Built by <Link className="text-violet-500" href={"https://horjet.com"}>Horjet.</Link>
             </p>
           </div>
         </div>

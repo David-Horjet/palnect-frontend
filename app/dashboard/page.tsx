@@ -12,6 +12,7 @@ import { fetchBalance } from "@/store/slices/pointsSlice"
 import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
 import { listResources } from "@/store/slices/resourcesSlice"
 import { fetchMentors } from "@/store/slices/mentorsSlice"
+import { fetchUserStreak } from "@/store/slices/streakSlice"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ActivityFeed } from "@/components/sections/activity-feed"
@@ -35,6 +36,9 @@ export default function DashboardPage() {
   console.log("mentors:", mentors)
   const mentorsLoading = useSelector((state: RootState) => state.mentors.loading)
 
+  const streak = useSelector((state: RootState) => state.streak.streak)
+  const streakLoading = useSelector((state: RootState) => state.streak.loading)
+
   const { resources, myResources } = useSelector((state: RootState) => state.resources)
   console.log("resources:", resources)
   const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
@@ -51,6 +55,7 @@ export default function DashboardPage() {
           dispatch(fetchStudentSubscriptions({ token, page: 1, limit: 5 })),
           dispatch(listResources({ page: 1, limit: 3 })),
           dispatch(fetchMentors({ token, page: 1, limit: 2 })),
+          dispatch(fetchUserStreak()),
         ])
       } finally {
         setIsLoading(false)
@@ -66,6 +71,9 @@ export default function DashboardPage() {
     }
     if (label === "Mentors Connected" && studentSubscriptions.length > 0) {
       return studentSubscriptions.length.toString()
+    }
+    if (label === "Learning Streak" && streak) {
+      return `${streak.current_streak} day${streak.current_streak !== 1 ? 's' : ''}`
     }
     return "0"
   }
@@ -160,25 +168,31 @@ export default function DashboardPage() {
                     <span className="font-semibold">Tools</span>
                     <span className="text-xs text-muted-foreground">Academic calculators & utilities</span>
                   </div>
-                </Link>
-              </Button>
-            </div>
-          </div>
+                </Link> 
+              </Button>  
+            </div> 
+          </div> 
 
           {/* Stats Grid */}
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-4 gap-4"> 
             <StatCard
               label="Resources Uploaded"
               value={getStatValue("Resources Uploaded")}
               change={myResources.length > 0 ? `+${myResources.length} available` : "No resource uploaded yet"}
-              trend="up"
+              trend="up" 
               icon={<BookOpen className="h-5 w-5" />}
             />
-            <StatCard
-              label="Learning Streak"
-              value="1 day(s)"
-              change="Keep it up!"
-              trend="neutral"
+            <StatCard  
+              label="Learning Streak"  
+              value={getStatValue("Learning Streak")} 
+              change={
+                streak
+                  ? streak.current_streak > 0
+                    ? `Longest: ${streak.longest_streak} day(s)`
+                    : "Start your learning journey!"
+                  : "Loading..."
+              }
+              trend={streak && streak.current_streak > 0 ? "up" : "neutral"}
               icon={<TrendingUp className="h-5 w-5" />}
             />
             <StatCard

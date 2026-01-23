@@ -28,6 +28,7 @@ interface ChatInputProps {
   pointsBalance: number
   pointCost: number
   conversationId?: string
+  isAtBottom?: boolean // New prop to indicate if input is at bottom of chat
 }
 
 export function ChatInput({
@@ -37,6 +38,7 @@ export function ChatInput({
   pointCost,
   conversationId,
   role,
+  isAtBottom = true, // Default to true for backward compatibility
 }: ChatInputProps) {
   const [message, setMessage] = useState("")
   const [canSend, setCanSend] = useState(false)
@@ -193,10 +195,16 @@ export function ChatInput({
 
 
   return (
-    <div className="border-t border-border p-3 md:p-4 space-y-3">
+    <div className={clsx(
+      "p-3 md:p-4",
+      isAtBottom ? "space-y-3 border-t border-border" : "space-y-2"
+    )}>
       {/* Mode Selector */}
       {isAiMessage && ( 
-        <div className="flex gap-2">  
+        <div className={clsx(
+          "flex gap-2",
+          !isAtBottom && "justify-center"
+        )}>  
           <button  
             onClick={() => setMode("text")}
             className={clsx(
@@ -227,7 +235,10 @@ export function ChatInput({
 
       {/* Credits Info */}
       {isAiMessage && (
-        <div className="flex items-center justify-between text-xs">
+        <div className={clsx(
+          "text-xs",
+          isAtBottom ? "flex items-center justify-between" : "flex items-center justify-center"
+        )}>
           <div className="flex items-center gap-2">
             <Zap className="h-3 w-3 text-primary" />
             <span className="text-muted-foreground">
@@ -236,15 +247,16 @@ export function ChatInput({
               {mode === "video" && " (video generation)"}
             </span>
           </div>
-
-          <span
-            className={clsx(
-              "font-semibold",
-              pointsBalance < effectiveCost ? "text-destructive" : "text-success"
-            )}
-          >
-            {pointsBalance} credits
-          </span>
+          {isAtBottom && (
+            <span
+              className={clsx(
+                "font-semibold",
+                pointsBalance < effectiveCost ? "text-destructive" : "text-success"
+              )}
+            >
+              {pointsBalance} credits
+            </span>
+          )}
         </div>
       )}
 
@@ -296,7 +308,10 @@ export function ChatInput({
       </div>
 
       {pointsBalance < effectiveCost && (
-        <p className="text-xs text-destructive">
+        <p className={clsx(
+          "text-xs text-destructive",
+          !isAtBottom && "text-center"
+        )}>
           Insufficient credits. You need {effectiveCost - pointsBalance} more.
         </p>
       )}

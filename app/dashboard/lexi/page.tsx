@@ -14,8 +14,7 @@ import {
 } from "@/store/slices/chatSlice"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Sparkles, MessageCircle, Bot, ChevronLeft } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { useSocket } from "@/hooks/useSocket"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
@@ -290,27 +289,30 @@ export default function LexiChatPage() {
                 <h2 className="font-semibold flex-1">Lexi</h2>
               </div>
             )}
-            <DashboardHeader title="Lexi - AI Study Mentor" subtitle="Your personal academic assistant" />
+            <DashboardHeader title="Lexi" subtitle="Your personal academic assistant" />
 
             <div className="flex-1 overflow-y-auto p-2 md:p-6 space-y-6">
               {!currentConversation || messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
-                  <Card className="max-w-md p-8 bg-transparent border-none text-center space-y-6">
+                  <Card className="max-w-2xl p-8 bg-transparent border-none text-center space-y-6">
                     <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
                       <Image src={robot} alt={"robot"} width={100} height={100} />
                     </div>
                     <div className="space-y-2">
                       <h2 className="text-2xl font-bold text-foreground">Hi, I'm Lexi!</h2>
                       <p className="text-muted-foreground">
-                        I'm your sweet and gentle AI study mentor here to help you with any academic questions.
+                        I'm your AI study mentor here to help you with any academic questions.
                       </p>
                     </div>
-                    <div className="space-y-3 pt-4">
-                      <p className="text-sm text-muted-foreground">What do you need help with today?</p>
-                      <Button onClick={handleNewChat} className="w-full">
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Start a New Chat
-                      </Button>
+                    <div>
+                      <ChatInput
+                        onSend={handleSendMessage}
+                        isLoading={messageLoading}
+                        pointsBalance={pointsBalance}
+                        pointCost={POINT_COST_PER_MESSAGE}
+                        role="assistant"
+                        isAtBottom={false}
+                      />
                     </div>
                   </Card>
                 </div>
@@ -364,6 +366,7 @@ export default function LexiChatPage() {
                 pointCost={POINT_COST_PER_MESSAGE}
                 conversationId={currentConversation.id}
                 role={currentConversation.type === "lexi_ai" ? "assistant" : "user"}
+                isAtBottom={true}
               />
             )}
           </main>
