@@ -276,3 +276,12 @@ body {
   background: linear-gradient(180deg, #a073ee -11.11%, #6366F1);
   animation: gradientShift 3s ease infinite;
 }
+
+/* 3D Flip Animation */
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
