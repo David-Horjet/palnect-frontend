@@ -340,7 +340,7 @@ export function MessageBubble({
   const { token } = useAuth()
 
   const saveFlashcards = async () => {
-    if (!structuredData || structuredData.type !== 'flashcards') return
+    if (!structuredData || structuredData.type !== 'flashcards' || !token) return
 
     try {
       await apiClient.post('/tools/flash-cards/generate', {
@@ -357,7 +357,7 @@ export function MessageBubble({
   }
 
   const saveQuiz = async () => {
-    if (!structuredData || structuredData.type !== 'quiz') return
+    if (!structuredData || structuredData.type !== 'quiz' || !token) return
 
     try {
       await apiClient.post('/tools/quizzes/generate', {

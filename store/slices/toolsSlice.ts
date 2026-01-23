@@ -28,7 +28,7 @@ export const generateFlashcards = createAsyncThunk(
     try {
       const response = await ToolsService.generateFlashcards(token, data)
       toast.success("Flashcard deck created successfully")
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to generate flashcards"
       toast.error(message)
@@ -42,7 +42,7 @@ export const fetchFlashcardDecks = createAsyncThunk(
   async (token: string, { rejectWithValue }) => {
     try {
       const response = await ToolsService.getFlashcardDecks(token)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch flashcard decks"
       return rejectWithValue(message)
@@ -55,7 +55,7 @@ export const fetchFlashcardDeck = createAsyncThunk(
   async ({ token, deckId }: { token: string; deckId: string }, { rejectWithValue }) => {
     try {
       const response = await ToolsService.getFlashcardDeck(token, deckId)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch flashcard deck"
       return rejectWithValue(message)
@@ -84,7 +84,7 @@ export const generateQuiz = createAsyncThunk(
     try {
       const response = await ToolsService.generateQuiz(token, data)
       toast.success("Quiz created successfully")
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to generate quiz"
       toast.error(message)
@@ -98,7 +98,7 @@ export const fetchQuizzes = createAsyncThunk(
   async (token: string, { rejectWithValue }) => {
     try {
       const response = await ToolsService.getQuizzes(token)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch quizzes"
       return rejectWithValue(message)
@@ -111,7 +111,7 @@ export const fetchQuiz = createAsyncThunk(
   async ({ token, quizId }: { token: string; quizId: string }, { rejectWithValue }) => {
     try {
       const response = await ToolsService.getQuiz(token, quizId)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to fetch quiz"
       return rejectWithValue(message)
@@ -124,7 +124,7 @@ export const submitQuiz = createAsyncThunk(
   async ({ token, quizId, answers }: { token: string; quizId: string; answers: (number | boolean | null)[] }, { rejectWithValue }) => {
     try {
       const response = await ToolsService.submitQuiz(token, quizId, answers)
-      return response.data
+      return response
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to submit quiz"
       toast.error(message)
