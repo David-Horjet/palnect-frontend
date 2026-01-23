@@ -125,24 +125,40 @@ export default function FlashcardStudyPage() {
               style={{ perspective: '1000px' }}
             >
               <div
-                className={`absolute inset-0 w-full h-full transition-transform duration-500 transform-style-preserve-3d ${
-                  isFlipped ? 'rotate-y-180' : ''
-                }`}
-                style={{ transformStyle: 'preserve-3d' }}
+                className="relative w-full h-full transition-transform duration-700"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                }}
               >
                 {/* Front */}
-                <Card className="absolute inset-0 w-full h-full flex items-center justify-center p-6 backface-hidden">
-                  <div className="text-center">
-                    <p className="text-lg">{currentCard.front}</p>
-                    <p className="text-sm text-muted-foreground mt-4">Click to flip</p>
-                  </div>
-                </Card>
+                <div
+                  className="absolute inset-0 w-full h-full"
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden'
+                  }}
+                >
+                  <Card className="w-full h-full flex items-center justify-center p-6">
+                    <div className="text-center">
+                      <p className="text-lg font-medium">{currentCard.front}</p>
+                      <p className="text-sm text-muted-foreground mt-4">Click to flip</p>
+                    </div>
+                  </Card>
+                </div>
 
                 {/* Back */}
-                <div style={{ transform: 'rotateY(180deg)' }}>
-                  <Card className="w-full h-full flex items-center justify-center p-6 backface-hidden">
+                <div
+                  className="absolute inset-0 w-full h-full"
+                  style={{
+                    transform: 'rotateY(180deg)',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden'
+                  }}
+                >
+                  <Card className="w-full h-full flex items-center justify-center p-6">
                     <div className="text-center">
-                      <p className="text-lg">{currentCard.back}</p>
+                      <p className="text-lg font-medium">{currentCard.back}</p>
                       <p className="text-sm text-muted-foreground mt-4">Click to flip</p>
                     </div>
                   </Card>
