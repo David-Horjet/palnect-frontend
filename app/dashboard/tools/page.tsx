@@ -56,8 +56,8 @@ export default function ToolsIndexPage() {
                   <Link href={t.href} className="flex w-full">
                     <div className="flex flex-col md:flex-row items-start gap-4 md:items-center justify-between">
                       <div className="flex gap-4">
-                        <div className={`p-5 relative mx-auto mb-8 inline-flex items-center justify-center rounded-full ${t.bgColor}`}>
-                          <IconComponent className={`h-5 w-5 ${t.color} ${t.animation}`} />
+                        <div className={`p-3 relative mx-auto mb-8 inline-flex items-center justify-center rounded-full ${t.bgColor}`}>
+                          <IconComponent className={`h-6 w-6 ${t.color} ${t.animation}`} />
                         </div>
                         <div>
                           <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
