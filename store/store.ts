@@ -9,6 +9,7 @@ import chatReducer from "./slices/chatSlice"
 import payoutReducer from "./slices/payoutSlice"
 import generationReducer from "./slices/generationSlice"
 import streakReducer from "./slices/streakSlice"
+import toolsReducer from "./slices/toolsSlice"
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     payout: payoutReducer,
     generation: generationReducer,
     streak: streakReducer,
+    tools: toolsReducer,
   },
 })
 
