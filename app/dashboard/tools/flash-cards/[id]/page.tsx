@@ -140,7 +140,7 @@ export default function FlashcardStudyPage() {
                   }}
                 >
                   <Card className="w-full h-full flex items-center justify-center p-6">
-                    <div className="text-center">
+                    <div className="text-center"> 
                       <p className="text-lg font-medium">{currentCard.front}</p>
                       <p className="text-sm text-muted-foreground mt-4">Click to flip</p>
                     </div>
