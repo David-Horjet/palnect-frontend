@@ -2,64 +2,40 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { useDispatch, useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react"
-import { apiClient } from "@/lib/api"
 import { useAuth } from "@/hooks/useAuth"
-import { toast } from "@/lib/toast"
-
-interface Flashcard {
-  id: string
-  front: string
-  back: string
-}
-
-interface FlashcardDeck {
-  id: string
-  title: string
-  flashcards: Flashcard[]
-}
+import { fetchFlashcardDeck } from "@/store/slices/toolsSlice"
 
 export default function FlashcardStudyPage() {
   const params = useParams()
   const router = useRouter()
   const { token } = useAuth()
-  const [deck, setDeck] = useState<FlashcardDeck | null>(null)
+  const dispatch = useDispatch<AppDispatch>()
+  const { currentDeck, loading } = useSelector((state: RootState) => state.tools)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchDeck()
-  }, [params.id])
-
-  const fetchDeck = async () => {
-    if (!params.id) return
-
-    try {
-      const response = await apiClient.get<{ data: FlashcardDeck }>(`/tools/flash-cards/${params.id as string}`, token || undefined)
-      setDeck(response.data)
-    } catch (error) {
-      console.error('Failed to fetch deck:', error)
-      toast.error('Failed to load flashcard deck')
-      router.push('/dashboard/tools/flash-cards')
-    } finally {
-      setLoading(false)
+    if (params.id && token) {
+      dispatch(fetchFlashcardDeck({ token, deckId: params.id as string }))
     }
-  }
+  }, [dispatch, params.id, token])
 
   const nextCard = () => {
-    if (!deck) return
-    setCurrentIndex((prev) => (prev + 1) % deck.flashcards.length)
+    if (!currentDeck) return
+    setCurrentIndex((prev) => (prev + 1) % currentDeck.flashcards.length)
     setIsFlipped(false)
   }
 
   const prevCard = () => {
-    if (!deck) return
-    setCurrentIndex((prev) => (prev - 1 + deck.flashcards.length) % deck.flashcards.length)
+    if (!currentDeck) return
+    setCurrentIndex((prev) => (prev - 1 + currentDeck.flashcards.length) % currentDeck.flashcards.length)
     setIsFlipped(false)
   }
 
@@ -79,7 +55,7 @@ export default function FlashcardStudyPage() {
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [deck])
+  }, [currentDeck])
 
   if (loading) {
     return (
@@ -92,7 +68,7 @@ export default function FlashcardStudyPage() {
     )
   }
 
-  if (!deck || deck.flashcards.length === 0) {
+  if (!currentDeck || currentDeck.flashcards.length === 0) {
     return (
       <div className="flex h-screen">
         <DashboardSidebar activeTab="tools" />
@@ -108,15 +84,15 @@ export default function FlashcardStudyPage() {
     )
   }
 
-  const currentCard = deck.flashcards[currentIndex]
-  const progress = ((currentIndex + 1) / deck.flashcards.length) * 100
+  const currentCard = currentDeck.flashcards[currentIndex]
+  const progress = ((currentIndex + 1) / currentDeck.flashcards.length) * 100
 
   return (
     <div className="flex h-screen overflow-hidden">
       <DashboardSidebar activeTab="tools" />
 
       <main className="flex-1 overflow-auto">
-        <DashboardHeader title={deck.title} subtitle="Study your flashcards" />
+        <DashboardHeader title={currentDeck.title} subtitle="Study your flashcards" />
 
         <div className="p-6 max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -129,7 +105,7 @@ export default function FlashcardStudyPage() {
               Back to Decks
             </Button>
             <span className="text-sm text-muted-foreground">
-              {currentIndex + 1} of {deck.flashcards.length}
+              {currentIndex + 1} of {currentDeck.flashcards.length}
             </span>
           </div>
 
@@ -194,7 +170,7 @@ export default function FlashcardStudyPage() {
 
             <Button
               onClick={nextCard}
-              disabled={currentIndex === deck.flashcards.length - 1}
+              disabled={currentIndex === currentDeck.flashcards.length - 1}
               className="gap-2"
             >
               Next
@@ -206,10 +182,12 @@ export default function FlashcardStudyPage() {
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>Use arrow keys or buttons to navigate • Spacebar to flip</p>
             {currentIndex === 0 && <p className="mt-2">First card reached</p>}
-            {currentIndex === deck.flashcards.length - 1 && <p className="mt-2">Last card reached</p>}
+            {currentIndex === currentDeck.flashcards.length - 1 && <p className="mt-2">Last card reached</p>}
           </div>
         </div>
       </main>
     </div>
   )
 }
+
+  

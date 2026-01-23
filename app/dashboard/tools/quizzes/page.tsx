@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import { Card } from "@/components/ui/card"
@@ -9,49 +9,25 @@ import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { Plus, FileQuestion, Trash2, Play } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { apiClient } from "@/lib/api"
 import { useAuth } from "@/hooks/useAuth"
-import { toast } from "@/lib/toast"
-
-interface Quiz {
-  id: string
-  title: string
-  created_at: string
-  quiz_questions: { count: number }
-}
+import { fetchQuizzes, deleteQuiz } from "@/store/slices/toolsSlice"
 
 export default function QuizzesPage() {
   const router = useRouter()
   const { token } = useAuth()
-  const [quizzes, setQuizzes] = useState<Quiz[]>([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch<AppDispatch>()
+  const { quizzes, loading } = useSelector((state: RootState) => state.tools)
 
   useEffect(() => {
-    fetchQuizzes()
-  }, [])
-
-  const fetchQuizzes = async () => {
-    try {
-      const response = await apiClient.get<{ data: Quiz[] }>('/tools/quizzes', token || undefined)
-      setQuizzes(response.data)
-    } catch (error) {
-      console.error('Failed to fetch quizzes:', error)
-      toast.error('Failed to load quizzes')
-    } finally {
-      setLoading(false)
+    if (token) {
+      dispatch(fetchQuizzes(token))
     }
-  }
+  }, [dispatch, token])
 
-  const deleteQuiz = async (quizId: string) => {
+  const handleDeleteQuiz = (quizId: string) => {
     if (!confirm('Are you sure you want to delete this quiz?')) return
-
-    try {
-      await apiClient.delete(`/tools/quizzes/${quizId}`, token || undefined)
-      setQuizzes(quizzes.filter(quiz => quiz.id !== quizId))
-      toast.success('Quiz deleted successfully')
-    } catch (error) {
-      console.error('Failed to delete quiz:', error)
-      toast.error('Failed to delete quiz')
+    if (token) {
+      dispatch(deleteQuiz({ token, quizId }))
     }
   }
 
@@ -102,7 +78,7 @@ export default function QuizzesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => deleteQuiz(quiz.id)}
+                      onClick={() => handleDeleteQuiz(quiz.id)}
                       className="text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -110,7 +86,7 @@ export default function QuizzesPage() {
                   </div>
                   <h3 className="font-semibold mb-2 line-clamp-2">{quiz.title}</h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    {quiz.quiz_questions?.count || 0} questions
+                    {quiz.quiz_questions?.length || 0} questions
                   </p>
                   <p className="text-xs text-muted-foreground mb-4">
                     Created {new Date(quiz.created_at).toLocaleDateString()}
@@ -131,3 +107,5 @@ export default function QuizzesPage() {
     </div>
   )
 }
+
+  

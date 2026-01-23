@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { useDispatch, useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -9,58 +11,38 @@ import { Label } from "@/components/ui/label"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { ChevronLeft, ChevronRight, CheckCircle, XCircle } from "lucide-react"
-import { apiClient } from "@/lib/api"
 import { useAuth } from "@/hooks/useAuth"
-import { toast } from "@/lib/toast"
-
-interface QuizQuestion {
-  id: string
-  question: string
-  type: 'multiple_choice' | 'true_false'
-  options: string[] | null
-  correct_answer: string
-}
-
-interface Quiz {
-  id: string
-  title: string
-  quiz_questions: QuizQuestion[]
-}
+import { fetchQuiz, submitQuiz, clearCurrentQuiz, clearQuizResult } from "@/store/slices/toolsSlice"
 
 export default function QuizPage() {
   const params = useParams()
   const router = useRouter()
   const { token } = useAuth()
-  const [quiz, setQuiz] = useState<Quiz | null>(null)
+  const dispatch = useDispatch<AppDispatch>()
+  const { currentQuiz, quizResult, loading } = useSelector((state: RootState) => state.tools)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<(number | boolean | null)[]>([])
-  const [showResults, setShowResults] = useState(false)
-  const [results, setResults] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchQuiz()
-  }, [params.id])
-
-  const fetchQuiz = async () => {
-    if (!params.id) return
-
-    try {
-      const response = await apiClient.get<{ data: Quiz }>(`/tools/quizzes/${params.id as string}`, token || undefined)
-      setQuiz(response.data)
-      setAnswers(new Array(response.data.quiz_questions.length).fill(null))
-    } catch (error) {
-      console.error('Failed to fetch quiz:', error)
-      toast.error('Failed to load quiz')
-      router.push('/dashboard/tools/quizzes')
-    } finally {
-      setLoading(false)
+    if (params.id && token) {
+      dispatch(fetchQuiz({ token, quizId: params.id as string }))
     }
-  }
+    return () => {
+      dispatch(clearCurrentQuiz())
+      dispatch(clearQuizResult())
+    }
+  }, [dispatch, params.id, token])
+
+  useEffect(() => {
+    if (currentQuiz?.quiz_questions) {
+      setAnswers(new Array(currentQuiz.quiz_questions.length).fill(null))
+    }
+  }, [currentQuiz])
 
   const handleAnswerChange = (value: string) => {
+    if (!currentQuiz) return
     const newAnswers = [...answers]
-    const currentQuestion = quiz!.quiz_questions[currentIndex]
+    const currentQuestion = currentQuiz.quiz_questions[currentIndex]
 
     if (currentQuestion.type === 'true_false') {
       newAnswers[currentIndex] = value === 'true'
@@ -72,7 +54,8 @@ export default function QuizPage() {
   }
 
   const nextQuestion = () => {
-    if (currentIndex < quiz!.quiz_questions.length - 1) {
+    if (!currentQuiz) return
+    if (currentIndex < currentQuiz.quiz_questions.length - 1) {
       setCurrentIndex(currentIndex + 1)
     }
   }
@@ -83,15 +66,9 @@ export default function QuizPage() {
     }
   }
 
-  const submitQuiz = async () => {
-    try {
-      const response = await apiClient.post(`/tools/quizzes/${params.id as string}/submit`, { answers }, token || undefined)
-      setResults(response.data)
-      setShowResults(true)
-    } catch (error) {
-      console.error('Failed to submit quiz:', error)
-      toast.error('Failed to submit quiz')
-    }
+  const handleSubmitQuiz = () => {
+    if (!params.id || !token) return
+    dispatch(submitQuiz({ token, quizId: params.id as string, answers }))
   }
 
   if (loading) {
@@ -105,7 +82,7 @@ export default function QuizPage() {
     )
   }
 
-  if (!quiz || quiz.quiz_questions.length === 0) {
+  if (!currentQuiz || currentQuiz.quiz_questions.length === 0) {
     return (
       <div className="flex h-screen">
         <DashboardSidebar activeTab="tools" />
@@ -121,28 +98,28 @@ export default function QuizPage() {
     )
   }
 
-  if (showResults) {
+  if (quizResult) {
     return (
       <div className="flex h-screen overflow-hidden">
         <DashboardSidebar activeTab="tools" />
 
         <main className="flex-1 overflow-auto">
-          <DashboardHeader title="Quiz Results" subtitle={`You scored ${results.score}/${results.totalQuestions}`} />
+          <DashboardHeader title="Quiz Results" subtitle={`You scored ${quizResult.score}/${quizResult.totalQuestions}`} />
 
           <div className="p-6 max-w-2xl mx-auto">
             <Card className="p-6 mb-6">
               <div className="text-center">
                 <h2 className="text-2xl font-bold mb-2">
-                  {results.percentage}% Correct
+                  {quizResult.percentage}% Correct
                 </h2>
                 <p className="text-muted-foreground">
-                  {results.score} out of {results.totalQuestions} questions
+                  {quizResult.score} out of {quizResult.totalQuestions} questions
                 </p>
               </div>
             </Card>
 
             <div className="space-y-4">
-              {quiz.quiz_questions.map((question, index) => {
+              {currentQuiz.quiz_questions.map((question, index) => {
                 const userAnswer = answers[index]
                 const correctAnswer = JSON.parse(question.correct_answer)
                 const isCorrect = userAnswer === correctAnswer
@@ -189,16 +166,16 @@ export default function QuizPage() {
     )
   }
 
-  const currentQuestion = quiz.quiz_questions[currentIndex]
-  const progress = ((currentIndex + 1) / quiz.quiz_questions.length) * 100
-  const isLastQuestion = currentIndex === quiz.quiz_questions.length - 1
+  const currentQuestion = currentQuiz.quiz_questions[currentIndex]
+  const progress = ((currentIndex + 1) / currentQuiz.quiz_questions.length) * 100
+  const isLastQuestion = currentIndex === currentQuiz.quiz_questions.length - 1
 
   return (
     <div className="flex h-screen overflow-hidden">
       <DashboardSidebar activeTab="tools" />
 
       <main className="flex-1 overflow-auto">
-        <DashboardHeader title={quiz.title} subtitle="Answer the questions below" />
+        <DashboardHeader title={currentQuiz.title} subtitle="Answer the questions below" />
 
         <div className="p-6 max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -211,7 +188,7 @@ export default function QuizPage() {
               Back to Quizzes
             </Button>
             <span className="text-sm text-muted-foreground">
-              {currentIndex + 1} of {quiz.quiz_questions.length}
+              {currentIndex + 1} of {currentQuiz.quiz_questions.length}
             </span>
           </div>
 
@@ -272,7 +249,7 @@ export default function QuizPage() {
 
             {isLastQuestion ? (
               <Button
-                onClick={submitQuiz}
+                onClick={handleSubmitQuiz}
                 disabled={answers[currentIndex] === null}
                 className="gap-2"
               >
@@ -294,3 +271,5 @@ export default function QuizPage() {
     </div>
   )
 }
+
+  
