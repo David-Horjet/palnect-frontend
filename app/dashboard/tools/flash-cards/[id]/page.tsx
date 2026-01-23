@@ -1,0 +1,215 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { DashboardHeader } from "@/components/layout/dashboard/header"
+import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react"
+import { apiClient } from "@/lib/api"
+import { useAuth } from "@/hooks/useAuth"
+import { toast } from "@/lib/toast"
+
+interface Flashcard {
+  id: string
+  front: string
+  back: string
+}
+
+interface FlashcardDeck {
+  id: string
+  title: string
+  flashcards: Flashcard[]
+}
+
+export default function FlashcardStudyPage() {
+  const params = useParams()
+  const router = useRouter()
+  const { token } = useAuth()
+  const [deck, setDeck] = useState<FlashcardDeck | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isFlipped, setIsFlipped] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDeck()
+  }, [params.id])
+
+  const fetchDeck = async () => {
+    if (!params.id) return
+
+    try {
+      const response = await apiClient.get<{ data: FlashcardDeck }>(`/tools/flash-cards/${params.id as string}`, token || undefined)
+      setDeck(response.data)
+    } catch (error) {
+      console.error('Failed to fetch deck:', error)
+      toast.error('Failed to load flashcard deck')
+      router.push('/dashboard/tools/flash-cards')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const nextCard = () => {
+    if (!deck) return
+    setCurrentIndex((prev) => (prev + 1) % deck.flashcards.length)
+    setIsFlipped(false)
+  }
+
+  const prevCard = () => {
+    if (!deck) return
+    setCurrentIndex((prev) => (prev - 1 + deck.flashcards.length) % deck.flashcards.length)
+    setIsFlipped(false)
+  }
+
+  const flipCard = () => {
+    setIsFlipped(!isFlipped)
+  }
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowRight') nextCard()
+    if (e.key === 'ArrowLeft') prevCard()
+    if (e.key === ' ') {
+      e.preventDefault()
+      flipCard()
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [deck])
+
+  if (loading) {
+    return (
+      <div className="flex h-screen">
+        <DashboardSidebar activeTab="tools" />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!deck || deck.flashcards.length === 0) {
+    return (
+      <div className="flex h-screen">
+        <DashboardSidebar activeTab="tools" />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-2">No flashcards found</h2>
+            <Button onClick={() => router.push('/dashboard/tools/flash-cards')}>
+              Back to Decks
+            </Button>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  const currentCard = deck.flashcards[currentIndex]
+  const progress = ((currentIndex + 1) / deck.flashcards.length) * 100
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <DashboardSidebar activeTab="tools" />
+
+      <main className="flex-1 overflow-auto">
+        <DashboardHeader title={deck.title} subtitle="Study your flashcards" />
+
+        <div className="p-6 max-w-2xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => router.push('/dashboard/tools/flash-cards')}
+              className="gap-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back to Decks
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              {currentIndex + 1} of {deck.flashcards.length}
+            </span>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full bg-muted rounded-full h-2 mb-6">
+            <div
+              className="bg-primary h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          {/* Flashcard */}
+          <div className="mb-6">
+            <div
+              className="relative h-64 cursor-pointer"
+              onClick={flipCard}
+              style={{ perspective: '1000px' }}
+            >
+              <div
+                className={`absolute inset-0 w-full h-full transition-transform duration-500 transform-style-preserve-3d ${
+                  isFlipped ? 'rotate-y-180' : ''
+                }`}
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* Front */}
+                <Card className="absolute inset-0 w-full h-full flex items-center justify-center p-6 backface-hidden">
+                  <div className="text-center">
+                    <p className="text-lg">{currentCard.front}</p>
+                    <p className="text-sm text-muted-foreground mt-4">Click to flip</p>
+                  </div>
+                </Card>
+
+                {/* Back */}
+                <div style={{ transform: 'rotateY(180deg)' }}>
+                  <Card className="w-full h-full flex items-center justify-center p-6 backface-hidden">
+                    <div className="text-center">
+                      <p className="text-lg">{currentCard.back}</p>
+                      <p className="text-sm text-muted-foreground mt-4">Click to flip</p>
+                    </div>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between items-center">
+            <Button
+              variant="outline"
+              onClick={prevCard}
+              disabled={currentIndex === 0}
+              className="gap-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+
+            <Button variant="outline" onClick={flipCard} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Flip
+            </Button>
+
+            <Button
+              onClick={nextCard}
+              disabled={currentIndex === deck.flashcards.length - 1}
+              className="gap-2"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Instructions */}
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p>Use arrow keys or buttons to navigate • Spacebar to flip</p>
+            {currentIndex === 0 && <p className="mt-2">First card reached</p>}
+            {currentIndex === deck.flashcards.length - 1 && <p className="mt-2">Last card reached</p>}
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}

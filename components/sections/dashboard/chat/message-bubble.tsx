@@ -10,6 +10,11 @@ import { MessageAttachment } from "./message-attachment"
 import remarkMath from "remark-math"
 import rehypeKatex from "rehype-katex"
 import robot from "../../../../public/gifs/robot.gif";
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/api"
+import { useAuth } from "@/hooks/useAuth"
+import { toast } from "@/lib/toast"
 
 interface Source {
   type: 'website' | 'youtube';
@@ -305,6 +310,69 @@ export function MessageBubble({
     }
   }
 
+  // Detect structured data (flashcards or quiz)
+  const detectStructuredData = (content: string) => {
+    const flashcardMatch = content.match(/```flashcards\n([\s\S]*?)\n```/)
+    if (flashcardMatch) {
+      try {
+        const data = JSON.parse(flashcardMatch[1])
+        return { type: 'flashcards', data }
+      } catch {
+        return null
+      }
+    }
+
+    const quizMatch = content.match(/```quiz\n([\s\S]*?)\n```/)
+    if (quizMatch) {
+      try {
+        const data = JSON.parse(quizMatch[1])
+        return { type: 'quiz', data }
+      } catch {
+        return null
+      }
+    }
+
+    return null
+  }
+
+  const structuredData = detectStructuredData(fullContent)
+  const router = useRouter()
+  const { token } = useAuth()
+
+  const saveFlashcards = async () => {
+    if (!structuredData || structuredData.type !== 'flashcards') return
+
+    try {
+      await apiClient.post('/tools/flash-cards/generate', {
+        title: structuredData.data.title,
+        cards: structuredData.data.cards
+      }, token)
+
+      toast.success('Flashcards saved successfully!')
+      router.push('/dashboard/tools/flash-cards')
+    } catch (error) {
+      console.error('Failed to save flashcards:', error)
+      toast.error('Failed to save flashcards')
+    }
+  }
+
+  const saveQuiz = async () => {
+    if (!structuredData || structuredData.type !== 'quiz') return
+
+    try {
+      await apiClient.post('/tools/quizzes/generate', {
+        title: structuredData.data.title,
+        questions: structuredData.data.questions
+      }, token)
+
+      toast.success('Quiz saved successfully!')
+      router.push('/dashboard/tools/quizzes')
+    } catch (error) {
+      console.error('Failed to save quiz:', error)
+      toast.error('Failed to save quiz')
+    }
+  }
+
   const messageOpacity = isUserMessage && status === "sending" ? "opacity-50" : "opacity-100"
 
   return (
@@ -352,12 +420,35 @@ export function MessageBubble({
               }`}
           >
             <div className="text-sm whitespace-pre-wrap prose prose-sm max-w-none">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeKatex]}
-              >
-                {animatedContent}
-              </ReactMarkdown>
+              {structuredData ? (
+                <div className="space-y-3">
+                  <div className="text-sm">
+                    {structuredData.type === 'flashcards' ? (
+                      <p>I've generated {structuredData.data.cards?.length || 0} flashcards for you!</p>
+                    ) : (
+                      <p>I've generated a quiz with {structuredData.data.questions?.length || 0} questions!</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    {structuredData.type === 'flashcards' ? (
+                      <Button size="sm" onClick={saveFlashcards} className="gap-2">
+                        💳 Save as Flashcards
+                      </Button>
+                    ) : (
+                      <Button size="sm" onClick={saveQuiz} className="gap-2">
+                        📝 Create Quiz
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {animatedContent}
+                </ReactMarkdown>
+              )}
             </div>
 
             {isAiMessage && isLoading && <span className="inline-block animate-pulse">▌</span>}

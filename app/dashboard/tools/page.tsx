@@ -9,6 +9,18 @@ import { Wrench } from "lucide-react"
 export default function ToolsIndexPage() {
   const tools = [
     {
+      id: "flash-cards",
+      title: "Flashcards",
+      description: "Create and study interactive flashcards to master key concepts.",
+      href: "/dashboard/tools/flash-cards",
+    },
+    {
+      id: "quizzes",
+      title: "Quizzes",
+      description: "Generate and take quizzes to test your knowledge and track progress.",
+      href: "/dashboard/tools/quizzes",
+    },
+    {
       id: "cgpa",
       title: "CGPA Calculator",
       description: "Compute your semester CGPA using the Nigerian 5.0 grading system (A=5 to F=0).",
