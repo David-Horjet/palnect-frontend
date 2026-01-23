@@ -31,7 +31,7 @@ export default function ToolsIndexPage() {
     {
       id: "cgpa",
       title: "CGPA Calculator",
-      description: "Compute your semester CGPA using the Nigerian 5.0 grading system (A=5 to F=0).",
+      description: "Compute your semester CGPA using the 5.0 grading system (A=5 to F=0).",
       href: "/dashboard/tools/cgpa",
       icon: Calculator,
       color: "text-purple-600",
@@ -47,8 +47,8 @@ export default function ToolsIndexPage() {
       <main className="flex-1 overflow-auto">
         <DashboardHeader title="Academic Tools" subtitle="Useful calculators and utilities for students" />
 
-        <div className="p-6 space-y-8 max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-4">
+        <div className="p-6 space-y-8">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
             {tools.map((t) => {
               const IconComponent = t.icon
               return (
