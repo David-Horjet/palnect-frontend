@@ -11,6 +11,7 @@ import { Trash2, ChevronLeft, MessageCircle, Sparkles, Users, Bot } from "lucide
 import Link from "next/link"
 import type { Conversation } from "@/services/api/chat"
 import Image from "next/image"
+import robot from "../../../../public/gifs/robot.gif";
 
 interface ChatSidebarProps {
   onSelectConversation: (conversationId: string) => void
@@ -65,7 +66,7 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
   }
 
   return (
-    <div className={`flex flex-col h-full bg-sidebar border-r border-sidebar-border overflow-hidden`}>
+    <div className={`flex flex-col h-full bg-sidebar overflow-hidden`}>
       {/* Header */}
       <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-2 font-bold text-foreground md:hidden">
@@ -112,7 +113,7 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
                     </div>
                   ) : (
                     <div className="h-8 md:h-10 w-8 md:w-10 rounded-full bg-primary flex items-center justify-center text-base font-bold text-primary-foreground">
-                      <Bot className="h-4 w-4" />
+                      <Image src={robot} alt={"robot"} width={100} height={100} />
                     </div>
                   )}
 
@@ -142,8 +143,8 @@ export function ChatSidebar({ onSelectConversation, currentConversationId, conve
 
       {/* Sidebar Footer */}
       <div className="p-4 border-t border-sidebar-border">
-        <Button variant="outline" size="sm" className="w-full bg-transparent">
-          <Link href="/dashboard">Back to Dashboard</Link>
+        <Button variant="outline" size="sm" onClick={handleNewChat} className="w-full bg-transparent">
+          New Chat
         </Button>
       </div>
     </div>

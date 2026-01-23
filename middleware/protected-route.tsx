@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
 import type { RootState, AppDispatch } from "@/store/store"
 import { initializeAuth } from "@/store/slices/authSlice"
+import { EmailVerificationOverlay } from "@/components/shared/email-verification-overlay"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -14,7 +15,7 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter()
   const dispatch = useDispatch<AppDispatch>()
-  const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth)
+  const { isAuthenticated, loading, user } = useSelector((state: RootState) => state.auth)
   const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
@@ -45,6 +46,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!isAuthenticated) {
     return null
+  }
+
+  if (!user?.is_verified) {
+    return <EmailVerificationOverlay />
   }
 
   return <>{children}</>
