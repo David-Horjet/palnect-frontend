@@ -53,6 +53,15 @@ function decode(base64: string) {
     return bytes;
 }
 
+function createBlob(pcmData: Float32Array): Blob {
+    // Convert Float32Array to Int16Array (16-bit PCM)
+    const int16Array = new Int16Array(pcmData.length);
+    for (let i = 0; i < pcmData.length; i++) {
+        int16Array[i] = Math.max(-32768, Math.min(32767, pcmData[i] * 32768));
+    }
+    return new Blob([int16Array], { type: 'audio/pcm' });
+}
+
 async function decodeAudioData(
     data: Uint8Array,
     ctx: AudioContext,
