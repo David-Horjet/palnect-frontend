@@ -21,6 +21,12 @@ export interface EphemeralTokenResponse {
   model: string
 }
 
+export interface EphemeralTokenAPIResponse {
+  data: EphemeralTokenResponse
+  success: boolean
+  message: string
+}
+
 export interface StartSessionResponse {
   sessionId: string
 }
@@ -37,8 +43,8 @@ export const liveTutorService = {
   /**
    * Generate ephemeral token for Gemini Live API
    */
-  async generateToken(token: string): Promise<EphemeralTokenResponse> {
-    return apiClient.post<EphemeralTokenResponse>('/live-tutor/token', {}, token)
+  async generateToken(token: string): Promise<EphemeralTokenAPIResponse> {
+    return apiClient.post<EphemeralTokenAPIResponse>('/live-tutor/token', {}, token)
   },
 
   /**
