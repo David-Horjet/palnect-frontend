@@ -20,6 +20,7 @@ import { Mic, MicOff, PhoneOff, Video, VideoOff, Loader2 } from "lucide-react"
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { toast } from "@/lib/toast"
+import { GoogleGenAI, Modality } from '@google/genai'
 
 export default function LiveTutorPage() {
   const dispatch = useDispatch<AppDispatch>()
@@ -43,7 +44,7 @@ export default function LiveTutorPage() {
   const [isVideoEnabled, setIsVideoEnabled] = useState(false)
   const [showEndDialog, setShowEndDialog] = useState(false)
 
-  const wsRef = useRef<WebSocket | null>(null)
+  const [session, setSession] = useState<any>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -71,8 +72,8 @@ export default function LiveTutorPage() {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop())
       }
-      if (wsRef.current) {
-        wsRef.current.close()
+      if (session) {
+        session.close()
       }
       if (audioContextRef.current) {
         audioContextRef.current.close()
@@ -102,87 +103,110 @@ export default function LiveTutorPage() {
   }, [ephemeralToken, currentSession, hasPermission, isConnected])
 
   const connectToGeminiLive = async () => {
-    if (!ephemeralToken || !streamRef.current) return
+    if (!ephemeralToken) return
 
     dispatch(setConnectionStatus('connecting'))
 
     try {
-      // Initialize WebSocket connection to Gemini Live
-      const ws = new WebSocket(
-        `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${ephemeralToken.token}`
-      )
+      // Initialize Google GenAI client with ephemeral token
+      const ai = new GoogleGenAI({
+        apiKey: ephemeralToken.token, // Use ephemeral token as API key
+      })
 
-      wsRef.current = ws
+      const config = {
+        responseModalities: [Modality.AUDIO],
+        systemInstruction: "You are Lexi, an AI tutor for students. Provide real-time, adaptive explanations with pacing appropriate for the student's responses. Be encouraging and patient. Focus on voice-first interaction. Keep responses concise but informative.",
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: {
+              voiceName: 'Puck'
+            }
+          }
+        }
+      }
 
-      ws.onopen = () => {
-        dispatch(setConnectionStatus('connected'))
-        console.log('Connected to Gemini Live')
-
-        // Send initial setup message
-        const setupMessage = {
-          setup: {
-            model: `models/${ephemeralToken.model}`,
-            generation_config: {
-              temperature: 0.7,
-              top_p: 0.8,
-              response_modalities: ['text', 'audio'],
-            },
-            system_instruction: {
-              parts: [{
-                text: `You are Lexi, an AI tutor for students. Provide real-time, adaptive explanations with pacing appropriate for the student's responses. Be encouraging and patient. Focus on voice-first interaction. Keep responses concise but informative.`
-              }]
-            },
-            speech_config: {
-              voice_config: {
-                prebuilt_voice_config: {
-                  voice_name: 'Puck'
+      // Connect to Live API
+      const liveSession = await ai.live.connect({
+        model: ephemeralToken.model,
+        config: config,
+        callbacks: {
+          onopen: () => {
+            dispatch(setConnectionStatus('connected'))
+            console.log('Connected to Gemini Live')
+          },
+          onmessage: (message: any) => {
+            // Handle incoming messages
+            if (message.serverContent && message.serverContent.modelTurn && message.serverContent.modelTurn.parts) {
+              for (const part of message.serverContent.modelTurn.parts) {
+                if (part.text) {
+                  dispatch(addCaption(part.text))
+                }
+                if (part.inlineData && part.inlineData.data) {
+                  // Play audio data
+                  playAudio(part.inlineData.data)
                 }
               }
             }
-          }
-        }
 
-        ws.send(JSON.stringify(setupMessage))
-      }
-
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data)
-
-        // Handle audio output
-        if (data.serverContent?.modelTurn?.parts) {
-          for (const part of data.serverContent.modelTurn.parts) {
-            if (part.text) {
-              dispatch(addCaption(part.text))
+            if (message.serverContent && message.serverContent.turnComplete) {
+              console.log('Turn complete')
             }
-            if (part.inlineData?.mimeType === 'audio/pcm') {
-              // Play audio (simplified - would need proper audio decoding)
-              playAudio(part.inlineData.data)
-            }
-          }
-        }
+          },
+          onerror: (error: any) => {
+            console.error('Live API error:', error)
+            dispatch(setConnectionStatus('error'))
+            toast.error('Connection failed. Please try again.')
+          },
+          onclose: () => {
+            dispatch(setConnectionStatus('disconnected'))
+            console.log('Disconnected from Gemini Live')
+          },
+        },
+      })
 
-        // Handle interruptions and other events
-        if (data.serverContent?.turnComplete) {
-          console.log('Turn complete')
-        }
-      }
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error)
-        dispatch(setConnectionStatus('error'))
-        toast.error('Connection failed. Please try again.')
-      }
-
-      ws.onclose = () => {
-        dispatch(setConnectionStatus('disconnected'))
-        console.log('Disconnected from Gemini Live')
-      }
+      setSession(liveSession)
 
     } catch (error) {
       console.error('Failed to connect:', error)
       dispatch(setConnectionStatus('error'))
       toast.error('Failed to establish connection')
     }
+  }
+
+  // Set up audio streaming when session is connected
+  useEffect(() => {
+    if (session && streamRef.current && isConnected) {
+      startAudioStreaming()
+    }
+  }, [session, isConnected])
+
+  const startAudioStreaming = () => {
+    if (!streamRef.current) return
+
+    const audioContext = new AudioContext({ sampleRate: 16000 })
+    audioContextRef.current = audioContext
+
+    const source = audioContext.createMediaStreamSource(streamRef.current)
+    const processor = audioContext.createScriptProcessor(4096, 1, 1)
+
+    processor.onaudioprocess = (event) => {
+      if (!isMuted) {
+        const inputBuffer = event.inputBuffer
+        const inputData = inputBuffer.getChannelData(0)
+
+        // Convert to 16-bit PCM
+        const pcmData = new Int16Array(inputData.length)
+        for (let i = 0; i < inputData.length; i++) {
+          pcmData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768))
+        }
+
+        // Send audio chunk
+        sendAudioChunk(pcmData.buffer)
+      }
+    }
+
+    source.connect(processor)
+    processor.connect(audioContext.destination)
   }
 
   const playAudio = (audioData: string) => {
@@ -197,22 +221,13 @@ export default function LiveTutorPage() {
   }
 
   const sendAudioChunk = (audioData: ArrayBuffer) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      const message = {
-        clientContent: {
-          turns: [{
-            role: 'user',
-            parts: [{
-              inlineData: {
-                mimeType: 'audio/pcm',
-                data: btoa(String.fromCharCode(...new Uint8Array(audioData)))
-              }
-            }]
-          }],
-          turnComplete: true
+    if (session) {
+      session.sendRealtimeInput({
+        audio: {
+          data: btoa(String.fromCharCode(...new Uint8Array(audioData))),
+          mimeType: "audio/pcm;rate=16000"
         }
-      }
-      wsRef.current.send(JSON.stringify(message))
+      })
     }
   }
 
@@ -270,8 +285,9 @@ export default function LiveTutorPage() {
     }
 
     // Close connections
-    if (wsRef.current) {
-      wsRef.current.close()
+    if (session) {
+      session.close()
+      setSession(null)
     }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop())
