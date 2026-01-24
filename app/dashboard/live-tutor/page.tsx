@@ -396,10 +396,11 @@ export default function LiveTutorPage() {
             {/* Robot GIF */}
             <div className="relative">
                 <Image
-                    src="/gifs/robot-thinking.gif"
+                    src="/gifs/robot.gif"
                     alt="AI Tutor Robot"
-                    width={200}
-                    height={200}
+                    width={100}
+                    height={100}
+                    unoptimized
                     className="rounded-full border-4 border-primary/20"
                 />
                 <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2">
@@ -505,10 +506,11 @@ export default function LiveTutorPage() {
                 <div className="flex-1 flex items-center justify-center p-8">
                     <div className="relative w-full max-w-md aspect-square">
                         <Image
-                            src="/gifs/robot-thinking.gif"
+                            src="/gifs/robot.gif"
                             alt="AI Tutor"
                             fill
-                            className="rounded-2xl object-cover border-4 border-primary/20"
+                            unoptimized
+                            className="rounded-2xl h-48 w-48 object-cover border-4 border-primary/20"
                         />
                         <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
                             AI Tutor
@@ -555,7 +557,7 @@ export default function LiveTutorPage() {
                         variant={!isMuted ? "primary" : "destructive"}
                         size="lg"
                         onClick={toggleMute}
-                        className="rounded-full w-12 h-12 p-0"
+                        className="rounded-full"
                     >
                         {!isMuted ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
                     </Button>
@@ -564,7 +566,7 @@ export default function LiveTutorPage() {
                         variant={isVideoEnabled ? "primary" : "secondary"}
                         size="lg"
                         onClick={toggleVideo}
-                        className="rounded-full w-12 h-12 p-0"
+                        className="rounded-full"
                     >
                         {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
                     </Button>
