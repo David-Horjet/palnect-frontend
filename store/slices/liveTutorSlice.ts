@@ -34,7 +34,7 @@ export const generateEphemeralToken = createAsyncThunk(
   async (token: string, { rejectWithValue }) => {
     try {
       const response = await liveTutorService.generateToken(token)
-      return response
+      return response.data
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to generate ephemeral token"
       return rejectWithValue(message)
@@ -164,7 +164,7 @@ const liveTutorSlice = createSlice({
       })
       .addCase(startLiveSession.fulfilled, (state, action) => {
         state.loading = false
-        // Note: session details will be fetched separately
+        state.currentSession = action.payload
       })
       .addCase(startLiveSession.rejected, (state, action) => {
         state.loading = false

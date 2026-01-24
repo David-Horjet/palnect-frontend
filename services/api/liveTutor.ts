@@ -44,8 +44,8 @@ export const liveTutorService = {
   /**
    * Start a new live tutor session
    */
-  async startSession(token: string): Promise<StartSessionResponse> {
-    return apiClient.post<StartSessionResponse>('/live-tutor/session/start', {}, token)
+  async startSession(token: string): Promise<LiveTutorSession> {
+    return apiClient.post<LiveTutorSession>('/live-tutor/session/start', {}, token)
   },
 
   /**

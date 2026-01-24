@@ -53,7 +53,6 @@ export default function LiveTutorPage() {
         captions,
         lastCaption,
     } = useSelector((state: RootState) => state.liveTutor)
-    console.log("LiveTutorPage Render:", sessions, { viewState, isConnected, connectionStatus, currentSession })
 
     const user = useSelector((state: RootState) => state.auth.user)
     const token = useSelector((state: RootState) => state.auth.token)
@@ -66,6 +65,8 @@ export default function LiveTutorPage() {
     const audioContextRef = useRef<AudioContext | null>(null)
     const streamRef = useRef<MediaStream | null>(null)
     const videoRef = useRef<HTMLVideoElement>(null)
+    const [audioQueue, setAudioQueue] = useState<string[]>([])
+    const [isPlaying, setIsPlaying] = useState(false)
 
     // Load session history on mount
     useEffect(() => {
@@ -141,11 +142,40 @@ export default function LiveTutorPage() {
             }
         }
     }, [session])
+    
+    // Process audio queue
+    useEffect(() => {
+        if (audioQueue.length > 0 && !isPlaying) {
+            const nextAudio = audioQueue[0]
+            setIsPlaying(true)
+            
+            const audioData = atob(nextAudio)
+            const pcmData = new Float32Array(audioData.length / 4)
+            for (let i = 0; i < pcmData.length; i++) {
+                pcmData[i] = (audioData.charCodeAt(i * 4) + (audioData.charCodeAt(i * 4 + 1) << 8) + (audioData.charCodeAt(i * 4 + 2) << 16) + (audioData.charCodeAt(i * 4 + 3) << 24)) / 2147483648
+            }
+            
+            if (audioContextRef.current) {
+                const audioBuffer = audioContextRef.current.createBuffer(1, pcmData.length, 24000)
+                audioBuffer.copyToChannel(pcmData, 0)
+                
+                const source = audioContextRef.current.createBufferSource()
+                source.buffer = audioBuffer
+                source.connect(audioContextRef.current.destination)
+                source.onended = () => {
+                    setAudioQueue(prev => prev.slice(1))
+                    setIsPlaying(false)
+                }
+                source.start()
+            }
+        }
+    }, [audioQueue, isPlaying])
 
     const connectToGeminiLive = async () => {
         if (!ephemeralToken) return
 
         dispatch(setConnectionStatus('connecting'))
+        console.log('Connecting to Gemini Live...', ephemeralToken)
 
         try {
             // Initialize Google GenAI client with ephemeral token
@@ -203,6 +233,8 @@ export default function LiveTutorPage() {
                 },
             })
 
+            console.log('Gemini Live session started:', liveSession)
+
             setSession(liveSession)
 
         } catch (error) {
@@ -233,7 +265,7 @@ export default function LiveTutorPage() {
                 }
 
                 // Send audio chunk
-                sendAudioChunk(pcmData.buffer)
+                sendAudioChunk(new Uint8Array(pcmData.buffer))
             }
         }
 
@@ -242,19 +274,14 @@ export default function LiveTutorPage() {
     }
 
     const playAudio = (audioData: string) => {
-        // Simplified audio playback - in production, decode PCM data properly
-        if (audioContextRef.current) {
-            const audioBuffer = audioContextRef.current.createBuffer(1, audioData.length / 2, 24000)
-            const channelData = audioBuffer.getChannelData(0)
-            console.log('Audio data received:', audioData.length, 'bytes')
-        }
+        setAudioQueue(prev => [...prev, audioData])
     }
 
-    const sendAudioChunk = (audioData: ArrayBuffer) => {
+    const sendAudioChunk = (audioData: Uint8Array) => {
         if (session) {
             session.sendRealtimeInput({
                 audio: {
-                    data: btoa(String.fromCharCode(...new Uint8Array(audioData))),
+                    data: audioData,
                     mimeType: "audio/pcm;rate=16000"
                 }
             })
