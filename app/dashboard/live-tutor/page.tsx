@@ -454,7 +454,7 @@ export default function LiveTutorPage() {
             </Button>
 
             {/* Recent Sessions */}
-            {sessions.length > 0 && (
+            {sessions?.length > 0 && (
                 <div className="w-full max-w-4xl space-y-4">
                     <h2 className="text-2xl font-semibold text-center">Recent Sessions</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
