@@ -598,7 +598,7 @@ export default function LiveTutorPage() {
                         {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
                     </Button>
 
-                    {connectionStatus === 'error' && (
+                    {connectionStatus === 'error' || connectionStatus === 'disconnected' && (
                         <Button
                             variant="outline"
                             size="lg"
