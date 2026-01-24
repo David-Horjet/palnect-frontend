@@ -399,7 +399,7 @@ export default function LiveTutorPage() {
                 size="lg"
                 onClick={toggleMute}
                 disabled={!isConnected}
-                className="rounded-full w-14 h-14 p-0"
+                className="rounded-full"
               >
                 {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
               </Button>
@@ -408,7 +408,7 @@ export default function LiveTutorPage() {
                 variant="secondary"
                 size="lg"
                 onClick={toggleVideo}
-                className="rounded-full w-14 h-14 p-0"
+                className="rounded-full"
               >
                 {isVideoEnabled ? <VideoOff className="w-6 h-6" /> : <Video className="w-6 h-6" />}
               </Button>
@@ -417,7 +417,7 @@ export default function LiveTutorPage() {
                 variant="destructive"
                 size="lg"
                 onClick={() => setShowEndDialog(true)}
-                className="rounded-full w-14 h-14 p-0"
+                className="rounded-full"
               >
                 <PhoneOff className="w-6 h-6" />
               </Button>
