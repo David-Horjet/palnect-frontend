@@ -64,7 +64,13 @@ export default function LiveTutorPage() {
     const [session, setSession] = useState<any>(null)
     const audioContextRef = useRef<AudioContext | null>(null)
     const streamRef = useRef<MediaStream | null>(null)
+    const processorRef = useRef<ScriptProcessorNode | null>(null)
+    const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null)
     const videoRef = useRef<HTMLVideoElement>(null)
+    const reconnectingRef = useRef(false)
+    const retryCountRef = useRef(0)
+    const MAX_RETRIES = 3
+    const RECONNECT_BASE_DELAY = 2000 // ms
     const [audioQueue, setAudioQueue] = useState<string[]>([])
     const [isPlaying, setIsPlaying] = useState(false)
 
@@ -181,6 +187,7 @@ export default function LiveTutorPage() {
             // Initialize Google GenAI client with ephemeral token
             const ai = new GoogleGenAI({
                 apiKey: ephemeralToken.token,
+                httpOptions: { apiVersion: 'v1alpha' },
             })
 
             const config = {
@@ -195,14 +202,20 @@ export default function LiveTutorPage() {
                 }
             }
 
+            // Choose model: prefer ephemeralToken.model if backend provided it, otherwise fallback
+            const modelId = ephemeralToken.model || 'gemini-2.5-flash-native-audio-preview-09-2025'
+
             // Connect to Live API
             const liveSession = await ai.live.connect({
-                model: ephemeralToken.model,
+                model: modelId,
                 config: config,
                 callbacks: {
                     onopen: () => {
                         dispatch(setConnectionStatus('connected'))
                         console.log('Connected to Gemini Live')
+                        // reset retry count on successful connection
+                        retryCountRef.current = 0
+                        reconnectingRef.current = false
                     },
                     onmessage: (message: any) => {
                         // Handle incoming messages
@@ -221,15 +234,56 @@ export default function LiveTutorPage() {
                             console.log('Turn complete')
                         }
                     },
-                    onerror: (error: any) => {
-                        console.error('Live API error:', error)
-                        dispatch(setConnectionStatus('error'))
-                        toast.error('Connection failed. Please try again.')
-                    },
-                    onclose: () => {
-                        dispatch(setConnectionStatus('disconnected'))
-                        console.log('Disconnected from Gemini Live')
-                    },
+                        onerror: (error: any) => {
+                            console.error('Live API error:', error)
+                            dispatch(setConnectionStatus('error'))
+                            toast.error('Connection failed. Please try again.')
+
+                            // cleanup processor and audio context to stop further sends
+                            if (processorRef.current) {
+                                try {
+                                    processorRef.current.disconnect()
+                                    processorRef.current.onaudioprocess = null
+                                } catch (e) {}
+                                processorRef.current = null
+                            }
+                            if (audioContextRef.current) {
+                                audioContextRef.current.close().catch(() => {})
+                                audioContextRef.current = null
+                            }
+                        },
+                        onclose: () => {
+                            dispatch(setConnectionStatus('disconnected'))
+                            console.log('Disconnected from Gemini Live')
+
+                            // Cleanup audio processor and context
+                            if (processorRef.current) {
+                                try {
+                                    processorRef.current.disconnect()
+                                    processorRef.current.onaudioprocess = null
+                                } catch (e) {}
+                                processorRef.current = null
+                            }
+                            if (audioContextRef.current) {
+                                audioContextRef.current.close().catch(() => {})
+                                audioContextRef.current = null
+                            }
+
+                            // Attempt limited reconnects with backoff
+                            retryCountRef.current = (retryCountRef.current || 0) + 1
+                            if (retryCountRef.current <= MAX_RETRIES) {
+                                reconnectingRef.current = true
+                                const delay = RECONNECT_BASE_DELAY * retryCountRef.current
+                                console.log(`Reconnecting in ${delay}ms (attempt ${retryCountRef.current})`)
+                                setTimeout(() => {
+                                    reconnectingRef.current = false
+                                    connectToGeminiLive().catch(err => console.error('Reconnect failed', err))
+                                }, delay)
+                            } else {
+                                dispatch(setConnectionStatus('error'))
+                                console.warn('Max reconnect attempts reached')
+                            }
+                        },
                 },
             })
 
@@ -252,6 +306,8 @@ export default function LiveTutorPage() {
 
         const source = audioContext.createMediaStreamSource(streamRef.current)
         const processor = audioContext.createScriptProcessor(4096, 1, 1)
+        sourceNodeRef.current = source
+        processorRef.current = processor
 
         processor.onaudioprocess = (event) => {
             if (!isMuted) {
@@ -278,13 +334,35 @@ export default function LiveTutorPage() {
     }
 
     const sendAudioChunk = (audioData: Uint8Array) => {
-        if (session) {
+        // Only send when we have an active connected session and socket is open
+        if (!session || connectionStatus !== 'connected') return
+        const connState = (session as any)?.conn?.readyState
+        if (typeof connState !== 'undefined' && connState !== 1) return
+
+        try {
             session.sendRealtimeInput({
                 audio: {
                     data: audioData,
                     mimeType: "audio/pcm;rate=16000"
                 }
             })
+        } catch (err: any) {
+            console.warn('sendAudioChunk error, session likely closed:', err)
+            dispatch(setConnectionStatus('error'))
+
+            // Stop processor to avoid further sends
+            if (processorRef.current) {
+                try {
+                    processorRef.current.disconnect()
+                    processorRef.current.onaudioprocess = null
+                } catch (e) {}
+                processorRef.current = null
+            }
+            // Close audio context
+            if (audioContextRef.current) {
+                audioContextRef.current.close().catch(() => {})
+                audioContextRef.current = null
+            }
         }
     }
 
