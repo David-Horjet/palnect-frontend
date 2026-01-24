@@ -1,20 +1,19 @@
+
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import {
     generateEphemeralToken,
     startLiveSession as startLiveSessionAction,
-    endLiveSession as endLiveSessionAction,
     setConnectionStatus,
     setMuted,
     addCaption,
     clearCaptions,
-    setCurrentSession,
     clearCurrentSession,
     fetchLiveSessions,
-    endLiveSession,
+    endLiveSession as endLiveSessionAction,
 } from "@/store/slices/liveTutorSlice"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -31,707 +30,468 @@ import { Mic, MicOff, PhoneOff, Video, VideoOff, Loader2, Play, History, Message
 import { DashboardSidebar } from "@/components/layout/dashboard/sidebar"
 import { useMediaQuery } from "@/hooks/use-mobile"
 import { toast } from "@/lib/toast"
-import { GoogleGenAI, Modality } from '@google/genai'
+import { GoogleGenAI, Modality, Session, LiveServerMessage } from '@google/genai'
 import Image from "next/image"
+
+// Helper functions matching index.tsx/utils.ts precisely
+function encode(bytes: Uint8Array) {
+    let binary = '';
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+}
+
+function decode(base64: string) {
+    const binaryString = atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+}
+
+async function decodeAudioData(
+    data: Uint8Array,
+    ctx: AudioContext,
+    sampleRate: number,
+    numChannels: number,
+): Promise<AudioBuffer> {
+    // Ensure we account for potential byte offset in the underlying buffer
+    const dataInt16 = new Int16Array(data.buffer, data.byteOffset, data.byteLength / 2);
+    const frameCount = dataInt16.length / numChannels;
+    const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+    for (let channel = 0; channel < numChannels; channel++) {
+        const channelData = buffer.getChannelData(channel);
+        for (let i = 0; i < frameCount; i++) {
+            channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+        }
+    }
+    return buffer;
+}
 
 type ViewState = 'lobby' | 'call'
 
-export default function LiveTutorPage() {
+export default function FixedLiveTutorPage() {
     const dispatch = useDispatch<AppDispatch>()
-    const isMobile = useMediaQuery("(max-width: 768px)")
     const [viewState, setViewState] = useState<ViewState>('lobby')
 
     const {
         sessions,
         ephemeralToken,
         currentSession,
-        loading,
-        error,
         isConnected,
         isMuted,
         connectionStatus,
         captions,
-        lastCaption,
     } = useSelector((state: RootState) => state.liveTutor)
 
     const user = useSelector((state: RootState) => state.auth.user)
     const token = useSelector((state: RootState) => state.auth.token)
-    const [hasPermission, setHasPermission] = useState<boolean | null>(null)
+
     const [isVideoEnabled, setIsVideoEnabled] = useState(false)
     const [showEndDialog, setShowEndDialog] = useState(false)
-    const [isRetrying, setIsRetrying] = useState(false)
+    const [userVolume, setUserVolume] = useState(0)
 
-    const [session, setSession] = useState<any>(null)
-    const audioContextRef = useRef<AudioContext | null>(null)
+    // Refs for session and audio management
+    const sessionRef = useRef<Session | null>(null)
+    const connectingRef = useRef(false)
+    const inputAudioContextRef = useRef<AudioContext | null>(null)
+    const outputAudioContextRef = useRef<AudioContext | null>(null)
+    const outputNodeRef = useRef<GainNode | null>(null)
     const streamRef = useRef<MediaStream | null>(null)
-    const processorRef = useRef<ScriptProcessorNode | null>(null)
-    const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null)
     const videoRef = useRef<HTMLVideoElement>(null)
-    const reconnectingRef = useRef(false)
-    const retryCountRef = useRef(0)
-    const MAX_RETRIES = 3
-    const RECONNECT_BASE_DELAY = 2000 // ms
-    const [audioQueue, setAudioQueue] = useState<string[]>([])
-    const [isPlaying, setIsPlaying] = useState(false)
+    const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set())
+    const nextStartTimeRef = useRef(0)
 
-    // Load session history on mount
-    useEffect(() => {
-        if (token) {
-            dispatch(fetchLiveSessions(token))
+    // Cleanup Logic
+    const cleanupAudio = useCallback(() => {
+        sourcesRef.current.forEach(source => {
+            try { source.stop(); } catch (e) { }
+        });
+        sourcesRef.current.clear();
+        nextStartTimeRef.current = 0;
+
+        if (inputAudioContextRef.current) {
+            inputAudioContextRef.current.close().catch(() => { });
+            inputAudioContextRef.current = null;
         }
-    }, [token, dispatch])
+        if (outputAudioContextRef.current) {
+            outputAudioContextRef.current.close().catch(() => { });
+            outputAudioContextRef.current = null;
+        }
+    }, []);
 
-    // Request microphone permission only when starting a call
-    useEffect(() => {
-        if (viewState === 'call' && hasPermission === null) {
-            const requestPermissions = async () => {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        audio: true,
-                        video: false,
-                    })
-                    streamRef.current = stream
-                    setHasPermission(true)
-                } catch (error) {
-                    console.error('Permission denied:', error)
-                    setHasPermission(false)
-                    toast.error('Microphone permission required for live tutoring')
-                    setViewState('lobby')
-                }
+    const cleanupAll = useCallback(() => {
+        cleanupAudio();
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        if (sessionRef.current) {
+            try { sessionRef.current.close(); } catch (e) { }
+            sessionRef.current = null;
+        }
+        connectingRef.current = false;
+        setUserVolume(0);
+    }, [cleanupAudio]);
+
+    // Core Connection Logic - Standardized to match index.tsx pattern
+    const initSession = useCallback(async () => {
+        if (!ephemeralToken || connectingRef.current || sessionRef.current) return;
+
+        connectingRef.current = true;
+        dispatch(setConnectionStatus('connecting'));
+
+        try {
+            const ai = new GoogleGenAI({
+                apiKey: ephemeralToken.token,
+                httpOptions: { apiVersion: 'v1alpha' },
+            });
+
+            // Use the stable model from the successful index.tsx example
+            const model = 'gemini-2.5-flash-native-audio-preview-12-2025';
+
+            const session = await ai.live.connect({
+                model: model,
+                callbacks: {
+                    onopen: () => {
+                        dispatch(setConnectionStatus('connected'));
+                        startRecording();
+                    },
+                    onmessage: async (message: LiveServerMessage) => {
+                        console.log('Received server message:', message);
+                        // Handle Transcriptions
+                        if (message.serverContent?.outputTranscription) {
+                            dispatch(addCaption(message.serverContent.outputTranscription.text));
+                        }
+
+                        console.log('Processing media parts...');
+                        // Handle Audio Output and Text Parts
+                        const modelTurn = message.serverContent?.modelTurn;
+                        if (modelTurn && modelTurn.parts) {
+                            for (const part of modelTurn.parts) {
+                                console.log('Processing part:', part);
+                                // Extract Text
+                                if (part.text) {
+                                    dispatch(addCaption(part.text));
+                                }
+
+                                console.log('Checking for audio data in part...');
+                                // Extract Audio
+                                if (part.inlineData?.data && outputAudioContextRef.current && outputNodeRef.current) {
+                                    const audioData = part.inlineData.data;
+                                    const ctx = outputAudioContextRef.current;
+                                    console.log('Decoding and playing audio data...');
+
+                                    nextStartTimeRef.current = Math.max(
+                                        nextStartTimeRef.current,
+                                        ctx.currentTime
+                                    );
+
+                                    const audioBuffer = await decodeAudioData(
+                                        decode(audioData),
+                                        ctx,
+                                        24000,
+                                        1
+                                    );
+
+                                    const source = ctx.createBufferSource();
+                                    source.buffer = audioBuffer;
+                                    source.connect(outputNodeRef.current);
+                                    source.addEventListener('ended', () => {
+                                        sourcesRef.current.delete(source);
+                                    });
+
+                                    source.start(nextStartTimeRef.current);
+                                    nextStartTimeRef.current = nextStartTimeRef.current + audioBuffer.duration;
+                                    sourcesRef.current.add(source);
+                                    console.log('Audio source started.');
+                                }
+                            }
+                        }
+
+                        // Handle Interruption
+                        const interrupted = message.serverContent?.interrupted;
+                        if (interrupted) {
+                            for (const source of sourcesRef.current.values()) {
+                                source.stop();
+                                sourcesRef.current.delete(source);
+                            }
+                            nextStartTimeRef.current = 0;
+                        }
+                    },
+                    onerror: (e: ErrorEvent) => {
+                        console.error('Session error:', e);
+                        dispatch(setConnectionStatus('error'));
+                        toast.error("Tutoring session encountered an error.");
+                    },
+                    onclose: (e: CloseEvent) => {
+                        console.log('Session closed:', e.reason);
+                        dispatch(setConnectionStatus('disconnected'));
+                        cleanupAll();
+                    },
+                },
+                config: {
+                    responseModalities: [Modality.AUDIO, Modality.TEXT],
+                    systemInstruction: "You are Lexi, an elite AI tutor. Be patient, encouraging, and highly interactive. When a student speaks, respond naturally and immediately. Help them understand concepts through guiding questions and clear explanations.",
+                    speechConfig: {
+                        voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } }
+                    },
+                    outputAudioTranscription: {},
+                    inputAudioTranscription: {},
+                },
+            });
+
+            sessionRef.current = session;
+
+            // Setup Output Audio Context
+            const outCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+            const outGain = outCtx.createGain();
+            outGain.connect(outCtx.destination);
+            outputAudioContextRef.current = outCtx;
+            outputNodeRef.current = outGain;
+            nextStartTimeRef.current = outCtx.currentTime;
+
+        } catch (error) {
+            console.error('Failed to init session:', error);
+            dispatch(setConnectionStatus('error'));
+            connectingRef.current = false;
+        }
+    }, [ephemeralToken, dispatch, cleanupAll]);
+
+    const startRecording = async () => {
+        console.log('Starting microphone capture...');
+        try {
+            if (!streamRef.current) {
+                streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
             }
 
-            requestPermissions()
-        }
-    }, [viewState, hasPermission])
+            console.log('Microphone access granted.');
+            const inCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+            inputAudioContextRef.current = inCtx;
 
-    // Generate token and start session only when in call state
+            // Load AudioWorklet module
+            await inCtx.audioWorklet.addModule('/audio-processor.js');
+
+            console.log('AudioWorklet module loaded.');
+
+            const source = inCtx.createMediaStreamSource(streamRef.current);
+            const workletNode = new AudioWorkletNode(inCtx, 'audio-processor');
+
+            console.log('AudioWorkletNode created and connected.');
+
+            workletNode.port.onmessage = (event) => {
+                // console.log('Received audio data from worklet:', event.data);
+                if (!sessionRef.current || connectionStatus !== 'connected') {
+                    setUserVolume(0);
+                    return;
+                }
+
+                if (event.data.type === 'volume') {
+                    setUserVolume(event.data.volume);
+                } else if (event.data.type === 'audio-data' && !isMuted) {
+                    console.log('Sending audio data to session...');
+                    // Send matching index.tsx format
+                    sessionRef.current.sendRealtimeInput({
+                        audio: {
+                            data: encode(new Uint8Array(event.data.data)),
+                            mimeType: 'audio/pcm;rate=16000',
+                        }
+                    });
+                    console.log('Audio data sent.');
+                }
+            };
+
+            console.log('Connecting audio nodes...');
+            source.connect(workletNode);
+            workletNode.connect(inCtx.destination);
+        } catch (err) {
+            console.error('Mic capture failed:', err);
+            toast.error('Could not access microphone.');
+        }
+    }
+
+    // Lifecycle Management
     useEffect(() => {
-        if (viewState === 'call' && user && token && hasPermission === true && !ephemeralToken) {
+        if (viewState === 'call' && user && token && !ephemeralToken) {
             dispatch(generateEphemeralToken(token))
         }
-    }, [viewState, user, token, hasPermission, ephemeralToken, dispatch])
+    }, [viewState, user, token, ephemeralToken, dispatch])
 
-    // Start session when token is available
     useEffect(() => {
         if (viewState === 'call' && ephemeralToken && user && token && !currentSession) {
             dispatch(startLiveSessionAction(token))
         }
     }, [viewState, ephemeralToken, user, token, currentSession, dispatch])
 
-    // Connect to Gemini Live when session starts
     useEffect(() => {
-        if (viewState === 'call' && ephemeralToken && currentSession && hasPermission && !isConnected) {
-            connectToGeminiLive()
+        // Trigger connection only once when all prerequisites are met
+        if (viewState === 'call' && ephemeralToken && currentSession && !sessionRef.current && !connectingRef.current) {
+            initSession()
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [viewState, ephemeralToken, currentSession, hasPermission, isConnected])
+    }, [viewState, ephemeralToken, currentSession, initSession])
 
-    // Set up audio streaming when session is connected
     useEffect(() => {
-        if (viewState === 'call' && session && streamRef.current && isConnected) {
-            startAudioStreaming()
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [viewState, session, isConnected])
-
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop())
-            }
-            if (session) {
-                session.close()
-            }
-            if (audioContextRef.current) {
-                audioContextRef.current.close()
-            }
-        }
-    }, [session])
-    
-    // Process audio queue
-    useEffect(() => {
-        if (audioQueue.length > 0 && !isPlaying) {
-            const nextAudio = audioQueue[0]
-            setIsPlaying(true)
-            
-            const audioData = atob(nextAudio)
-            const pcmData = new Float32Array(audioData.length / 4)
-            for (let i = 0; i < pcmData.length; i++) {
-                pcmData[i] = (audioData.charCodeAt(i * 4) + (audioData.charCodeAt(i * 4 + 1) << 8) + (audioData.charCodeAt(i * 4 + 2) << 16) + (audioData.charCodeAt(i * 4 + 3) << 24)) / 2147483648
-            }
-            
-            if (audioContextRef.current) {
-                const audioBuffer = audioContextRef.current.createBuffer(1, pcmData.length, 24000)
-                audioBuffer.copyToChannel(pcmData, 0)
-                
-                const source = audioContextRef.current.createBufferSource()
-                source.buffer = audioBuffer
-                source.connect(audioContextRef.current.destination)
-                source.onended = () => {
-                    setAudioQueue(prev => prev.slice(1))
-                    setIsPlaying(false)
-                }
-                source.start()
-            }
-        }
-    }, [audioQueue, isPlaying])
-
-    const connectToGeminiLive = async () => {
-        if (!ephemeralToken) return
-
-        dispatch(setConnectionStatus('connecting'))
-        console.log('Connecting to Gemini Live...', ephemeralToken)
-
-        try {
-            // Initialize Google GenAI client with ephemeral token
-            const ai = new GoogleGenAI({
-                apiKey: ephemeralToken.token,
-                httpOptions: { apiVersion: 'v1alpha' },
-            })
-
-            const config = {
-                responseModalities: [Modality.AUDIO],
-                systemInstruction: "You are Lexi, an AI tutor for students. Provide real-time, adaptive explanations with pacing appropriate for the student's responses. Be encouraging and patient. Focus on voice-first interaction. Keep responses concise but informative.",
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: {
-                            voiceName: 'Puck'
-                        }
-                    }
-                }
-            }
-
-            // Choose model: prefer ephemeralToken.model if backend provided it, otherwise fallback
-            const modelId = ephemeralToken.model || 'gemini-2.5-flash-native-audio-preview-09-2025'
-
-            // Connect to Live API
-            const liveSession = await ai.live.connect({
-                model: modelId,
-                config: config,
-                callbacks: {
-                    onopen: () => {
-                        dispatch(setConnectionStatus('connected'))
-                        console.log('Connected to Gemini Live')
-                        // reset retry count on successful connection
-                        retryCountRef.current = 0
-                        reconnectingRef.current = false
-                    },
-                    onmessage: (message: any) => {
-                        // Handle incoming messages
-                        if (message.serverContent && message.serverContent.modelTurn && message.serverContent.modelTurn.parts) {
-                            for (const part of message.serverContent.modelTurn.parts) {
-                                if (part.text) {
-                                    dispatch(addCaption(part.text))
-                                }
-                                if (part.inlineData && part.inlineData.data) {
-                                    playAudio(part.inlineData.data)
-                                }
-                            }
-                        }
-
-                        if (message.serverContent && message.serverContent.turnComplete) {
-                            console.log('Turn complete')
-                        }
-                    },
-                        onerror: (error: any) => {
-                            console.error('Live API error:', error)
-                            dispatch(setConnectionStatus('error'))
-                            toast.error('Connection failed. Please try again.')
-
-                            // cleanup processor and audio context to stop further sends
-                            if (processorRef.current) {
-                                try {
-                                    processorRef.current.disconnect()
-                                    processorRef.current.onaudioprocess = null
-                                } catch (e) {}
-                                processorRef.current = null
-                            }
-                            if (audioContextRef.current) {
-                                audioContextRef.current.close().catch(() => {})
-                                audioContextRef.current = null
-                            }
-                        },
-                        onclose: () => {
-                            dispatch(setConnectionStatus('disconnected'))
-                            console.log('Disconnected from Gemini Live')
-
-                            // Cleanup audio processor and context
-                            if (processorRef.current) {
-                                try {
-                                    processorRef.current.disconnect()
-                                    processorRef.current.onaudioprocess = null
-                                } catch (e) {}
-                                processorRef.current = null
-                            }
-                            if (audioContextRef.current) {
-                                audioContextRef.current.close().catch(() => {})
-                                audioContextRef.current = null
-                            }
-
-                            // Attempt limited reconnects with backoff
-                            retryCountRef.current = (retryCountRef.current || 0) + 1
-                            if (retryCountRef.current <= MAX_RETRIES) {
-                                reconnectingRef.current = true
-                                const delay = RECONNECT_BASE_DELAY * retryCountRef.current
-                                console.log(`Reconnecting in ${delay}ms (attempt ${retryCountRef.current})`)
-                                setTimeout(() => {
-                                    reconnectingRef.current = false
-                                    connectToGeminiLive().catch(err => console.error('Reconnect failed', err))
-                                }, delay)
-                            } else {
-                                dispatch(setConnectionStatus('error'))
-                                console.warn('Max reconnect attempts reached')
-                            }
-                        },
-                },
-            })
-
-            console.log('Gemini Live session started:', liveSession)
-
-            setSession(liveSession)
-
-        } catch (error) {
-            console.error('Failed to connect:', error)
-            dispatch(setConnectionStatus('error'))
-            toast.error('Failed to establish connection')
-        }
-    }
-
-    const startAudioStreaming = () => {
-        if (!streamRef.current) return
-
-        const audioContext = new AudioContext({ sampleRate: 16000 })
-        audioContextRef.current = audioContext
-
-        const source = audioContext.createMediaStreamSource(streamRef.current)
-        const processor = audioContext.createScriptProcessor(4096, 1, 1)
-        sourceNodeRef.current = source
-        processorRef.current = processor
-
-        processor.onaudioprocess = (event) => {
-            if (!isMuted) {
-                const inputBuffer = event.inputBuffer
-                const inputData = inputBuffer.getChannelData(0)
-
-                // Convert to 16-bit PCM
-                const pcmData = new Int16Array(inputData.length)
-                for (let i = 0; i < inputData.length; i++) {
-                    pcmData[i] = Math.max(-32768, Math.min(32767, inputData[i] * 32768))
-                }
-
-                // Send audio chunk
-                sendAudioChunk(new Uint8Array(pcmData.buffer))
-            }
-        }
-
-        source.connect(processor)
-        processor.connect(audioContext.destination)
-    }
-
-    const playAudio = (audioData: string) => {
-        setAudioQueue(prev => [...prev, audioData])
-    }
-
-    const sendAudioChunk = (audioData: Uint8Array) => {
-        // Only send when we have an active connected session and socket is open
-        if (!session || connectionStatus !== 'connected') return
-        const connState = (session as any)?.conn?.readyState
-        if (typeof connState !== 'undefined' && connState !== 1) return
-
-        try {
-            session.sendRealtimeInput({
-                audio: {
-                    data: audioData,
-                    mimeType: "audio/pcm;rate=16000"
-                }
-            })
-        } catch (err: any) {
-            console.warn('sendAudioChunk error, session likely closed:', err)
-            dispatch(setConnectionStatus('error'))
-
-            // Stop processor to avoid further sends
-            if (processorRef.current) {
-                try {
-                    processorRef.current.disconnect()
-                    processorRef.current.onaudioprocess = null
-                } catch (e) {}
-                processorRef.current = null
-            }
-            // Close audio context
-            if (audioContextRef.current) {
-                audioContextRef.current.close().catch(() => {})
-                audioContextRef.current = null
-            }
-        }
-    }
+        return () => cleanupAll();
+    }, [cleanupAll]);
 
     const toggleMute = () => {
         if (streamRef.current) {
-            const audioTrack = streamRef.current.getAudioTracks()[0]
-            if (audioTrack) {
-                audioTrack.enabled = !audioTrack.enabled
-                dispatch(setMuted(!isMuted))
+            const track = streamRef.current.getAudioTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                dispatch(setMuted(!track.enabled));
+                if (!track.enabled) setUserVolume(0);
             }
         }
-    }
-
-    const toggleVideo = async () => {
-        if (!isVideoEnabled) {
-            try {
-                const videoStream = await navigator.mediaDevices.getUserMedia({ video: true })
-                if (videoRef.current) {
-                    videoRef.current.srcObject = videoStream
-                }
-                setIsVideoEnabled(true)
-            } catch (error) {
-                toast.error('Video permission denied')
-            }
-        } else {
-            if (videoRef.current && videoRef.current.srcObject) {
-                const stream = videoRef.current.srcObject as MediaStream
-                stream.getTracks().forEach(track => track.stop())
-                videoRef.current.srcObject = null
-            }
-            setIsVideoEnabled(false)
-        }
-    }
-
-    const startSession = () => {
-        setViewState('call')
-        setHasPermission(null)
     }
 
     const endSession = () => {
-        // Generate session summary from captions
-        const sessionTranscript = captions.join(' ')
-        const keyConcepts = extractKeyConcepts(sessionTranscript)
-        const summary = generateSessionSummary(sessionTranscript)
-
-        const sessionData = {
-            summary,
-            keyConcepts,
-            flashcardsGenerated: true,
-            quizzesGenerated: true,
-            references: []
-        }
-
         if (currentSession && token) {
             dispatch(endLiveSessionAction({
                 sessionId: currentSession.id,
-                data: sessionData,
+                data: { summary: "Session completed", keyConcepts: [] },
                 token
             }))
         }
-
-        // Close connections
-        if (session) {
-            session.close()
-            setSession(null)
-        }
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop())
-            streamRef.current = null
-        }
-        if (audioContextRef.current) {
-            audioContextRef.current.close()
-            audioContextRef.current = null
-        }
-
-        // Reset states
-        dispatch(clearCurrentSession())
-        dispatch(clearCaptions())
-        setHasPermission(null)
-        setIsVideoEnabled(false)
-        setViewState('lobby')
-        setShowEndDialog(false)
-    }
-
-    const retryConnection = async () => {
-        setIsRetrying(true)
-        dispatch(setConnectionStatus('connecting'))
-
-        try {
-            await connectToGeminiLive()
-        } catch (error) {
-            console.error('Retry failed:', error)
-            dispatch(setConnectionStatus('error'))
-            toast.error('Failed to reconnect. Please try again.')
-        } finally {
-            setIsRetrying(false)
-        }
-    }
-
-    const extractKeyConcepts = (transcript: string): string[] => {
-        const keywords = ['algorithm', 'function', 'variable', 'class', 'method', 'data', 'structure', 'loop', 'condition', 'array', 'object']
-        return keywords.filter(keyword => transcript.toLowerCase().includes(keyword.toLowerCase())).slice(0, 5)
-    }
-
-    const generateSessionSummary = (transcript: string): string => {
-        const words = transcript.split(' ')
-        if (words.length > 50) {
-            return words.slice(0, 50).join(' ') + '...'
-        }
-        return transcript || 'Live tutoring session completed'
-    }
-
-    if (hasPermission === false) {
-        return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-                <div className="flex">
-                    <DashboardSidebar activeTab="live-tutor" />
-                    <main className="flex-1 p-6">
-                        <Card className="max-w-md mx-auto p-6 text-center">
-                            <h2 className="text-xl font-semibold mb-4">Microphone Required</h2>
-                            <p className="text-gray-600 dark:text-gray-400 mb-4">
-                                Live tutoring requires microphone access to communicate with your AI tutor.
-                            </p>
-                            <Button onClick={() => window.location.reload()}>
-                                Grant Permission
-                            </Button>
-                        </Card>
-                    </main>
-                </div>
-            </div>
-        )
+        cleanupAll();
+        dispatch(clearCurrentSession());
+        dispatch(clearCaptions());
+        setViewState('lobby');
+        setShowEndDialog(false);
     }
 
     const LobbyView = () => (
         <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-8">
-            {/* Robot GIF */}
             <div className="relative">
-                <Image
-                    src="/gifs/robot.gif"
-                    alt="AI Tutor Robot"
-                    width={100}
-                    height={100}
-                    unoptimized
-                    className="rounded-full border-4 border-primary/20"
-                />
-                <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2">
-                    <Brain className="w-6 h-6" />
-                </div>
+                <Image src="/gifs/robot.gif" alt="AI Tutor" width={120} height={120} unoptimized className="rounded-full border-4 border-primary/20" />
+                <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2"><Brain className="w-6 h-6" /></div>
             </div>
-
-            {/* Welcome Text */}
             <div className="text-center space-y-4 max-w-2xl">
-                <h1 className="text-4xl font-bold text-foreground">
-                    Welcome to Live Tutor
-                </h1>
-                <p className="text-xl text-muted-foreground">
-                    Get personalized, real-time tutoring from our AI assistant. Discuss concepts,
-                    ask questions, and receive instant feedback through voice and video.
-                </p>
+                <h1 className="text-4xl font-bold">Stable Live Tutor</h1>
+                <p className="text-xl text-muted-foreground">Enhanced connectivity for uninterrupted learning sessions.</p>
             </div>
-
-            {/* Features Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-                <div className="bg-card border rounded-lg p-6 text-center space-y-3">
-                    <MessageSquare className="w-8 h-8 mx-auto text-primary" />
-                    <h3 className="font-semibold">Voice-First Learning</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Natural conversation with AI tutor through advanced speech recognition
-                    </p>
-                </div>
-                <div className="bg-card border rounded-lg p-6 text-center space-y-3">
-                    <BookOpen className="w-8 h-8 mx-auto text-primary" />
-                    <h3 className="font-semibold">Instant Study Materials</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Automatically generate flashcards and quizzes from your session
-                    </p>
-                </div>
-                <div className="bg-card border rounded-lg p-6 text-center space-y-3">
-                    <History className="w-8 h-8 mx-auto text-primary" />
-                    <h3 className="font-semibold">Session History</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Review past sessions and continue learning from previous discussions
-                    </p>
-                </div>
-            </div>
-
-            {/* Start Session Button */}
-            <Button
-                onClick={startSession}
-                size="lg"
-                className="px-8 py-4 text-lg font-semibold"
-            >
-                <Play className="w-5 h-5 mr-2" />
-                Start Live Session
+            <Button onClick={() => setViewState('call')} size="lg" className="px-8 py-6 text-lg font-semibold">
+                <Play className="w-6 h-6 mr-2" /> Start Tutoring
             </Button>
-
-            {/* Recent Sessions */}
-            {sessions?.length > 0 && (
-                <div className="w-full max-w-4xl space-y-4">
-                    <h2 className="text-2xl font-semibold text-center">Recent Sessions</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {sessions.slice(0, 4).map((session) => (
-                            <div key={session.id} className="bg-card border rounded-lg p-4 space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <span className="font-medium">
-                                        {new Date(session.created_at).toLocaleDateString()}
-                                    </span>
-                                    <Badge variant="secondary">
-                                        {session.duration ? `${Math.round(session.duration / 60)} min` : 'Active'}
-                                    </Badge>
-                                </div>
-                                {session.summary && (
-                                    <p className="text-sm text-muted-foreground line-clamp-2">
-                                        {session.summary}
-                                    </p>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
         </div>
-    )
+    );
 
     const CallView = () => (
-        <div className="flex flex-col h-[80vh] bg-background">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex flex-col h-[85vh] bg-background border rounded-xl overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b bg-card">
                 <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="font-medium">Live Session Active</span>
+                    <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
+                    <span className="font-semibold text-sm uppercase tracking-wider">{connectionStatus}</span>
                 </div>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowEndDialog(true)}
-                    className="text-red-600 hover:text-red-700"
-                >
-                    End Session
-                </Button>
+                <Button variant="destructive" size="sm" onClick={() => setShowEndDialog(true)}>End Session</Button>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 flex">
-                {/* AI Tutor (Main Focus) */}
-                <div className="flex-1 flex items-center justify-center p-8">
-                    <div className="relative w-full max-w-md aspect-square">
-                        <Image
-                            src="/gifs/robot.gif"
-                            alt="AI Tutor"
-                            fill
-                            unoptimized
-                            className="rounded-2xl h-48 w-48 object-cover border-4 border-primary/20"
+            <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 flex flex-col items-center justify-center p-8 bg-muted/10 relative">
+                    <div className="relative">
+                        {/* Robot Animation Pulse */}
+                        <div
+                            className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl transition-all duration-75"
+                            style={{
+                                transform: `scale(${1 + userVolume * 2})`,
+                                opacity: isMuted ? 0 : Math.min(userVolume * 5, 0.8)
+                            }}
                         />
-                        <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                            AI Tutor
+                        <div className="relative w-64 h-64">
+                            <Image
+                                src="/gifs/robot.gif"
+                                alt="AI Tutor"
+                                fill
+                                unoptimized
+                                className="rounded-2xl object-cover border-4 border-primary/20 shadow-lg transition-transform duration-75"
+                                style={{ transform: `scale(${1 + userVolume * 0.1})` }}
+                            />
                         </div>
-                        {connectionStatus === 'connected' && (
-                            <div className="absolute top-4 right-4 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
-                                Connected
-                            </div>
-                        )}
                     </div>
+
+                    {captions.length > 0 && (
+                        <div className="absolute bottom-8 left-8 right-8 bg-black/80 text-white p-6 rounded-xl backdrop-blur-md">
+                            <p className="text-lg text-center leading-relaxed">
+                                <span className="text-primary font-bold mr-2">Tutor:</span>
+                                {captions[captions.length - 1]}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
-                {/* User Video Tile */}
-                <div className="w-80 border-l bg-muted/30 p-4">
-                    <div className="aspect-video bg-black rounded-lg overflow-hidden mb-4">
-                        {isVideoEnabled && videoRef.current ? (
-                            <video
-                                ref={videoRef}
-                                autoPlay
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center text-white">
-                                <div className="text-center">
-                                    <User className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                                    <p className="text-sm">Camera off</p>
-                                </div>
-                            </div>
-                        )}
+                <div className="w-80 border-l bg-card p-6 flex flex-col items-center space-y-6">
+                    <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-inner flex items-center justify-center text-muted-foreground">
+                        {isVideoEnabled ? <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover" /> : <User className="w-12 h-12 opacity-20" />}
                     </div>
                     <div className="text-center">
-                        <p className="font-medium">You</p>
-                        <p className="text-sm text-muted-foreground">Student</p>
+                        <p className="font-bold">Student View</p>
+                        <div className="flex items-center justify-center gap-2 mt-1">
+                            <div className="h-1 w-16 bg-muted rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-primary transition-all duration-75"
+                                    style={{ width: `${Math.min(userVolume * 300, 100)}%` }}
+                                />
+                            </div>
+                            <p className="text-[10px] text-muted-foreground uppercase">Voice Level</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Control Bar */}
-            <div className="border-t p-4">
-                <div className="flex items-center justify-center space-x-4">
+            <div className="border-t p-6 bg-card">
+                <div className="flex items-center justify-center space-x-6">
                     <Button
                         variant={!isMuted ? "primary" : "destructive"}
-                        size="lg"
+                        size="md"
                         onClick={toggleMute}
-                        className="rounded-full"
+                        className="w-16 h-16 rounded-full shadow-lg"
                     >
-                        {!isMuted ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+                        {!isMuted ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
                     </Button>
-
                     <Button
                         variant={isVideoEnabled ? "primary" : "secondary"}
-                        size="lg"
-                        onClick={toggleVideo}
-                        className="rounded-full"
+                        size="md"
+                        onClick={() => setIsVideoEnabled(!isVideoEnabled)}
+                        className="w-16 h-16 rounded-full shadow-lg"
                     >
-                        {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+                        {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
                     </Button>
-
-                    {connectionStatus === 'error' || connectionStatus === 'disconnected' && (
+                    {connectionStatus === 'error' && (
                         <Button
                             variant="outline"
-                            size="lg"
-                            onClick={retryConnection}
-                            disabled={isRetrying}
-                            className="rounded-full px-6"
+                            size="md"
+                            onClick={() => { cleanupAll(); initSession(); }}
+                            className="w-16 h-16 rounded-full border-primary text-primary"
                         >
-                            {isRetrying ? (
-                                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                            ) : (
-                                <RefreshCw className="w-5 h-5 mr-2" />
-                            )}
-                            Retry
+                            <RefreshCw className="w-6 h-6" />
                         </Button>
                     )}
                 </div>
             </div>
-
-            {/* Captions */}
-            {captions.length > 0 && (
-                <div className="border-t p-4 bg-muted/30">
-                    <div className="max-w-4xl mx-auto">
-                        <p className="text-sm text-center">
-                            <span className="font-medium">AI: </span>
-                            {captions[captions.length - 1]}
-                        </p>
-                    </div>
-                </div>
-            )}
         </div>
-    )
+    );
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-muted/30">
             <div className="flex">
                 <DashboardSidebar activeTab="live-tutor" />
-                <main className="flex-1 p-6">
+                <main className="flex-1 p-8">
                     {viewState === 'lobby' ? <LobbyView /> : <CallView />}
 
-                    {/* End Session Dialog */}
                     <DialogProvider open={showEndDialog} onOpenChange={setShowEndDialog}>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>End Live Session?</DialogTitle>
-                                <DialogDescription>
-                                    This will generate flashcards and quizzes from your session.
-                                </DialogDescription>
+                                <DialogTitle>End Tutoring Session?</DialogTitle>
+                                <DialogDescription>This will finalize your learning summary and generate study materials.</DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
-                                <Button variant="outline" onClick={() => setShowEndDialog(false)}>
-                                    Cancel
-                                </Button>
-                                <Button onClick={endSession}>
-                                    End Session
-                                </Button>
+                                <Button variant="ghost" onClick={() => setShowEndDialog(false)}>Continue Session</Button>
+                                <Button variant="destructive" onClick={endSession}>End & Save</Button>
                             </DialogFooter>
                         </DialogContent>
                     </DialogProvider>

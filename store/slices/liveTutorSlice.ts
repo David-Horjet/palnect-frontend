@@ -47,7 +47,7 @@ export const startLiveSession = createAsyncThunk(
   async (token: string, { rejectWithValue }) => {
     try {
       const response = await liveTutorService.startSession(token)
-      return response
+      return response.data.sessionId
     } catch (error: any) {
       const message = error.response?.data?.message || "Failed to start live session"
       return rejectWithValue(message)
