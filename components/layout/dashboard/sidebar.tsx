@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Home, BookOpen, Users, Settings, LogOut, Menu, X, Zap, User, UserPlus2, MessageCircle, MessageSquareReply } from "lucide-react"
+import { Home, BookOpen, Users, Settings, LogOut, Menu, X, Zap, User, UserPlus2, MessageCircle, MessageSquareReply, Video } from "lucide-react"
 import { GraduationCap } from "lucide-react"
 import { useState } from "react"
 import Logo from "@/components/shared/logo"
@@ -22,10 +22,11 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
 
   const navItems = [
     { id: "home", label: "Dashboard", icon: Home, href: "/dashboard" },
-    { id: "resources", label: "Library", icon: BookOpen, href: "/dashboard/resources" }, 
-      { id: "tools", label: "Tools", icon: GraduationCap, href: "/dashboard/tools" },
+    { id: "resources", label: "Library", icon: BookOpen, href: "/dashboard/resources" },
+    { id: "tools", label: "Tools", icon: GraduationCap, href: "/dashboard/tools" },
     { id: "mentors", label: "Find Mentors", icon: Users, href: "/dashboard/mentors" },
     { id: "lexi", label: "Chat Lexi", icon: MessageCircle, href: "/dashboard/lexi" },
+    { id: "live-tutor", label: "Live Tutor", icon: Video, href: "/dashboard/live-tutor", comingSoon: true },
     { id: "messages", label: "Messages", icon: MessageSquareReply, href: "/dashboard/messages" },
     { id: "subscriptions", label: "Subscriptions", icon: UserPlus2, href: "/dashboard/subscriptions" },
     { id: "points", label: "Credits", icon: Zap, href: "/dashboard/credits" },
@@ -65,18 +66,25 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = activeTab === item.id
+              const isComingSoon = item.comingSoon
               return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={`flex text-sm md:text-base items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                <div key={item.id} className="relative">
+                  <Link
+                    href={item.href}
+                    className={`flex text-sm md:text-base items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                       ? "bg-primary text-white"
                       : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
-                    }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                </Link>
+                      } ${isComingSoon ? "pointer-events-none opacity-80" : ""}`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                    {isComingSoon && (
+                      <span className="absolute -top-1 -right-1 bg-yellow-500/60 text-white text-[10px] px-2 py-1 rounded-full font-medium">
+                        Soon
+                      </span>
+                    )}
+                  </Link>
+                </div>
               )
             })}
           </nav>

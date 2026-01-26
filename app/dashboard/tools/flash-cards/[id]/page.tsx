@@ -122,25 +122,17 @@ export default function FlashcardStudyPage() {
             <div
               className="relative h-64 cursor-pointer"
               onClick={flipCard}
-              style={{ perspective: '1000px' }}
             >
-              <div
-                className="relative w-full h-full transition-transform duration-700"
-                style={{
-                  transformStyle: 'preserve-3d',
-                  transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
-                }}
-              >
+              <div className="relative w-full h-full">
                 {/* Front */}
                 <div
-                  className="absolute inset-0 w-full h-full"
-                  style={{
-                    backfaceVisibility: 'hidden',
-                    WebkitBackfaceVisibility: 'hidden'
-                  }}
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${
+                    isFlipped ? 'opacity-0' : 'opacity-100'
+                  }`}
+                  style={{ zIndex: isFlipped ? 0 : 1 }}
                 >
                   <Card className="w-full h-full flex items-center justify-center p-6">
-                    <div className="text-center"> 
+                    <div className="text-center">
                       <p className="text-lg font-medium">{currentCard.front}</p>
                       <p className="text-sm text-muted-foreground mt-4">Click to flip</p>
                     </div>
@@ -149,12 +141,10 @@ export default function FlashcardStudyPage() {
 
                 {/* Back */}
                 <div
-                  className="absolute inset-0 w-full h-full"
-                  style={{
-                    transform: 'rotateY(180deg)',
-                    backfaceVisibility: 'hidden',
-                    WebkitBackfaceVisibility: 'hidden'
-                  }}
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${
+                    isFlipped ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  style={{ zIndex: isFlipped ? 1 : 0 }}
                 >
                   <Card className="w-full h-full flex items-center justify-center p-6">
                     <div className="text-center">

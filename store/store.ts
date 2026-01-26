@@ -10,6 +10,7 @@ import payoutReducer from "./slices/payoutSlice"
 import generationReducer from "./slices/generationSlice"
 import streakReducer from "./slices/streakSlice"
 import toolsReducer from "./slices/toolsSlice"
+import liveTutorReducer from "./slices/liveTutorSlice"
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     generation: generationReducer,
     streak: streakReducer,
     tools: toolsReducer,
+    liveTutor: liveTutorReducer,
   },
 })
 
