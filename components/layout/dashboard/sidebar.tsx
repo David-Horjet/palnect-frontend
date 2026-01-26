@@ -79,7 +79,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
                     <Icon className="h-4 w-4" />
                     <span>{item.label}</span>
                     {isComingSoon && (
-                      <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-[10px] px-2 py-1 rounded-full font-medium">
+                      <span className="absolute -top-1 -right-1 bg-yellow-500/60 text-white text-[10px] px-2 py-1 rounded-full font-medium">
                         Soon
                       </span>
                     )}

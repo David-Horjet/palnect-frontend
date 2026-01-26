@@ -271,7 +271,7 @@ export function ChatInput({
           >
             <Video className="h-3 w-3" />
             Explainer Video
-            <span className="absolute -top-2 -right-8 bg-yellow-500 text-white text-[10px] px-2 py-1 rounded-full font-medium">
+            <span className="absolute -top-2 -right-8 bg-yellow-500/60 text-white text-[10px] px-2 py-1 rounded-full font-medium">
               Soon
             </span>
           </button>
