@@ -238,7 +238,7 @@ export function ChatInput({
 
   return (
     <div className={clsx(
-      "p-2 md:p-0",
+      "p-2",
       isAtBottom ? "space-y-3 border-t border-border" : "space-y-2"
     )}>
       {/* Mode Selector */}
@@ -311,7 +311,7 @@ export function ChatInput({
       )}
 
       {/* Input Area */}
-      <div className="flex justify-center mt-5">
+      <div className="flex justify-center mt-3">
         <div className="w-full">
           <div className="flex items-center gap-2 rounded-full bg-muted/60 px-2 py-1 shadow-sm">
 
