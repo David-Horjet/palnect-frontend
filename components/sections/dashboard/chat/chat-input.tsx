@@ -311,7 +311,6 @@ export function ChatInput({
       )}
 
       {/* Input Area */}
-      {/* Hero Input */}
       <div className="flex justify-center mt-10">
         <div className="w-full max-w-2xl">
           <div className="flex items-center gap-3 rounded-full bg-muted/60 px-4 py-3 shadow-sm">
