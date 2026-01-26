@@ -260,7 +260,7 @@ export function ChatInput({
           </button>
 
           <button
-            onClick={() => setMode("video")}
+            onClick={() => setMode("video")} 
             className={clsx(
               "px-3 py-1.5 rounded-full pointer-events-none opacity-80 text-white text-xs relative font-medium flex items-center gap-1 transition",
               mode === "video"
