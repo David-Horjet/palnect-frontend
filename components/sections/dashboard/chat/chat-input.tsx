@@ -250,10 +250,10 @@ export function ChatInput({
           <button
             onClick={() => setMode("text")}
             className={clsx(
-              "px-3 py-1.5 rounded-full text-xs font-medium transition",
+              "px-3 py-1.5 rounded-full text-white text-xs font-medium transition",
               mode === "text"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                ? "bg-primary"
+                : "bg-muted hover:bg-muted/80"
             )}
           >
             Text
@@ -262,15 +262,18 @@ export function ChatInput({
           <button
             onClick={() => setMode("video")}
             className={clsx(
-              "px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 transition",
+              "px-3 py-1.5 rounded-full pointer-events-none opacity-80 text-white text-xs relative font-medium flex items-center gap-1 transition",
               mode === "video"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                ? "bg-primary"
+                : "bg-muted hover:bg-muted/80"
             )}
-          // disabled={true}
+          disabled={true}
           >
             <Video className="h-3 w-3" />
             Explainer Video
+            <span className="absolute -top-2 -right-8 bg-yellow-500 text-white text-[10px] px-2 py-1 rounded-full font-medium">
+              Soon
+            </span>
           </button>
         </div>
       )}
