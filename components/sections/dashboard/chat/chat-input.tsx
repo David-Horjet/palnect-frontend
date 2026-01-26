@@ -12,6 +12,7 @@ import { toast } from "@/lib/toast"
 import { useSelector } from "react-redux"
 import { RootState } from "@/store/store"
 import clsx from "clsx"
+import { Mic, Plus } from "lucide-react"
 
 interface Attachment {
   url: string
@@ -53,6 +54,10 @@ export function ChatInput({
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
 
+  const [isRecording, setIsRecording] = useState(false)
+  const recognitionRef = useRef<any>(null)
+
+
   const inputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const socket = useSocket()
@@ -69,8 +74,8 @@ export function ChatInput({
 
   const isJobRunning: boolean =
     activeJob &&
-    activeJob.status !== "completed" &&
-    activeJob.status !== "failed" ? true : false
+      activeJob.status !== "completed" &&
+      activeJob.status !== "failed" ? true : false
 
   useEffect(() => {
     setCanSend(
@@ -78,7 +83,7 @@ export function ChatInput({
       pointsBalance >= effectiveCost &&
       !isLoading &&
       !isUploading &&
-      !isJobRunning 
+      !isJobRunning
     )
   }, [
     message,
@@ -193,6 +198,43 @@ export function ChatInput({
     handleTyping()
   }
 
+  const startVoiceInput = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition
+
+    if (!SpeechRecognition) {
+      toast.error("Voice input not supported in this browser")
+      return
+    }
+
+    const recognition = new SpeechRecognition()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = "en-US"
+
+    recognition.onresult = (event: any) => {
+      let transcript = ""
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript
+      }
+      setMessage(transcript)
+    }
+
+    recognition.onend = () => setIsRecording(false)
+    recognition.onerror = () => setIsRecording(false)
+
+    recognition.start()
+    recognitionRef.current = recognition
+    setIsRecording(true)
+  }
+
+  const stopVoiceInput = () => {
+    recognitionRef.current?.stop()
+    setIsRecording(false)
+  }
+
+
 
   return (
     <div className={clsx(
@@ -200,22 +242,22 @@ export function ChatInput({
       isAtBottom ? "space-y-3 border-t border-border" : "space-y-2"
     )}>
       {/* Mode Selector */}
-      {isAiMessage && ( 
+      {isAiMessage && (
         <div className={clsx(
           "flex gap-2",
           !isAtBottom && "justify-center"
-        )}>  
-          <button  
+        )}>
+          <button
             onClick={() => setMode("text")}
             className={clsx(
               "px-3 py-1.5 rounded-full text-xs font-medium transition",
               mode === "text"
-                ? "bg-primary text-primary-foreground" 
-                : "bg-muted text-muted-foreground hover:bg-muted/80" 
-            )}  
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            )}
           >
             Text
-          </button>  
+          </button>
 
           <button
             onClick={() => setMode("video")}
@@ -225,7 +267,7 @@ export function ChatInput({
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             )}
-            // disabled={true}
+          // disabled={true}
           >
             <Video className="h-3 w-3" />
             Explainer Video
@@ -269,43 +311,64 @@ export function ChatInput({
       )}
 
       {/* Input Area */}
-      <div className="flex gap-2">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf,.docx"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
+      {/* Hero Input */}
+      <div className="flex justify-center mt-10">
+        <div className="w-full max-w-2xl">
+          <div className="flex items-center gap-3 rounded-full bg-muted/60 px-4 py-3 shadow-sm">
 
-        <Button
-          type="button"
-          variant="outline"
-          size="md"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isLoading || isUploading || uploadedAttachment !== null}
-        >
-          <Paperclip className="h-4 w-4" />
-        </Button>
+            {/* Attach */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
 
-        <Input
-          ref={inputRef}
-          placeholder={
-            mode === "video"
-              ? "Describe the explainer video you want (e.g. explain like I’m 10)…"
-              : "Ask Lexi to summarize or explain the material…"
-          }
-          value={message}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          disabled={isLoading || pointsBalance < effectiveCost || isUploading || isJobRunning}
-          className="flex-1"
-        />
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.docx"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
 
-        <Button  onClick={handleSend} disabled={!canSend || isJobRunning} size="md">
-          <Send className="h-4 w-4" />
-        </Button>
+            {/* Text Input */}
+            <input
+              ref={inputRef}
+              value={message}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask anything"
+              disabled={isLoading || isUploading || isJobRunning}
+              className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
+            />
+
+            {/* Mic */}
+            <button
+              onClick={isRecording ? stopVoiceInput : startVoiceInput}
+              className={clsx(
+                "transition",
+                isRecording
+                  ? "text-destructive animate-pulse"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Mic className="h-5 w-5" />
+            </button>
+
+            {/* Send */}
+            <button
+              onClick={handleSend}
+              disabled={!canSend}
+              className="h-9 w-9 rounded-full bg-foreground text-background flex items-center justify-center disabled:opacity-50"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
       </div>
+
 
       {pointsBalance < effectiveCost && (
         <p className={clsx(
