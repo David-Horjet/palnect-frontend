@@ -65,10 +65,10 @@ export const subscriptionsService = {
 
   // Get student's subscriptions
   async getStudentSubscriptions(
-token: string, page: number | undefined, limit: number | undefined, options?: {
-    page?: number
-    limit?: number
-},
+    token: string, page: number | undefined, limit: number | undefined, options?: {
+      page?: number
+      limit?: number
+    },
   ) {
     const params = new URLSearchParams()
     if (options?.page) params.append("page", options.page.toString())
@@ -82,10 +82,10 @@ token: string, page: number | undefined, limit: number | undefined, options?: {
 
   // Get mentor's subscriptions (earnings)
   async getMentorSubscriptions(
-token: string, page: number | undefined, limit: number | undefined, options?: {
-    page?: number
-    limit?: number
-},
+    token: string, page: number | undefined, limit: number | undefined, options?: {
+      page?: number
+      limit?: number
+    },
   ) {
     const params = new URLSearchParams()
     if (options?.page) params.append("page", options.page.toString())
