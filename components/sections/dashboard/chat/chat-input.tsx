@@ -311,9 +311,9 @@ export function ChatInput({
       )}
 
       {/* Input Area */}
-      <div className="flex justify-center mt-10">
-        <div className="w-full max-w-2xl">
-          <div className="flex items-center gap-3 rounded-full bg-muted/60 px-4 py-3 shadow-sm">
+      <div className="flex justify-center mt-5">
+        <div className="w-full">
+          <div className="flex items-center gap-3 rounded-full bg-muted/60 px-3 py-2 shadow-sm">
 
             {/* Attach */}
             <button
@@ -360,7 +360,7 @@ export function ChatInput({
             <button
               onClick={handleSend}
               disabled={!canSend}
-              className="h-9 w-9 rounded-full bg-foreground text-background flex items-center justify-center disabled:opacity-50"
+              className="h-9 w-9 rounded-full bg-primary text-white flex items-center justify-center disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
             </button>
