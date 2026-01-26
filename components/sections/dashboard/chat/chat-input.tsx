@@ -238,7 +238,7 @@ export function ChatInput({
 
   return (
     <div className={clsx(
-      "p-3 md:p-4",
+      "p-2 md:p-0",
       isAtBottom ? "space-y-3 border-t border-border" : "space-y-2"
     )}>
       {/* Mode Selector */}
@@ -313,12 +313,12 @@ export function ChatInput({
       {/* Input Area */}
       <div className="flex justify-center mt-5">
         <div className="w-full">
-          <div className="flex items-center gap-3 rounded-full bg-muted/60 px-3 py-2 shadow-sm">
+          <div className="flex items-center gap-2 rounded-full bg-muted/60 px-2 py-1 shadow-sm">
 
             {/* Attach */}
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground p-2"
             >
               <Plus className="h-5 w-5" />
             </button>
