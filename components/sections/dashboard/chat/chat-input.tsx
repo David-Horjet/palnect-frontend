@@ -204,7 +204,7 @@ export function ChatInput({
     }, 1000)
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value)
     handleTyping()
   }
