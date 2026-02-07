@@ -84,7 +84,7 @@ async function decodeAudioData(
 
 type ViewState = 'lobby' | 'call'
 
-export default function FixedLiveTutorPage() {
+export default function LiveTutorPage() {
     const dispatch = useDispatch<AppDispatch>()
     const [viewState, setViewState] = useState<ViewState>('lobby')
 
