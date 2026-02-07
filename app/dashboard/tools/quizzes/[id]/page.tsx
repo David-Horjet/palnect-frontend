@@ -227,7 +227,7 @@ export default function QuizPage() {
 
                         {currentQuestion.type === 'multiple_choice' && options.length > 0 ? (
                             <RadioGroup
-                                value={answers[currentIndex] !== null ? answers[currentIndex].toString() : ""}
+                                value={answers[currentIndex] !== null ? String(answers[currentIndex]) : ""}
                                 onValueChange={handleAnswerChange}
                             >
                                 {options.map((option, optionIndex) => {
@@ -235,8 +235,9 @@ export default function QuizPage() {
                                     const isSelected = answers[currentIndex] === optionIndex
 
                                     return (
-                                        <div
+                                        <label
                                             key={optionIndex}
+                                            htmlFor={`option-${optionIndex}`}
                                             className={cn(
                                                 "flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all",
                                                 isSelected
@@ -252,24 +253,21 @@ export default function QuizPage() {
                                             )}>
                                                 {optionLetter.toUpperCase()}
                                             </div>
-                                            <Label
-                                                htmlFor={`option-${optionIndex}`}
-                                                className="flex-1 cursor-pointer font-medium"
-                                            >
+                                            <span className="flex-1 font-medium">
                                                 {option}
-                                            </Label>
+                                            </span>
                                             <RadioGroupItem
-                                                value={optionIndex.toString()}
+                                                value={String(optionIndex)}
                                                 id={`option-${optionIndex}`}
-                                                className="sr-only"
+                                                className="ml-auto"
                                             />
-                                        </div>
+                                        </label>
                                     )
                                 })}
                             </RadioGroup>
                         ) : (
                             <RadioGroup
-                                value={answers[currentIndex] !== null ? answers[currentIndex].toString() : ""}
+                                value={answers[currentIndex] !== null ? String(answers[currentIndex]) : ""}
                                 onValueChange={handleAnswerChange}
                             >
                                 {[
@@ -279,8 +277,9 @@ export default function QuizPage() {
                                     const isSelected = answers[currentIndex]?.toString() === option.value
 
                                     return (
-                                        <div
+                                        <label
                                             key={option.value}
+                                            htmlFor={option.value}
                                             className={cn(
                                                 "flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all",
                                                 isSelected
@@ -296,18 +295,15 @@ export default function QuizPage() {
                                             )}>
                                                 {option.label.charAt(0)}
                                             </div>
-                                            <Label
-                                                htmlFor={option.value}
-                                                className="flex-1 cursor-pointer font-medium"
-                                            >
+                                            <span className="flex-1 font-medium">
                                                 {option.label}
-                                            </Label>
+                                            </span>
                                             <RadioGroupItem
                                                 value={option.value}
                                                 id={option.value}
-                                                className="sr-only"
+                                                className="ml-auto"
                                             />
-                                        </div>
+                                        </label>
                                     )
                                 })}
                             </RadioGroup>
