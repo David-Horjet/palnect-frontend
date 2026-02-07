@@ -122,8 +122,11 @@ export default function QuizPage() {
                         <div className="space-y-4">
                             {currentQuiz.quiz_questions.map((question, index) => {
                                 const userAnswer = answers[index]
-                                const correctAnswer = JSON.parse(question.correct_answer)
+                                const correctAnswer = question.type === 'true_false' 
+                                    ? question.correct_answer === 'true' 
+                                    : parseInt(question.correct_answer)
                                 const isCorrect = userAnswer === correctAnswer
+                                const questionOptions = parseOptions(question.options)
 
                                 return (
                                     <Card key={question.id} className="p-4">
@@ -139,13 +142,13 @@ export default function QuizPage() {
                                                     <p>Your answer: {
                                                         question.type === 'true_false'
                                                             ? (userAnswer ? 'True' : 'False')
-                                                            : question.options?.[userAnswer as number] || 'Not answered'
+                                                            : (typeof userAnswer === 'number' && questionOptions[userAnswer]) ? questionOptions[userAnswer] : 'Not answered'
                                                     }</p>
                                                     {!isCorrect && (
                                                         <p>Correct answer: {
                                                             question.type === 'true_false'
                                                                 ? (correctAnswer ? 'True' : 'False')
-                                                                : question.options?.[correctAnswer] || 'Unknown'
+                                                                : (typeof correctAnswer === 'number' && questionOptions[correctAnswer]) ? questionOptions[correctAnswer] : 'Unknown'
                                                         }</p>
                                                     )}
                                                 </div>
@@ -224,12 +227,12 @@ export default function QuizPage() {
 
                         {currentQuestion.type === 'multiple_choice' && options.length > 0 ? (
                             <RadioGroup
-                                value={answers[currentIndex]?.toString()}
+                                value={answers[currentIndex] !== null ? answers[currentIndex].toString() : ""}
                                 onValueChange={handleAnswerChange}
                             >
                                 {options.map((option, optionIndex) => {
                                     const optionLetter = String.fromCharCode(97 + optionIndex) // a, b, c, d...
-                                    const isSelected = answers[currentIndex]?.toString() === optionIndex.toString()
+                                    const isSelected = answers[currentIndex] === optionIndex
 
                                     return (
                                         <div
@@ -240,7 +243,6 @@ export default function QuizPage() {
                                                     ? "bg-primary/10 border-primary shadow-sm"
                                                     : "bg-background border-border hover:bg-muted/50"
                                             )}
-                                            onClick={() => handleAnswerChange(optionIndex.toString())}
                                         >
                                             <div className={cn(
                                                 "flex items-center justify-center w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all",
@@ -267,7 +269,7 @@ export default function QuizPage() {
                             </RadioGroup>
                         ) : (
                             <RadioGroup
-                                value={answers[currentIndex]?.toString()}
+                                value={answers[currentIndex] !== null ? answers[currentIndex].toString() : ""}
                                 onValueChange={handleAnswerChange}
                             >
                                 {[
@@ -285,7 +287,6 @@ export default function QuizPage() {
                                                     ? "bg-primary/10 border-primary shadow-sm"
                                                     : "bg-background border-border hover:bg-muted/50"
                                             )}
-                                            onClick={() => handleAnswerChange(option.value)}
                                         >
                                             <div className={cn(
                                                 "flex items-center justify-center w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all",
