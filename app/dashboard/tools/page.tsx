@@ -48,7 +48,7 @@ export default function ToolsIndexPage() {
         <DashboardHeader title="Academic Tools" subtitle="Useful calculators and utilities for students" />
 
         <div className="p-6 space-y-8">
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             {tools.map((t) => {
               const IconComponent = t.icon
               return (
