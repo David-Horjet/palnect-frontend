@@ -256,11 +256,6 @@ export default function QuizPage() {
                                             <span className="flex-1 font-medium">
                                                 {option}
                                             </span>
-                                            <RadioGroupItem
-                                                value={String(optionIndex)}
-                                                id={`option-${optionIndex}`}
-                                                className="ml-auto"
-                                            />
                                         </label>
                                     )
                                 })}
@@ -298,11 +293,6 @@ export default function QuizPage() {
                                             <span className="flex-1 font-medium">
                                                 {option.label}
                                             </span>
-                                            <RadioGroupItem
-                                                value={option.value}
-                                                id={option.value}
-                                                className="ml-auto"
-                                            />
                                         </label>
                                     )
                                 })}
