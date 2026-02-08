@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
@@ -33,7 +32,7 @@ import { toast } from "@/lib/toast"
 import { GoogleGenAI, Modality, Session, LiveServerMessage } from '@google/genai'
 import Image from "next/image"
 
-// Helper functions matching index.tsx/utils.ts precisely
+// Helper functions matching the example utils.ts
 function encode(bytes: Uint8Array) {
     let binary = '';
     const len = bytes.byteLength;
@@ -53,13 +52,18 @@ function decode(base64: string) {
     return bytes;
 }
 
-function createBlob(pcmData: Float32Array): Blob {
-    // Convert Float32Array to Int16Array (16-bit PCM)
-    const int16Array = new Int16Array(pcmData.length);
-    for (let i = 0; i < pcmData.length; i++) {
-        int16Array[i] = Math.max(-32768, Math.min(32767, pcmData[i] * 32768));
+function createBlob(data: Float32Array) {
+    const l = data.length;
+    const int16 = new Int16Array(l);
+    for (let i = 0; i < l; i++) {
+        // convert float32 -1 to 1 to int16 -32768 to 32767
+        int16[i] = data[i] * 32768;
     }
-    return new Blob([int16Array], { type: 'audio/pcm' });
+
+    return {
+        data: encode(new Uint8Array(int16.buffer)),
+        mimeType: 'audio/pcm;rate=16000',
+    };
 }
 
 async function decodeAudioData(
@@ -68,17 +72,30 @@ async function decodeAudioData(
     sampleRate: number,
     numChannels: number,
 ): Promise<AudioBuffer> {
-    // Ensure we account for potential byte offset in the underlying buffer
-    const dataInt16 = new Int16Array(data.buffer, data.byteOffset, data.byteLength / 2);
-    const frameCount = dataInt16.length / numChannels;
-    const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+    const buffer = ctx.createBuffer(
+        numChannels,
+        data.length / 2 / numChannels,
+        sampleRate,
+    );
 
-    for (let channel = 0; channel < numChannels; channel++) {
-        const channelData = buffer.getChannelData(channel);
-        for (let i = 0; i < frameCount; i++) {
-            channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    const dataInt16 = new Int16Array(data.buffer);
+    const l = dataInt16.length;
+    const dataFloat32 = new Float32Array(l);
+    for (let i = 0; i < l; i++) {
+        dataFloat32[i] = dataInt16[i] / 32768.0;
+    }
+    // Extract interleaved channels
+    if (numChannels === 1) {
+        buffer.copyToChannel(dataFloat32, 0);
+    } else {
+        for (let i = 0; i < numChannels; i++) {
+            const channel = dataFloat32.filter(
+                (_, index) => index % numChannels === i,
+            );
+            buffer.copyToChannel(channel, i);
         }
     }
+
     return buffer;
 }
 
@@ -104,6 +121,7 @@ export default function LiveTutorPage() {
     const [isVideoEnabled, setIsVideoEnabled] = useState(false)
     const [showEndDialog, setShowEndDialog] = useState(false)
     const [userVolume, setUserVolume] = useState(0)
+    const [isAISpeaking, setIsAISpeaking] = useState(false)
 
     // Refs for session and audio management
     const sessionRef = useRef<Session | null>(null)
@@ -115,6 +133,9 @@ export default function LiveTutorPage() {
     const videoRef = useRef<HTMLVideoElement>(null)
     const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set())
     const nextStartTimeRef = useRef(0)
+    const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null)
+    const scriptProcessorNodeRef = useRef<ScriptProcessorNode | null>(null)
+    const hasGreetedRef = useRef(false)
 
     // Cleanup Logic
     const cleanupAudio = useCallback(() => {
@@ -123,6 +144,16 @@ export default function LiveTutorPage() {
         });
         sourcesRef.current.clear();
         nextStartTimeRef.current = 0;
+
+        if (scriptProcessorNodeRef.current && sourceNodeRef.current) {
+            try {
+                scriptProcessorNodeRef.current.disconnect();
+                sourceNodeRef.current.disconnect();
+            } catch (e) { }
+        }
+
+        scriptProcessorNodeRef.current = null;
+        sourceNodeRef.current = null;
 
         if (inputAudioContextRef.current) {
             inputAudioContextRef.current.close().catch(() => { });
@@ -145,10 +176,12 @@ export default function LiveTutorPage() {
             sessionRef.current = null;
         }
         connectingRef.current = false;
+        hasGreetedRef.current = false;
         setUserVolume(0);
+        setIsAISpeaking(false);
     }, [cleanupAudio]);
 
-    // Core Connection Logic - Standardized to match index.tsx pattern
+    // Core Connection Logic
     const initSession = useCallback(async () => {
         if (!ephemeralToken || connectingRef.current || sessionRef.current) return;
 
@@ -161,97 +194,146 @@ export default function LiveTutorPage() {
                 httpOptions: { apiVersion: 'v1alpha' },
             });
 
-            // Use the stable model from the successful index.tsx example
-            const model = 'gemini-2.5-flash-native-audio-preview-12-2025';
+            const model = 'gemini-2.5-flash-native-audio-preview-09-2025';
 
             const session = await ai.live.connect({
                 model: model,
                 callbacks: {
                     onopen: () => {
+                        console.log('Session opened');
                         dispatch(setConnectionStatus('connected'));
+                        
+                        // Start recording first
                         startRecording();
+                        
+                        // Send greeting after a small delay to ensure everything is ready
+                        setTimeout(() => {
+                            if (sessionRef.current && !hasGreetedRef.current) {
+                                hasGreetedRef.current = true;
+                                sessionRef.current.sendRealtimeInput({
+                                    text: "Hi!",
+                                });
+                            }
+                        }, 500);
                     },
                     onmessage: async (message: LiveServerMessage) => {
-                        console.log('Received server message:', message);
-                        // Handle Transcriptions
+                        console.log('Received message:', message);
+                        
+                        // Handle transcriptions
                         if (message.serverContent?.outputTranscription) {
-                            dispatch(addCaption(message.serverContent.outputTranscription.text));
+                            const transcription = message.serverContent.outputTranscription.text;
+                            console.log('AI transcription:', transcription);
+                            dispatch(addCaption(transcription));
                         }
 
-                        console.log('Processing media parts...');
-                        // Handle Audio Output and Text Parts
+                        // Handle model turn with audio
                         const modelTurn = message.serverContent?.modelTurn;
-                        if (modelTurn && modelTurn.parts) {
+                        if (modelTurn?.parts) {
                             for (const part of modelTurn.parts) {
                                 console.log('Processing part:', part);
-                                // Extract Text
+                                // Extract text
                                 if (part.text) {
+                                    console.log('AI text:', part.text);
                                     dispatch(addCaption(part.text));
                                 }
 
-                                console.log('Checking for audio data in part...');
-                                // Extract Audio
-                                if (part.inlineData?.data && outputAudioContextRef.current && outputNodeRef.current) {
-                                    const audioData = part.inlineData.data;
+                                // Extract and play audio
+                                const audio = part.inlineData;
+                                if (audio?.data && outputAudioContextRef.current && outputNodeRef.current) {
+                                    setIsAISpeaking(true);
                                     const ctx = outputAudioContextRef.current;
-                                    console.log('Decoding and playing audio data...');
+                                    
+                                    try {
+                                        nextStartTimeRef.current = Math.max(
+                                            nextStartTimeRef.current,
+                                            ctx.currentTime
+                                        );
 
-                                    nextStartTimeRef.current = Math.max(
-                                        nextStartTimeRef.current,
-                                        ctx.currentTime
-                                    );
+                                        const audioBuffer = await decodeAudioData(
+                                            decode(audio.data),
+                                            ctx,
+                                            24000,
+                                            1
+                                        );
 
-                                    const audioBuffer = await decodeAudioData(
-                                        decode(audioData),
-                                        ctx,
-                                        24000,
-                                        1
-                                    );
+                                        const source = ctx.createBufferSource();
+                                        source.buffer = audioBuffer;
+                                        source.connect(outputNodeRef.current);
+                                        source.addEventListener('ended', () => {
+                                            sourcesRef.current.delete(source);
+                                            if (sourcesRef.current.size === 0) {
+                                                setIsAISpeaking(false);
+                                            }
+                                        });
 
-                                    const source = ctx.createBufferSource();
-                                    source.buffer = audioBuffer;
-                                    source.connect(outputNodeRef.current);
-                                    source.addEventListener('ended', () => {
-                                        sourcesRef.current.delete(source);
-                                    });
-
-                                    source.start(nextStartTimeRef.current);
-                                    nextStartTimeRef.current = nextStartTimeRef.current + audioBuffer.duration;
-                                    sourcesRef.current.add(source);
-                                    console.log('Audio source started.');
+                                        source.start(nextStartTimeRef.current);
+                                        nextStartTimeRef.current = nextStartTimeRef.current + audioBuffer.duration;
+                                        sourcesRef.current.add(source);
+                                        
+                                        console.log('Playing AI audio, duration:', audioBuffer.duration);
+                                    } catch (error) {
+                                        console.error('Error playing audio:', error);
+                                        setIsAISpeaking(false);
+                                    }
                                 }
                             }
                         }
 
-                        // Handle Interruption
+                        // Handle interruption
                         const interrupted = message.serverContent?.interrupted;
                         if (interrupted) {
+                            console.log('AI interrupted');
                             for (const source of sourcesRef.current.values()) {
                                 source.stop();
                                 sourcesRef.current.delete(source);
                             }
                             nextStartTimeRef.current = 0;
+                            setIsAISpeaking(false);
+                        }
+
+                        // Handle turn complete
+                        if (message.serverContent?.turnComplete) {
+                            console.log('Turn complete');
+                            setIsAISpeaking(false);
                         }
                     },
                     onerror: (e: ErrorEvent) => {
                         console.error('Session error:', e);
                         dispatch(setConnectionStatus('error'));
-                        toast.error("Tutoring session encountered an error.");
+                        toast.error("Tutoring session encountered an error: " + e.message);
                     },
                     onclose: (e: CloseEvent) => {
-                        console.log('Session closed:', e.reason);
+                        console.log('Session closed:', e.code, e.reason);
                         dispatch(setConnectionStatus('disconnected'));
+                        
+                        // Only show toast if it wasn't a normal closure
+                        if (e.code !== 1000) {
+                            toast.error(`Session closed unexpectedly: ${e.reason || 'Unknown reason'}`);
+                        }
+                        
                         cleanupAll();
                     },
                 },
                 config: {
-                    responseModalities: [Modality.AUDIO, Modality.TEXT],
-                    systemInstruction: "You are Lexi, an elite AI tutor. Be patient, encouraging, and highly interactive. When a student speaks, respond naturally and immediately. Help them understand concepts through guiding questions and clear explanations.",
-                    speechConfig: {
-                        voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } }
+                    responseModalities: [Modality.AUDIO],
+                    systemInstruction: {
+                        parts: [{
+                            text: `You are Lexi, an enthusiastic and patient AI tutor. Your goal is to help students learn through interactive conversation.
+
+Guidelines:
+- Speak naturally and conversationally, as if talking to a friend
+- Keep responses concise (2-3 sentences typically) to maintain engagement
+- Ask follow-up questions to check understanding
+- Be encouraging and positive
+- If you hear unclear audio or background noise, politely ask the student to repeat
+- Stay on topic and focused on learning
+
+When the session starts, greet the student warmly and ask what they'd like to learn about.`
+                        }]
                     },
-                    outputAudioTranscription: {},
-                    inputAudioTranscription: {},
+                    speechConfig: {
+                        voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Callirrhoe' } }
+                    },
                 },
             });
 
@@ -269,6 +351,7 @@ export default function LiveTutorPage() {
             console.error('Failed to init session:', error);
             dispatch(setConnectionStatus('error'));
             connectingRef.current = false;
+            toast.error("Failed to connect to tutor. Please try again.");
         }
     }, [ephemeralToken, dispatch, cleanupAll]);
 
@@ -276,48 +359,73 @@ export default function LiveTutorPage() {
         console.log('Starting microphone capture...');
         try {
             if (!streamRef.current) {
-                streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // Request audio with echo cancellation and noise suppression
+                streamRef.current = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true,
+                        sampleRate: 16000
+                    } 
+                });
             }
 
             console.log('Microphone access granted.');
             const inCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
             inputAudioContextRef.current = inCtx;
 
-            // Load AudioWorklet module
-            await inCtx.audioWorklet.addModule('/audio-processor.js');
+            sourceNodeRef.current = inCtx.createMediaStreamSource(streamRef.current);
 
-            console.log('AudioWorklet module loaded.');
+            // Use ScriptProcessorNode
+            const bufferSize = 4096; // Larger buffer for stability
+            scriptProcessorNodeRef.current = inCtx.createScriptProcessor(bufferSize, 1, 1);
 
-            const source = inCtx.createMediaStreamSource(streamRef.current);
-            const workletNode = new AudioWorkletNode(inCtx, 'audio-processor');
+            let silenceCounter = 0;
+            const silenceThreshold = 0.01; // Minimum volume to consider as speech
 
-            console.log('AudioWorkletNode created and connected.');
-
-            workletNode.port.onmessage = (event) => {
-                // console.log('Received audio data from worklet:', event.data);
-                if (!sessionRef.current || connectionStatus !== 'connected') {
+            scriptProcessorNodeRef.current.onaudioprocess = (audioProcessingEvent) => {
+                if (!sessionRef.current || connectionStatus !== 'connected' || isMuted) {
                     setUserVolume(0);
                     return;
                 }
 
-                if (event.data.type === 'volume') {
-                    setUserVolume(event.data.volume);
-                } else if (event.data.type === 'audio-data' && !isMuted) {
-                    console.log('Sending audio data to session...');
-                    // Send matching index.tsx format
-                    sessionRef.current.sendRealtimeInput({
-                        audio: {
-                            data: encode(new Uint8Array(event.data.data)),
-                            mimeType: 'audio/pcm;rate=16000',
+                const inputBuffer = audioProcessingEvent.inputBuffer;
+                const pcmData = inputBuffer.getChannelData(0);
+
+                // Calculate volume (RMS)
+                let sum = 0;
+                for (let i = 0; i < pcmData.length; i++) {
+                    sum += pcmData[i] * pcmData[i];
+                }
+                const rms = Math.sqrt(sum / pcmData.length);
+                setUserVolume(Math.min(rms * 3, 1));
+
+                // Only send if there's actual audio (not silence) and AI is not speaking
+                if (rms > silenceThreshold && !isAISpeaking) {
+                    silenceCounter = 0;
+                    try {
+                        sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
+                    } catch (error) {
+                        console.error('Error sending audio:', error);
+                    }
+                } else {
+                    silenceCounter++;
+                    // Send silence periodically to keep connection alive
+                    if (silenceCounter % 50 === 0 && !isAISpeaking) {
+                        try {
+                            sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
+                        } catch (error) {
+                            console.error('Error sending keepalive:', error);
                         }
-                    });
-                    console.log('Audio data sent.');
+                    }
                 }
             };
 
-            console.log('Connecting audio nodes...');
-            source.connect(workletNode);
-            workletNode.connect(inCtx.destination);
+            sourceNodeRef.current.connect(scriptProcessorNodeRef.current);
+            // DON'T connect to destination - this prevents echo
+            // scriptProcessorNodeRef.current.connect(inCtx.destination);
+
+            console.log('Recording started successfully');
         } catch (err) {
             console.error('Mic capture failed:', err);
             toast.error('Could not access microphone.');
@@ -338,7 +446,6 @@ export default function LiveTutorPage() {
     }, [viewState, ephemeralToken, user, token, currentSession, dispatch])
 
     useEffect(() => {
-        // Trigger connection only once when all prerequisites are met
         if (viewState === 'call' && ephemeralToken && currentSession && !sessionRef.current && !connectingRef.current) {
             initSession()
         }
@@ -349,14 +456,8 @@ export default function LiveTutorPage() {
     }, [cleanupAll]);
 
     const toggleMute = () => {
-        if (streamRef.current) {
-            const track = streamRef.current.getAudioTracks()[0];
-            if (track) {
-                track.enabled = !track.enabled;
-                dispatch(setMuted(!track.enabled));
-                if (!track.enabled) setUserVolume(0);
-            }
-        }
+        dispatch(setMuted(!isMuted));
+        if (!isMuted) setUserVolume(0);
     }
 
     const endSession = () => {
@@ -381,8 +482,8 @@ export default function LiveTutorPage() {
                 <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2"><Brain className="w-6 h-6" /></div>
             </div>
             <div className="text-center space-y-4 max-w-2xl">
-                <h1 className="text-4xl font-bold">Stable Live Tutor</h1>
-                <p className="text-xl text-muted-foreground">Enhanced connectivity for uninterrupted learning sessions.</p>
+                <h1 className="text-4xl font-bold">Live AI Tutor</h1>
+                <p className="text-xl text-muted-foreground">Real-time voice conversations with your AI learning companion.</p>
             </div>
             <Button onClick={() => setViewState('call')} size="lg" className="px-8 py-6 text-lg font-semibold">
                 <Play className="w-6 h-6 mr-2" /> Start Tutoring
@@ -394,8 +495,9 @@ export default function LiveTutorPage() {
         <div className="flex flex-col h-[85vh] bg-background border rounded-xl overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between p-4 border-b bg-card">
                 <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></div>
+                    <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : connectionStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}></div>
                     <span className="font-semibold text-sm uppercase tracking-wider">{connectionStatus}</span>
+                    {isAISpeaking && <Badge variant="secondary" className="animate-pulse">AI Speaking...</Badge>}
                 </div>
                 <Button variant="destructive" size="sm" onClick={() => setShowEndDialog(true)}>End Session</Button>
             </div>
@@ -403,7 +505,7 @@ export default function LiveTutorPage() {
             <div className="flex-1 flex overflow-hidden">
                 <div className="flex-1 flex flex-col items-center justify-center p-8 bg-muted/10 relative">
                     <div className="relative">
-                        {/* Robot Animation Pulse */}
+                        {/* Robot Animation Pulse - only when user is speaking */}
                         <div
                             className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl transition-all duration-75"
                             style={{
@@ -411,6 +513,10 @@ export default function LiveTutorPage() {
                                 opacity: isMuted ? 0 : Math.min(userVolume * 5, 0.8)
                             }}
                         />
+                        {/* AI Speaking Pulse - when AI is speaking */}
+                        {isAISpeaking && (
+                            <div className="absolute inset-0 rounded-2xl bg-green-500/30 blur-xl animate-pulse" />
+                        )}
                         <div className="relative w-64 h-64">
                             <Image
                                 src="/gifs/robot.gif"
@@ -418,16 +524,20 @@ export default function LiveTutorPage() {
                                 fill
                                 unoptimized
                                 className="rounded-2xl object-cover border-4 border-primary/20 shadow-lg transition-transform duration-75"
-                                style={{ transform: `scale(${1 + userVolume * 0.1})` }}
+                                style={{ transform: `scale(${1 + (isAISpeaking ? 0.05 : userVolume * 0.1)})` }}
                             />
                         </div>
                     </div>
 
                     {captions.length > 0 && (
-                        <div className="absolute bottom-8 left-8 right-8 bg-black/80 text-white p-6 rounded-xl backdrop-blur-md">
-                            <p className="text-lg text-center leading-relaxed">
-                                <span className="text-primary font-bold mr-2">Tutor:</span>
-                                {captions[captions.length - 1]}
+                        <div className="absolute bottom-8 left-8 right-8 bg-black/80 text-white p-6 rounded-xl backdrop-blur-md max-h-32 overflow-y-auto">
+                            <p className="text-lg leading-relaxed">
+                                {captions.slice(-3).map((caption, idx) => (
+                                    <span key={idx} className="block mb-2">
+                                        <span className="text-primary font-bold mr-2">Lexi:</span>
+                                        {caption}
+                                    </span>
+                                ))}
                             </p>
                         </div>
                     )}
@@ -446,7 +556,25 @@ export default function LiveTutorPage() {
                                     style={{ width: `${Math.min(userVolume * 300, 100)}%` }}
                                 />
                             </div>
-                            <p className="text-[10px] text-muted-foreground uppercase">Voice Level</p>
+                            <p className="text-[10px] text-muted-foreground uppercase">
+                                {isMuted ? 'Muted' : 'Voice Level'}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {/* Session Info */}
+                    <div className="w-full p-4 bg-muted/50 rounded-lg space-y-2 text-sm">
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Status:</span>
+                            <span className="font-medium">{connectionStatus}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Microphone:</span>
+                            <span className="font-medium">{isMuted ? 'Muted' : 'Active'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">AI Status:</span>
+                            <span className="font-medium">{isAISpeaking ? 'Speaking' : 'Listening'}</span>
                         </div>
                     </div>
                 </div>
@@ -456,24 +584,26 @@ export default function LiveTutorPage() {
                 <div className="flex items-center justify-center space-x-6">
                     <Button
                         variant={!isMuted ? "primary" : "destructive"}
-                        size="md"
+                        size="lg"
                         onClick={toggleMute}
-                        className="w-16 h-16 rounded-full shadow-lg"
+                        className="rounded-full shadow-lg"
+                        disabled={connectionStatus !== 'connected'}
                     >
                         {!isMuted ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
                     </Button>
                     <Button
                         variant={isVideoEnabled ? "primary" : "secondary"}
-                        size="md"
+                        size="lg"
                         onClick={() => setIsVideoEnabled(!isVideoEnabled)}
-                        className="w-16 h-16 rounded-full shadow-lg"
+                        className="rounded-full shadow-lg"
+                        disabled={connectionStatus !== 'connected'}
                     >
                         {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
                     </Button>
                     {connectionStatus === 'error' && (
                         <Button
                             variant="outline"
-                            size="md"
+                            size="lg"
                             onClick={() => { cleanupAll(); initSession(); }}
                             className="w-16 h-16 rounded-full border-primary text-primary"
                         >
