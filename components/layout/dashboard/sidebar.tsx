@@ -26,7 +26,7 @@ export function DashboardSidebar({ activeTab = "home" }: DashboardSidebarProps) 
     { id: "tools", label: "Tools", icon: GraduationCap, href: "/dashboard/tools" },
     { id: "mentors", label: "Find Mentors", icon: Users, href: "/dashboard/mentors" },
     { id: "lexi", label: "Chat Lexi", icon: MessageCircle, href: "/dashboard/lexi" },
-    { id: "live-tutor", label: "Live Tutor", icon: Video, href: "/dashboard/live-tutor", comingSoon: true },
+    { id: "live-tutor", label: "Live Tutor", icon: Video, href: "/dashboard/live-tutor", comingSoon: false },
     { id: "messages", label: "Messages", icon: MessageSquareReply, href: "/dashboard/messages" },
     { id: "subscriptions", label: "Subscriptions", icon: UserPlus2, href: "/dashboard/subscriptions" },
     { id: "points", label: "Credits", icon: Zap, href: "/dashboard/credits" },

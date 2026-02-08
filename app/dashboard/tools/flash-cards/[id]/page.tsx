@@ -43,19 +43,19 @@ export default function FlashcardStudyPage() {
     setIsFlipped(!isFlipped)
   }
 
-  const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.key === 'ArrowRight') nextCard()
-    if (e.key === 'ArrowLeft') prevCard()
-    if (e.key === ' ') {
-      e.preventDefault()
-      flipCard()
-    }
-  }
-
   useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') nextCard()
+      if (e.key === 'ArrowLeft') prevCard()
+      if (e.key === ' ') {
+        e.preventDefault()
+        flipCard()
+      }
+    }
+
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [currentDeck])
+  }, [currentDeck, nextCard, prevCard, flipCard])
 
   if (loading) {
     return (
@@ -122,14 +122,19 @@ export default function FlashcardStudyPage() {
             <div
               className="relative h-64 cursor-pointer"
               onClick={flipCard}
+              style={{ perspective: '1000px' }}
             >
-              <div className="relative w-full h-full">
+              <div 
+                className="relative w-full h-full transition-transform duration-500"
+                style={{ 
+                  transformStyle: 'preserve-3d',
+                  transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                }}
+              >
                 {/* Front */}
                 <div
-                  className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${
-                    isFlipped ? 'opacity-0' : 'opacity-100'
-                  }`}
-                  style={{ zIndex: isFlipped ? 0 : 1 }}
+                  className="absolute inset-0 w-full h-full"
+                  style={{ backfaceVisibility: 'hidden' }}
                 >
                   <Card className="w-full h-full flex items-center justify-center p-6">
                     <div className="text-center">
@@ -141,10 +146,11 @@ export default function FlashcardStudyPage() {
 
                 {/* Back */}
                 <div
-                  className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${
-                    isFlipped ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  style={{ zIndex: isFlipped ? 1 : 0 }}
+                  className="absolute inset-0 w-full h-full"
+                  style={{ 
+                    backfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)'
+                  }}
                 >
                   <Card className="w-full h-full flex items-center justify-center p-6">
                     <div className="text-center">

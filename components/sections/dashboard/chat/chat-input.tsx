@@ -58,7 +58,7 @@ export function ChatInput({
   const recognitionRef = useRef<any>(null)
 
 
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const socket = useSocket()
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -181,6 +181,17 @@ export function ChatInput({
     }
   }
 
+  const autoResizeTextarea = () => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto'
+      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
+    }
+  }
+
+  useEffect(() => {
+    autoResizeTextarea()
+  }, [message])
+
   const handleTyping = () => {
     if (!socket || !conversationId) return
 
@@ -193,7 +204,7 @@ export function ChatInput({
     }, 1000)
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value)
     handleTyping()
   }
@@ -336,14 +347,15 @@ export function ChatInput({
             />
 
             {/* Text Input */}
-            <input
+            <textarea
               ref={inputRef}
               value={message}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               placeholder="Ask anything"
               disabled={isLoading || isUploading || isJobRunning}
-              className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
+              rows={1}
+              className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground resize-none max-h-30 overflow-y-auto"
             />
 
             {/* Mic */}
