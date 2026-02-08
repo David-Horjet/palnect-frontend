@@ -137,6 +137,7 @@ export default function LiveTutorPage() {
     const scriptProcessorNodeRef = useRef<AudioWorkletNode | null>(null)
     const hasGreetedRef = useRef(false)
     const connectionStatusRef = useRef(connectionStatus);
+    const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     // Cleanup Logic
     const cleanupAudio = useCallback(() => {
@@ -489,14 +490,14 @@ When the session starts, greet the student warmly and ask what they'd like to le
                     } else {
                         silenceCounter++;
                         // Keepalive
-                        if (silenceCounter % 50 === 0 && !isAISpeaking) {
-                            try {
-                                sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
-                                console.log('💓 Keepalive sent');
-                            } catch (error) {
-                                console.error('❌ Keepalive error:', error);
-                            }
-                        }
+                        // if (silenceCounter % 50 === 0 && !isAISpeaking) {
+                        //     try {
+                        //         sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
+                        //         console.log('💓 Keepalive sent');
+                        //     } catch (error) {
+                        //         console.error('❌ Keepalive error:', error);
+                        //     }
+                        // }
                     }
                 }
             };
