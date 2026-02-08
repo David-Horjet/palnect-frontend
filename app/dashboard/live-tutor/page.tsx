@@ -99,8 +99,6 @@ async function decodeAudioData(
     return buffer;
 }
 
-const connectionStatusRef = useRef(connectionStatus);
-
 type ViewState = 'lobby' | 'call'
 
 export default function LiveTutorPage() {
@@ -138,6 +136,7 @@ export default function LiveTutorPage() {
     const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null)
     const scriptProcessorNodeRef = useRef<AudioWorkletNode | null>(null)
     const hasGreetedRef = useRef(false)
+    const connectionStatusRef = useRef(connectionStatus);
 
     // Cleanup Logic
     const cleanupAudio = useCallback(() => {
@@ -218,10 +217,10 @@ export default function LiveTutorPage() {
                     onopen: () => {
                         console.log('✅ ===== SESSION OPENED SUCCESSFULLY =====');
                         dispatch(setConnectionStatus('connected'));
-                        
+
                         // Start recording first
                         startRecording();
-                        
+
                         // Send greeting after a small delay to ensure everything is ready
                         setTimeout(() => {
                             if (sessionRef.current && !hasGreetedRef.current) {
@@ -241,7 +240,7 @@ export default function LiveTutorPage() {
                             interrupted: !!message.serverContent?.interrupted,
                             turnComplete: !!message.serverContent?.turnComplete
                         });
-                        
+
                         // Handle transcriptions
                         if (message.serverContent?.outputTranscription) {
                             const transcription = message.serverContent.outputTranscription.text;
@@ -266,7 +265,7 @@ export default function LiveTutorPage() {
                                     setIsAISpeaking(true);
                                     const ctx = outputAudioContextRef.current;
                                     console.log('🔊 Decoding and playing AI audio...');
-                                    
+
                                     try {
                                         nextStartTimeRef.current = Math.max(
                                             nextStartTimeRef.current,
@@ -294,7 +293,7 @@ export default function LiveTutorPage() {
                                         source.start(nextStartTimeRef.current);
                                         nextStartTimeRef.current = nextStartTimeRef.current + audioBuffer.duration;
                                         sourcesRef.current.add(source);
-                                        
+
                                         console.log('🔊 Playing AI audio, duration:', audioBuffer.duration.toFixed(2) + 's');
                                     } catch (error) {
                                         console.error('❌ Error playing AI audio:', error);
@@ -332,12 +331,12 @@ export default function LiveTutorPage() {
                         console.log('🔌 ===== SESSION CLOSED =====');
                         console.log('Close code:', e.code, 'Reason:', e.reason);
                         dispatch(setConnectionStatus('disconnected'));
-                        
+
                         // Only show toast if it wasn't a normal closure
                         if (e.code !== 1000) {
                             toast.error(`Session closed (${e.code}): ${e.reason || 'Unknown reason'}`);
                         }
-                        
+
                         cleanupAll();
                     },
                 },
@@ -389,13 +388,13 @@ When the session starts, greet the student warmly and ask what they'd like to le
         try {
             if (!streamRef.current) {
                 console.log('📡 Requesting microphone access...');
-                streamRef.current = await navigator.mediaDevices.getUserMedia({ 
+                streamRef.current = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         echoCancellation: true,
                         noiseSuppression: true,
                         autoGainControl: true,
                         sampleRate: 16000
-                    } 
+                    }
                 });
                 console.log('✅ Microphone access granted');
             }
@@ -428,7 +427,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
 
             workletNode.port.onmessage = (event) => {
                 const now = Date.now();
-                
+
                 // Log periodically to avoid spam
                 if (now - lastLogTime > 2000) {
                     console.log('📨 Worklet message:', event.data.type);
@@ -441,7 +440,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
                     return;
                 }
 
-                if (connectionStatus !== 'connected') {
+                if (connectionStatusRef.current !== 'connected') {
                     console.warn('⚠️ Not connected:', connectionStatus);
                     setUserVolume(0);
                     return;
@@ -455,13 +454,13 @@ When the session starts, greet the student warmly and ask what they'd like to le
                 if (event.data.type === 'volume') {
                     const rms = event.data.volume;
                     setUserVolume(Math.min(rms * 3, 1));
-                    
+
                     if (rms > 0.02 && now - lastLogTime > 2000) {
                         console.log('🔊 Voice detected! Volume:', rms.toFixed(4));
                     }
                 } else if (event.data.type === 'audio-data') {
                     const pcmData = new Float32Array(event.data.data);
-                    
+
                     // Calculate RMS
                     let sum = 0;
                     for (let i = 0; i < pcmData.length; i++) {
@@ -529,6 +528,10 @@ When the session starts, greet the student warmly and ask what they'd like to le
             dispatch(startLiveSessionAction(token))
         }
     }, [viewState, ephemeralToken, user, token, currentSession, dispatch])
+
+    useEffect(() => {
+        connectionStatusRef.current = connectionStatus;
+    }, [connectionStatus]);
 
     useEffect(() => {
         if (viewState === 'call' && ephemeralToken && currentSession && !sessionRef.current && !connectingRef.current) {
@@ -653,7 +656,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
                             </p>
                         </div>
                     </div>
-                    
+
                     {/* Session Info */}
                     <div className="w-full p-4 bg-muted/50 rounded-lg space-y-2 text-sm">
                         <div className="flex justify-between">
