@@ -294,7 +294,7 @@ export default function LexiChatPage() {
             <div className="flex-1 overflow-y-auto p-2 md:p-6 space-y-6">
               {!currentConversation || messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
-                  <Card className="max-w-2xl p-4 bg-transparent border-none text-center space-y-6">
+                  <Card className="max-w-2xl w-full bg-transparent border-none text-center space-y-6">
                     <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
                       <Image src={robot} alt={"robot"} width={100} height={100} />
                     </div>

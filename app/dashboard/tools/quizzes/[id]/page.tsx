@@ -72,6 +72,18 @@ export default function QuizPage() {
         dispatch(submitQuiz({ token, quizId: params.id as string, answers }))
     }
 
+    function parseOptions(options: string | string[] | null): string[] {
+        if (!options) return []
+        if (Array.isArray(options)) return options
+
+        try {
+            const parsed = JSON.parse(options)
+            return Array.isArray(parsed) ? parsed : []
+        } catch {
+            return []
+        }
+    }
+
     if (loading) {
         return (
             <div className="flex h-screen">
@@ -122,8 +134,11 @@ export default function QuizPage() {
                         <div className="space-y-4">
                             {currentQuiz.quiz_questions.map((question, index) => {
                                 const userAnswer = answers[index]
-                                const correctAnswer = JSON.parse(question.correct_answer)
+                                const correctAnswer = question.type === 'true_false'
+                                    ? question.correct_answer === 'true'
+                                    : parseInt(question.correct_answer)
                                 const isCorrect = userAnswer === correctAnswer
+                                const questionOptions = parseOptions(question.options)
 
                                 return (
                                     <Card key={question.id} className="p-4">
@@ -139,13 +154,13 @@ export default function QuizPage() {
                                                     <p>Your answer: {
                                                         question.type === 'true_false'
                                                             ? (userAnswer ? 'True' : 'False')
-                                                            : question.options?.[userAnswer as number] || 'Not answered'
+                                                            : (typeof userAnswer === 'number' && questionOptions[userAnswer]) ? questionOptions[userAnswer] : 'Not answered'
                                                     }</p>
                                                     {!isCorrect && (
                                                         <p>Correct answer: {
                                                             question.type === 'true_false'
                                                                 ? (correctAnswer ? 'True' : 'False')
-                                                                : question.options?.[correctAnswer] || 'Unknown'
+                                                                : (typeof correctAnswer === 'number' && questionOptions[correctAnswer]) ? questionOptions[correctAnswer] : 'Unknown'
                                                         }</p>
                                                     )}
                                                 </div>
@@ -167,26 +182,14 @@ export default function QuizPage() {
         )
     }
 
-    function parseOptions(options: string | string[] | null): string[] {
-        if (!options) return []
-        if (Array.isArray(options)) return options
-
-        try {
-            const parsed = JSON.parse(options)
-            return Array.isArray(parsed) ? parsed : []
-        } catch {
-            return []
-        }
-    }
-
-
-
     const currentQuestion = currentQuiz.quiz_questions[currentIndex]
-
     const options = parseOptions(currentQuestion.options)
-
     const progress = ((currentIndex + 1) / currentQuiz.quiz_questions.length) * 100
     const isLastQuestion = currentIndex === currentQuiz.quiz_questions.length - 1
+    
+    // Get current answer as string for RadioGroup
+    const currentAnswer = answers[currentIndex]
+    const radioValue = currentAnswer !== null ? String(currentAnswer) : ""
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -224,12 +227,13 @@ export default function QuizPage() {
 
                         {currentQuestion.type === 'multiple_choice' && options.length > 0 ? (
                             <RadioGroup
-                                value={answers[currentIndex]?.toString()}
+                                value={radioValue}
                                 onValueChange={handleAnswerChange}
+                                className="space-y-3"
                             >
                                 {options.map((option, optionIndex) => {
-                                    const optionLetter = String.fromCharCode(97 + optionIndex) // a, b, c, d...
-                                    const isSelected = answers[currentIndex]?.toString() === optionIndex.toString()
+                                    const optionValue = String(optionIndex)
+                                    const isSelected = radioValue === optionValue
 
                                     return (
                                         <div
@@ -240,41 +244,46 @@ export default function QuizPage() {
                                                     ? "bg-primary/10 border-primary shadow-sm"
                                                     : "bg-background border-border hover:bg-muted/50"
                                             )}
-                                            onClick={() => handleAnswerChange(optionIndex.toString())}
+                                            onClick={() => handleAnswerChange(optionValue)}
                                         >
-                                            <div className={cn(
-                                                "flex items-center justify-center w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all",
-                                                isSelected
-                                                    ? "bg-primary border-primary text-primary-foreground"
-                                                    : "border-muted-foreground text-muted-foreground"
-                                            )}>
-                                                {optionLetter.toUpperCase()}
-                                            </div>
-                                            <Label
-                                                htmlFor={`option-${optionIndex}`}
-                                                className="flex-1 cursor-pointer font-medium"
-                                            >
-                                                {option}
-                                            </Label>
                                             <RadioGroupItem
-                                                value={optionIndex.toString()}
+                                                value={optionValue}
                                                 id={`option-${optionIndex}`}
                                                 className="sr-only"
                                             />
+
+                                            <Label
+                                                htmlFor={`option-${optionIndex}`}
+                                                className="flex items-center flex-1 cursor-pointer"
+                                            >
+                                                <div className={cn(
+                                                    "flex items-center justify-center w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all mr-3",
+                                                    isSelected
+                                                        ? "bg-primary border-primary text-primary-foreground"
+                                                        : "border-muted-foreground text-muted-foreground"
+                                                )}>
+                                                    {String.fromCharCode(65 + optionIndex)}
+                                                </div>
+
+                                                <span className="flex-1 font-medium">
+                                                    {option}
+                                                </span>
+                                            </Label>
                                         </div>
                                     )
                                 })}
                             </RadioGroup>
                         ) : (
                             <RadioGroup
-                                value={answers[currentIndex]?.toString()}
+                                value={radioValue}
                                 onValueChange={handleAnswerChange}
+                                className="space-y-3"
                             >
                                 {[
                                     { value: 'true', label: 'True' },
                                     { value: 'false', label: 'False' }
                                 ].map((option) => {
-                                    const isSelected = answers[currentIndex]?.toString() === option.value
+                                    const isSelected = radioValue === option.value
 
                                     return (
                                         <div
@@ -287,25 +296,29 @@ export default function QuizPage() {
                                             )}
                                             onClick={() => handleAnswerChange(option.value)}
                                         >
-                                            <div className={cn(
-                                                "flex items-center justify-center w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all",
-                                                isSelected
-                                                    ? "bg-primary border-primary text-primary-foreground"
-                                                    : "border-muted-foreground text-muted-foreground"
-                                            )}>
-                                                {option.label.charAt(0)}
-                                            </div>
-                                            <Label
-                                                htmlFor={option.value}
-                                                className="flex-1 cursor-pointer font-medium"
-                                            >
-                                                {option.label}
-                                            </Label>
                                             <RadioGroupItem
                                                 value={option.value}
-                                                id={option.value}
+                                                id={`tf-${option.value}`}
                                                 className="sr-only"
                                             />
+
+                                            <Label
+                                                htmlFor={`tf-${option.value}`}
+                                                className="flex items-center flex-1 cursor-pointer"
+                                            >
+                                                <div className={cn(
+                                                    "flex items-center justify-center w-8 h-8 rounded-full border-2 font-semibold text-sm transition-all mr-3",
+                                                    isSelected
+                                                        ? "bg-primary border-primary text-primary-foreground"
+                                                        : "border-muted-foreground text-muted-foreground"
+                                                )}>
+                                                    {option.label.charAt(0)}
+                                                </div>
+
+                                                <span className="flex-1 font-medium">
+                                                    {option.label}
+                                                </span>
+                                            </Label>
                                         </div>
                                     )
                                 })}
@@ -349,4 +362,3 @@ export default function QuizPage() {
         </div>
     )
 }
-
