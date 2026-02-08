@@ -573,33 +573,33 @@ When the session starts, greet the student warmly and ask what they'd like to le
 
     const LobbyView = () => (
         <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-8">
-            <div className="relative">
+            <div className="relative w-24 h-24">
                 <Image src="/gifs/robot.gif" alt="AI Tutor" width={120} height={120} unoptimized className="rounded-full border-4 border-primary/20" />
-                <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2"><Brain className="w-6 h-6" /></div>
+                {/* <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-2"><Brain className="w-5 h-5" /></div> */}
             </div>
             <div className="text-center space-y-4 max-w-2xl">
-                <h1 className="text-4xl font-bold">Live AI Tutor</h1>
-                <p className="text-xl text-muted-foreground">Real-time voice conversations with your AI learning companion.</p>
+                <h1 className="text-xl md:text-2xl font-bold">Have a call with Lexi</h1>
+                <p className="text-sm md:text-base text-muted-foreground">Real-time voice conversations with your AI learning companion.</p>
             </div>
-            <Button onClick={() => setViewState('call')} size="lg" className="px-8 py-6 text-lg font-semibold">
-                <Play className="w-6 h-6 mr-2" /> Start Tutoring
+            <Button onClick={() => setViewState('call')} size="md" className="text-sm md:text-base font-semibold">
+                <Play className="w-5 h-5 mr-2" /> Start Call
             </Button>
         </div>
     );
 
     const CallView = () => (
-        <div className="flex flex-col h-[85vh] bg-background border rounded-xl overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between p-4 border-b bg-card">
-                <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : connectionStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}></div>
-                    <span className="font-semibold text-sm uppercase tracking-wider">{connectionStatus}</span>
+        <div className="flex flex-col gap-5 h-[90vh] rounded-2xl">
+            <div className="flex items-center justify-between p-4 border border-border/10 rounded-3xl">
+                <div className="text-xs md:text-sm flex items-center space-x-3">
+                    <div className={`rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : connectionStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'}`}></div>
+                    <span className="font-semibold uppercase tracking-wider">{connectionStatus}</span>
                     {isAISpeaking && <Badge variant="secondary" className="animate-pulse">AI Speaking...</Badge>}
                 </div>
                 <Button variant="destructive" size="sm" onClick={() => setShowEndDialog(true)}>End Session</Button>
             </div>
 
             <div className="flex-1 flex overflow-hidden">
-                <div className="flex-1 flex flex-col items-center justify-center p-8 bg-muted/10 relative">
+                <div className="flex-1 flex flex-col items-center justify-center p-8 relative">
                     <div className="relative">
                         {/* User speaking pulse */}
                         <div
@@ -613,7 +613,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
                         {isAISpeaking && (
                             <div className="absolute inset-0 rounded-2xl bg-green-500/30 blur-xl animate-pulse" />
                         )}
-                        <div className="relative w-64 h-64">
+                        <div className="relative w-20 h-20">
                             <Image
                                 src="/gifs/robot.gif"
                                 alt="AI Tutor"
@@ -626,8 +626,8 @@ When the session starts, greet the student warmly and ask what they'd like to le
                     </div>
 
                     {captions.length > 0 && (
-                        <div className="absolute bottom-8 left-8 right-8 bg-black/80 text-white p-6 rounded-xl backdrop-blur-md max-h-32 overflow-y-auto">
-                            <p className="text-lg leading-relaxed">
+                        <div className="absolute bottom-8 left-8 right-8 text-white p-2 md:p-4 rounded-xl backdrop-blur-md max-h-32 overflow-y-auto">
+                            <p className="text-xs md:text-sm leading-relaxed">
                                 {captions.slice(-3).map((caption, idx) => (
                                     <span key={idx} className="block mb-2">
                                         <span className="text-primary font-bold mr-2">Lexi:</span>
@@ -639,11 +639,11 @@ When the session starts, greet the student warmly and ask what they'd like to le
                     )}
                 </div>
 
-                <div className="w-80 border-l bg-card p-6 flex flex-col items-center space-y-6">
-                    <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-inner flex items-center justify-center text-muted-foreground">
+                {/* <div className="w-80 border-l bg-card p-6 flex flex-col items-center space-y-6"> */}
+                    {/* <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-inner flex items-center justify-center text-muted-foreground">
                         {isVideoEnabled ? <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover" /> : <User className="w-12 h-12 opacity-20" />}
-                    </div>
-                    <div className="text-center">
+                    </div> */}
+                    {/* <div className="text-center">
                         <p className="font-bold">Student View</p>
                         <div className="flex items-center justify-center gap-2 mt-1">
                             <div className="h-1 w-16 bg-muted rounded-full overflow-hidden">
@@ -656,10 +656,10 @@ When the session starts, greet the student warmly and ask what they'd like to le
                                 {isMuted ? 'Muted' : 'Voice Level'}
                             </p>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Session Info */}
-                    <div className="w-full p-4 bg-muted/50 rounded-lg space-y-2 text-sm">
+                    {/* <div className="w-full p-4 bg-muted/50 rounded-lg space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Status:</span>
                             <span className="font-medium">{connectionStatus}</span>
@@ -672,38 +672,38 @@ When the session starts, greet the student warmly and ask what they'd like to le
                             <span className="text-muted-foreground">AI Status:</span>
                             <span className="font-medium">{isAISpeaking ? 'Speaking' : 'Listening'}</span>
                         </div>
-                    </div>
-                </div>
+                    </div> */}
+                {/* </div> */}
             </div>
 
-            <div className="border-t p-6 bg-card">
+            <div className="border border-border/10 rounded-3xl p-4">
                 <div className="flex items-center justify-center space-x-6">
                     <Button
                         variant={!isMuted ? "primary" : "destructive"}
-                        size="lg"
+                        size="md"
                         onClick={toggleMute}
                         className="rounded-full shadow-lg"
                         disabled={connectionStatus !== 'connected'}
                     >
-                        {!isMuted ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
+                        {!isMuted ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
                     </Button>
                     <Button
                         variant={isVideoEnabled ? "primary" : "secondary"}
-                        size="lg"
+                        size="md"
                         onClick={() => setIsVideoEnabled(!isVideoEnabled)}
                         className="rounded-full shadow-lg"
                         disabled={connectionStatus !== 'connected'}
                     >
-                        {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
+                        {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
                     </Button>
                     {connectionStatus === 'error' && (
                         <Button
                             variant="outline"
-                            size="lg"
+                            size="md"
                             onClick={() => { cleanupAll(); initSession(); }}
                             className="rounded-full border-primary text-primary"
                         >
-                            <RefreshCw className="w-6 h-6" />
+                            <RefreshCw className="w-5 h-5" />
                         </Button>
                     )}
                 </div>
@@ -712,15 +712,15 @@ When the session starts, greet the student warmly and ask what they'd like to le
     );
 
     return (
-        <div className="min-h-screen bg-muted/30">
+        <div className="min-h-screen">
             <div className="flex">
                 <DashboardSidebar activeTab="live-tutor" />
-                <main className="flex-1 p-8">
+                <main className="flex-1 p-3">
                     {viewState === 'lobby' ? <LobbyView /> : <CallView />}
 
                     <DialogProvider open={showEndDialog} onOpenChange={setShowEndDialog}>
                         <DialogContent>
-                            <DialogHeader>
+                            <DialogHeader className="p-0">
                                 <DialogTitle>End Tutoring Session?</DialogTitle>
                                 <DialogDescription>This will finalize your learning summary and generate study materials.</DialogDescription>
                             </DialogHeader>
