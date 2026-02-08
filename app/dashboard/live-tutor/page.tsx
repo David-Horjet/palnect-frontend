@@ -134,7 +134,7 @@ export default function LiveTutorPage() {
     const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set())
     const nextStartTimeRef = useRef(0)
     const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null)
-    const scriptProcessorNodeRef = useRef<ScriptProcessorNode | null>(null)
+    const scriptProcessorNodeRef = useRef<AudioWorkletNode | null>(null)
     const hasGreetedRef = useRef(false)
 
     // Cleanup Logic
@@ -230,7 +230,6 @@ export default function LiveTutorPage() {
                         const modelTurn = message.serverContent?.modelTurn;
                         if (modelTurn?.parts) {
                             for (const part of modelTurn.parts) {
-                                console.log('Processing part:', part);
                                 // Extract text
                                 if (part.text) {
                                     console.log('AI text:', part.text);
@@ -332,7 +331,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
                         }]
                     },
                     speechConfig: {
-                        voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Callirrhoe' } }
+                        voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } }
                     },
                 },
             });
@@ -374,58 +373,65 @@ When the session starts, greet the student warmly and ask what they'd like to le
             const inCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
             inputAudioContextRef.current = inCtx;
 
+            // Load AudioWorklet module
+            await inCtx.audioWorklet.addModule('/audio-processor.js');
+            console.log('AudioWorklet module loaded.');
+
             sourceNodeRef.current = inCtx.createMediaStreamSource(streamRef.current);
 
-            // Use ScriptProcessorNode
-            const bufferSize = 4096; // Larger buffer for stability
-            scriptProcessorNodeRef.current = inCtx.createScriptProcessor(bufferSize, 1, 1);
+            // Create AudioWorkletNode (modern replacement for ScriptProcessorNode)
+            const workletNode = new AudioWorkletNode(inCtx, 'audio-processor');
+            scriptProcessorNodeRef.current = workletNode as any; // Store for cleanup
 
             let silenceCounter = 0;
-            const silenceThreshold = 0.01; // Minimum volume to consider as speech
+            const silenceThreshold = 0.01;
 
-            scriptProcessorNodeRef.current.onaudioprocess = (audioProcessingEvent) => {
+            workletNode.port.onmessage = (event) => {
                 if (!sessionRef.current || connectionStatus !== 'connected' || isMuted) {
                     setUserVolume(0);
                     return;
                 }
 
-                const inputBuffer = audioProcessingEvent.inputBuffer;
-                const pcmData = inputBuffer.getChannelData(0);
-
-                // Calculate volume (RMS)
-                let sum = 0;
-                for (let i = 0; i < pcmData.length; i++) {
-                    sum += pcmData[i] * pcmData[i];
-                }
-                const rms = Math.sqrt(sum / pcmData.length);
-                setUserVolume(Math.min(rms * 3, 1));
-
-                // Only send if there's actual audio (not silence) and AI is not speaking
-                if (rms > silenceThreshold && !isAISpeaking) {
-                    silenceCounter = 0;
-                    try {
-                        sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
-                    } catch (error) {
-                        console.error('Error sending audio:', error);
+                if (event.data.type === 'volume') {
+                    const rms = event.data.volume;
+                    setUserVolume(Math.min(rms * 3, 1));
+                } else if (event.data.type === 'audio-data') {
+                    const pcmData = new Float32Array(event.data.data);
+                    
+                    // Calculate RMS for this chunk
+                    let sum = 0;
+                    for (let i = 0; i < pcmData.length; i++) {
+                        sum += pcmData[i] * pcmData[i];
                     }
-                } else {
-                    silenceCounter++;
-                    // Send silence periodically to keep connection alive
-                    if (silenceCounter % 50 === 0 && !isAISpeaking) {
+                    const rms = Math.sqrt(sum / pcmData.length);
+
+                    // Only send if there's actual audio (not silence) and AI is not speaking
+                    if (rms > silenceThreshold && !isAISpeaking) {
+                        silenceCounter = 0;
                         try {
                             sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
+                            console.log('Sent audio chunk, RMS:', rms);
                         } catch (error) {
-                            console.error('Error sending keepalive:', error);
+                            console.error('Error sending audio:', error);
+                        }
+                    } else {
+                        silenceCounter++;
+                        // Send silence periodically to keep connection alive
+                        if (silenceCounter % 50 === 0 && !isAISpeaking) {
+                            try {
+                                sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
+                            } catch (error) {
+                                console.error('Error sending keepalive:', error);
+                            }
                         }
                     }
                 }
             };
 
-            sourceNodeRef.current.connect(scriptProcessorNodeRef.current);
+            sourceNodeRef.current.connect(workletNode);
             // DON'T connect to destination - this prevents echo
-            // scriptProcessorNodeRef.current.connect(inCtx.destination);
 
-            console.log('Recording started successfully');
+            console.log('Recording started successfully with AudioWorklet');
         } catch (err) {
             console.error('Mic capture failed:', err);
             toast.error('Could not access microphone.');
@@ -605,7 +611,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
                             variant="outline"
                             size="lg"
                             onClick={() => { cleanupAll(); initSession(); }}
-                            className="w-16 h-16 rounded-full border-primary text-primary"
+                            className="rounded-full border-primary text-primary"
                         >
                             <RefreshCw className="w-6 h-6" />
                         </Button>
