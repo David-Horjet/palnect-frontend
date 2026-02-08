@@ -582,7 +582,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
                 <p className="text-sm md:text-base text-muted-foreground">Real-time voice conversations with your AI learning companion.</p>
             </div>
             <Button onClick={() => setViewState('call')} size="md" className="text-sm md:text-base font-semibold">
-                <Play className="w-5 h-5 mr-2" /> Start Call
+                <Play className="w-4 h-4 mr-2" /> Start Call
             </Button>
         </div>
     );
