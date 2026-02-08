@@ -99,6 +99,8 @@ async function decodeAudioData(
     return buffer;
 }
 
+const connectionStatusRef = useRef(connectionStatus);
+
 type ViewState = 'lobby' | 'call'
 
 export default function LiveTutorPage() {
@@ -139,6 +141,7 @@ export default function LiveTutorPage() {
 
     // Cleanup Logic
     const cleanupAudio = useCallback(() => {
+        console.log('🧹 Cleaning up audio...');
         sourcesRef.current.forEach(source => {
             try { source.stop(); } catch (e) { }
         });
@@ -149,6 +152,7 @@ export default function LiveTutorPage() {
             try {
                 scriptProcessorNodeRef.current.disconnect();
                 sourceNodeRef.current.disconnect();
+                console.log('✅ Audio nodes disconnected');
             } catch (e) { }
         }
 
@@ -166,14 +170,17 @@ export default function LiveTutorPage() {
     }, []);
 
     const cleanupAll = useCallback(() => {
+        console.log('🧹 Cleaning up all resources...');
         cleanupAudio();
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
             streamRef.current = null;
+            console.log('✅ Media stream stopped');
         }
         if (sessionRef.current) {
             try { sessionRef.current.close(); } catch (e) { }
             sessionRef.current = null;
+            console.log('✅ Session closed');
         }
         connectingRef.current = false;
         hasGreetedRef.current = false;
@@ -183,10 +190,18 @@ export default function LiveTutorPage() {
 
     // Core Connection Logic
     const initSession = useCallback(async () => {
-        if (!ephemeralToken || connectingRef.current || sessionRef.current) return;
+        if (!ephemeralToken || connectingRef.current || sessionRef.current) {
+            console.log('⚠️ Skipping session init:', {
+                hasToken: !!ephemeralToken,
+                isConnecting: connectingRef.current,
+                hasSession: !!sessionRef.current
+            });
+            return;
+        }
 
         connectingRef.current = true;
         dispatch(setConnectionStatus('connecting'));
+        console.log('🔌 Initializing Gemini Live session...');
 
         try {
             const ai = new GoogleGenAI({
@@ -195,12 +210,13 @@ export default function LiveTutorPage() {
             });
 
             const model = 'gemini-2.5-flash-native-audio-preview-09-2025';
+            console.log('🤖 Using model:', model);
 
             const session = await ai.live.connect({
                 model: model,
                 callbacks: {
                     onopen: () => {
-                        console.log('Session opened');
+                        console.log('✅ ===== SESSION OPENED SUCCESSFULLY =====');
                         dispatch(setConnectionStatus('connected'));
                         
                         // Start recording first
@@ -210,6 +226,7 @@ export default function LiveTutorPage() {
                         setTimeout(() => {
                             if (sessionRef.current && !hasGreetedRef.current) {
                                 hasGreetedRef.current = true;
+                                console.log('👋 Sending greeting to AI...');
                                 sessionRef.current.sendRealtimeInput({
                                     text: "Hi!",
                                 });
@@ -217,22 +234,29 @@ export default function LiveTutorPage() {
                         }, 500);
                     },
                     onmessage: async (message: LiveServerMessage) => {
-                        console.log('Received message:', message);
+                        console.log('📩 ===== RECEIVED MESSAGE FROM AI =====');
+                        console.log({
+                            hasTranscription: !!message.serverContent?.outputTranscription,
+                            hasModelTurn: !!message.serverContent?.modelTurn,
+                            interrupted: !!message.serverContent?.interrupted,
+                            turnComplete: !!message.serverContent?.turnComplete
+                        });
                         
                         // Handle transcriptions
                         if (message.serverContent?.outputTranscription) {
                             const transcription = message.serverContent.outputTranscription.text;
-                            console.log('AI transcription:', transcription);
+                            console.log('📝 AI transcription:', transcription);
                             dispatch(addCaption(transcription));
                         }
 
                         // Handle model turn with audio
                         const modelTurn = message.serverContent?.modelTurn;
                         if (modelTurn?.parts) {
+                            console.log('🎵 Processing', modelTurn.parts.length, 'parts from AI');
                             for (const part of modelTurn.parts) {
                                 // Extract text
                                 if (part.text) {
-                                    console.log('AI text:', part.text);
+                                    console.log('💬 AI text response:', part.text);
                                     dispatch(addCaption(part.text));
                                 }
 
@@ -241,6 +265,7 @@ export default function LiveTutorPage() {
                                 if (audio?.data && outputAudioContextRef.current && outputNodeRef.current) {
                                     setIsAISpeaking(true);
                                     const ctx = outputAudioContextRef.current;
+                                    console.log('🔊 Decoding and playing AI audio...');
                                     
                                     try {
                                         nextStartTimeRef.current = Math.max(
@@ -262,6 +287,7 @@ export default function LiveTutorPage() {
                                             sourcesRef.current.delete(source);
                                             if (sourcesRef.current.size === 0) {
                                                 setIsAISpeaking(false);
+                                                console.log('✅ AI finished speaking');
                                             }
                                         });
 
@@ -269,9 +295,9 @@ export default function LiveTutorPage() {
                                         nextStartTimeRef.current = nextStartTimeRef.current + audioBuffer.duration;
                                         sourcesRef.current.add(source);
                                         
-                                        console.log('Playing AI audio, duration:', audioBuffer.duration);
+                                        console.log('🔊 Playing AI audio, duration:', audioBuffer.duration.toFixed(2) + 's');
                                     } catch (error) {
-                                        console.error('Error playing audio:', error);
+                                        console.error('❌ Error playing AI audio:', error);
                                         setIsAISpeaking(false);
                                     }
                                 }
@@ -281,7 +307,7 @@ export default function LiveTutorPage() {
                         // Handle interruption
                         const interrupted = message.serverContent?.interrupted;
                         if (interrupted) {
-                            console.log('AI interrupted');
+                            console.log('⏸️ AI was interrupted');
                             for (const source of sourcesRef.current.values()) {
                                 source.stop();
                                 sourcesRef.current.delete(source);
@@ -292,22 +318,24 @@ export default function LiveTutorPage() {
 
                         // Handle turn complete
                         if (message.serverContent?.turnComplete) {
-                            console.log('Turn complete');
+                            console.log('✅ Turn complete - AI is ready to listen');
                             setIsAISpeaking(false);
                         }
                     },
                     onerror: (e: ErrorEvent) => {
-                        console.error('Session error:', e);
+                        console.error('❌ ===== SESSION ERROR =====');
+                        console.error(e);
                         dispatch(setConnectionStatus('error'));
-                        toast.error("Tutoring session encountered an error: " + e.message);
+                        toast.error("Session error: " + e.message);
                     },
                     onclose: (e: CloseEvent) => {
-                        console.log('Session closed:', e.code, e.reason);
+                        console.log('🔌 ===== SESSION CLOSED =====');
+                        console.log('Close code:', e.code, 'Reason:', e.reason);
                         dispatch(setConnectionStatus('disconnected'));
                         
                         // Only show toast if it wasn't a normal closure
                         if (e.code !== 1000) {
-                            toast.error(`Session closed unexpectedly: ${e.reason || 'Unknown reason'}`);
+                            toast.error(`Session closed (${e.code}): ${e.reason || 'Unknown reason'}`);
                         }
                         
                         cleanupAll();
@@ -337,6 +365,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
             });
 
             sessionRef.current = session;
+            console.log('✅ Session stored in ref');
 
             // Setup Output Audio Context
             const outCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
@@ -345,20 +374,21 @@ When the session starts, greet the student warmly and ask what they'd like to le
             outputAudioContextRef.current = outCtx;
             outputNodeRef.current = outGain;
             nextStartTimeRef.current = outCtx.currentTime;
+            console.log('🔊 Output audio context created, sample rate:', outCtx.sampleRate);
 
         } catch (error) {
-            console.error('Failed to init session:', error);
+            console.error('❌ Failed to init session:', error);
             dispatch(setConnectionStatus('error'));
             connectingRef.current = false;
-            toast.error("Failed to connect to tutor. Please try again.");
+            toast.error("Failed to connect. Please try again.");
         }
     }, [ephemeralToken, dispatch, cleanupAll]);
 
     const startRecording = async () => {
-        console.log('Starting microphone capture...');
+        console.log('🎤 ===== STARTING MICROPHONE CAPTURE =====');
         try {
             if (!streamRef.current) {
-                // Request audio with echo cancellation and noise suppression
+                console.log('📡 Requesting microphone access...');
                 streamRef.current = await navigator.mediaDevices.getUserMedia({ 
                     audio: {
                         echoCancellation: true,
@@ -367,27 +397,57 @@ When the session starts, greet the student warmly and ask what they'd like to le
                         sampleRate: 16000
                     } 
                 });
+                console.log('✅ Microphone access granted');
             }
 
-            console.log('Microphone access granted.');
             const inCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
             inputAudioContextRef.current = inCtx;
+            console.log('🔊 Input audio context created, sample rate:', inCtx.sampleRate);
 
-            // Load AudioWorklet module
-            await inCtx.audioWorklet.addModule('/audio-processor.js');
-            console.log('AudioWorklet module loaded.');
+            try {
+                console.log('📥 Loading AudioWorklet module from /audio-processor.js...');
+                await inCtx.audioWorklet.addModule('/audio-processor.js');
+                console.log('✅ AudioWorklet module loaded successfully');
+            } catch (workletError) {
+                console.error('❌ Failed to load AudioWorklet:', workletError);
+                toast.error('Failed to load audio processor. Make sure audio-processor.js is in /public folder');
+                return;
+            }
 
             sourceNodeRef.current = inCtx.createMediaStreamSource(streamRef.current);
+            console.log('🎵 Media stream source created');
 
-            // Create AudioWorkletNode (modern replacement for ScriptProcessorNode)
             const workletNode = new AudioWorkletNode(inCtx, 'audio-processor');
-            scriptProcessorNodeRef.current = workletNode as any; // Store for cleanup
+            scriptProcessorNodeRef.current = workletNode;
+            console.log('🔧 AudioWorkletNode created');
 
             let silenceCounter = 0;
             const silenceThreshold = 0.01;
+            let audioChunksSent = 0;
+            let lastLogTime = 0;
 
             workletNode.port.onmessage = (event) => {
-                if (!sessionRef.current || connectionStatus !== 'connected' || isMuted) {
+                const now = Date.now();
+                
+                // Log periodically to avoid spam
+                if (now - lastLogTime > 2000) {
+                    console.log('📨 Worklet message:', event.data.type);
+                    lastLogTime = now;
+                }
+
+                if (!sessionRef.current) {
+                    console.warn('⚠️ Session not ready');
+                    setUserVolume(0);
+                    return;
+                }
+
+                if (connectionStatus !== 'connected') {
+                    console.warn('⚠️ Not connected:', connectionStatus);
+                    setUserVolume(0);
+                    return;
+                }
+
+                if (isMuted) {
                     setUserVolume(0);
                     return;
                 }
@@ -395,78 +455,104 @@ When the session starts, greet the student warmly and ask what they'd like to le
                 if (event.data.type === 'volume') {
                     const rms = event.data.volume;
                     setUserVolume(Math.min(rms * 3, 1));
+                    
+                    if (rms > 0.02 && now - lastLogTime > 2000) {
+                        console.log('🔊 Voice detected! Volume:', rms.toFixed(4));
+                    }
                 } else if (event.data.type === 'audio-data') {
                     const pcmData = new Float32Array(event.data.data);
                     
-                    // Calculate RMS for this chunk
+                    // Calculate RMS
                     let sum = 0;
                     for (let i = 0; i < pcmData.length; i++) {
                         sum += pcmData[i] * pcmData[i];
                     }
                     const rms = Math.sqrt(sum / pcmData.length);
 
-                    // Only send if there's actual audio (not silence) and AI is not speaking
-                    if (rms > silenceThreshold && !isAISpeaking) {
-                        silenceCounter = 0;
-                        try {
-                            sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
-                            console.log('Sent audio chunk, RMS:', rms);
-                        } catch (error) {
-                            console.error('Error sending audio:', error);
+                    // Send if above threshold
+                    if (rms > silenceThreshold) {
+                        if (isAISpeaking) {
+                            if (now - lastLogTime > 2000) {
+                                console.log('🤖 AI is speaking, holding user audio');
+                            }
+                        } else {
+                            silenceCounter = 0;
+                            try {
+                                sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
+                                audioChunksSent++;
+                                if (audioChunksSent % 10 === 0) {
+                                    console.log('✅ Sent', audioChunksSent, 'audio chunks. RMS:', rms.toFixed(4));
+                                }
+                            } catch (error) {
+                                console.error('❌ Error sending audio:', error);
+                            }
                         }
                     } else {
                         silenceCounter++;
-                        // Send silence periodically to keep connection alive
+                        // Keepalive
                         if (silenceCounter % 50 === 0 && !isAISpeaking) {
                             try {
                                 sessionRef.current.sendRealtimeInput({ media: createBlob(pcmData) });
+                                console.log('💓 Keepalive sent');
                             } catch (error) {
-                                console.error('Error sending keepalive:', error);
+                                console.error('❌ Keepalive error:', error);
                             }
                         }
                     }
                 }
             };
 
-            sourceNodeRef.current.connect(workletNode);
-            // DON'T connect to destination - this prevents echo
+            workletNode.port.onmessageerror = (error) => {
+                console.error('❌ Worklet message error:', error);
+            };
 
-            console.log('Recording started successfully with AudioWorklet');
+            sourceNodeRef.current.connect(workletNode);
+            console.log('🔗 Audio nodes connected (no echo)');
+            console.log('✅ ===== RECORDING STARTED - SPEAK NOW! =====');
         } catch (err) {
-            console.error('Mic capture failed:', err);
-            toast.error('Could not access microphone.');
+            console.error('❌ Mic capture failed:', err);
+            toast.error('Microphone error: ' + (err as Error).message);
         }
     }
 
     // Lifecycle Management
     useEffect(() => {
         if (viewState === 'call' && user && token && !ephemeralToken) {
+            console.log('🔑 Generating ephemeral token...');
             dispatch(generateEphemeralToken(token))
         }
     }, [viewState, user, token, ephemeralToken, dispatch])
 
     useEffect(() => {
         if (viewState === 'call' && ephemeralToken && user && token && !currentSession) {
+            console.log('📝 Starting live session...');
             dispatch(startLiveSessionAction(token))
         }
     }, [viewState, ephemeralToken, user, token, currentSession, dispatch])
 
     useEffect(() => {
         if (viewState === 'call' && ephemeralToken && currentSession && !sessionRef.current && !connectingRef.current) {
+            console.log('🚀 All prerequisites met, initializing session...');
             initSession()
         }
     }, [viewState, ephemeralToken, currentSession, initSession])
 
     useEffect(() => {
-        return () => cleanupAll();
+        return () => {
+            console.log('🔄 Component unmounting, cleaning up...');
+            cleanupAll();
+        }
     }, [cleanupAll]);
 
     const toggleMute = () => {
-        dispatch(setMuted(!isMuted));
-        if (!isMuted) setUserVolume(0);
+        const newMuted = !isMuted;
+        dispatch(setMuted(newMuted));
+        console.log('🎙️ Mute toggled:', newMuted);
+        if (newMuted) setUserVolume(0);
     }
 
     const endSession = () => {
+        console.log('👋 Ending session...');
         if (currentSession && token) {
             dispatch(endLiveSessionAction({
                 sessionId: currentSession.id,
@@ -511,7 +597,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
             <div className="flex-1 flex overflow-hidden">
                 <div className="flex-1 flex flex-col items-center justify-center p-8 bg-muted/10 relative">
                     <div className="relative">
-                        {/* Robot Animation Pulse - only when user is speaking */}
+                        {/* User speaking pulse */}
                         <div
                             className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl transition-all duration-75"
                             style={{
@@ -519,7 +605,7 @@ When the session starts, greet the student warmly and ask what they'd like to le
                                 opacity: isMuted ? 0 : Math.min(userVolume * 5, 0.8)
                             }}
                         />
-                        {/* AI Speaking Pulse - when AI is speaking */}
+                        {/* AI speaking pulse */}
                         {isAISpeaking && (
                             <div className="absolute inset-0 rounded-2xl bg-green-500/30 blur-xl animate-pulse" />
                         )}
