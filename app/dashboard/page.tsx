@@ -6,7 +6,7 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap, File } from "lucide-react"
+import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap, File, BotMessageSquare } from "lucide-react"
 import Link from "next/link"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
@@ -141,6 +141,20 @@ export default function DashboardPage() {
 
               >
                 <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/mentors">
+                  <BotMessageSquare className="h-5 w-5" />
+                  <div className="flex flex-col gap-1 items-start">
+                    <span className="font-semibold">Chat Lexi</span>
+                    <span className="text-xs text-muted-foreground">Get personalized guidance</span>
+                  </div>
+                </Link>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-auto p-5 justify-center flex-col items-start hover:bg-accent/5 bg-transparent"
+
+              >
+                <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/mentors">
                   <Users className="h-5 w-5" />
                   <div className="flex flex-col gap-1 items-start">
                     <span className="font-semibold">Find Mentor</span>
@@ -253,20 +267,20 @@ export default function DashboardPage() {
                 ) : conversations && conversations.filter((c: any) => c.type === "lexi_ai").length > 0 ? (
                   <div className="space-y-3">
                     {conversations.filter((c: any) => c.type === "lexi_ai").slice(0, 3).map((conv: any) => (
-                      <Card key={conv.id} className="p-3 hover:shadow-md transition-shadow">
-                        <Link href={`/dashboard/lexi/${conv.id}`} className="flex items-start gap-3">
-                          <div className="shrink-0">
+                      <Card key={conv.id} className="hover:shadow-md transition-shadow">
+                        <Link href={`/dashboard/lexi/${conv.id}`} className="flex gap-2 w-full">
+                          <div className="w-fit">
                             {conv.participant?.avatar_url ? (
                               <Image src={conv.participant.avatar_url} alt="Avatar" width={48} height={48} className="rounded-full object-cover" />
                             ) : (
-                              <div className="h-12 w-12 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                                {conv.participant?.first_name?.[0] || 'L'}{conv.participant?.last_name?.[0] || ''}
+                              <div className="p-3 rounded-full bg-transparent border border-border flex items-center justify-center text-white font-bold">
+                                <BotMessageSquare className="h-5 w-5" />
                               </div>
                             )}
                           </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-sm text-foreground">{conv.title || `${conv.participant.first_name} ${conv.participant.last_name}`}</p>
-                            <p className="text-xs text-muted-foreground truncate">{conv.last_message_preview || 'Start a conversation with Lexi'}</p>
+                          <div className="w-fit">
+                            <p className="font-semibold text-sm text-foreground mb-2">{conv.title || `${conv.participant.first_name} ${conv.participant.last_name}`}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-1">{conv.last_message_preview || 'Start a conversation with Lexi'}</p>
                           </div>
                           {conv.unread_count ? <Badge className="text-[10px]">{conv.unread_count}</Badge> : null}
                         </Link>
