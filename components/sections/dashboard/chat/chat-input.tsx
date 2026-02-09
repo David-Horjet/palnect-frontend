@@ -249,7 +249,7 @@ export function ChatInput({
 
   return (
     <div className={clsx(
-      "p-2",
+      "p-3",
       isAtBottom ? "space-y-3 border-t border-border" : "space-y-2"
     )}>
       {/* Mode Selector */}
@@ -290,7 +290,7 @@ export function ChatInput({
       )}
 
       {/* Credits Info */}
-      {isAiMessage && (
+      {/* {isAiMessage && (
         <div className={clsx(
           "text-xs",
           isAtBottom ? "flex items-center justify-between" : "flex items-center justify-center"
@@ -314,7 +314,7 @@ export function ChatInput({
             </span>
           )}
         </div>
-      )}
+      )} */}
 
       {selectedFile && (
         <AttachmentPreview
