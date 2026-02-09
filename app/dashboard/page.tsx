@@ -10,6 +10,7 @@ import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap, F
 import Link from "next/link"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
+import { fetchConversations } from "@/store/slices/chatSlice"
 // import { listResources } from "@/store/slices/resourcesSlice"
 import { fetchMentors } from "@/store/slices/mentorsSlice"
 import { fetchUserStreak } from "@/store/slices/streakSlice"
@@ -39,6 +40,10 @@ export default function DashboardPage() {
   const streak = useSelector((state: RootState) => state.streak.streak)
   const streakLoading = useSelector((state: RootState) => state.streak.loading)
 
+  // Chat (Lexi) conversations
+  const { conversations } = useSelector((state: RootState) => state.chat)
+  const chatLoading = useSelector((state: RootState) => state.chat.loading)
+
   // const { resources, myResources } = useSelector((state: RootState) => state.resources)
   // console.log("resources:", resources)
   // const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
@@ -53,6 +58,7 @@ export default function DashboardPage() {
         await Promise.all([
           dispatch(fetchBalance({ token })),
           dispatch(fetchStudentSubscriptions({ token, page: 1, limit: 5 })),
+          dispatch(fetchConversations({ token, page: 1, limit: 3 })),
           // dispatch(listResources({ page: 1, limit: 3 })),
           dispatch(fetchMentors({ token, page: 1, limit: 2 })),
           dispatch(fetchUserStreak()),
@@ -234,46 +240,43 @@ export default function DashboardPage() {
                 <ActivityFeed />
               </div> */}
 
-              {/* Recent Resources */}
-              {/* <div>
+              {/* Recent Lexi Chats */}
+              <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold">Recent Resources</h2>
-                  <Link href="/dashboard/resources" className="text-sm text-primary hover:text-primary/80">
+                  <h2 className="text-lg font-bold">Recent Lexi Chats</h2>
+                  <Link href="/dashboard/lexi" className="text-sm text-primary hover:text-primary/80">
                     View All
                   </Link>
                 </div>
-                {resourcesLoading ? (
-                  <Card className="p-8 text-center text-muted-foreground">Loading resources...</Card>
-                ) : resources.length > 0 ? (
+                {chatLoading ? (
+                  <Card className="p-8 text-center text-muted-foreground">Loading chats...</Card>
+                ) : conversations && conversations.filter((c: any) => c.type === "lexi_ai").length > 0 ? (
                   <div className="space-y-3">
-                    {resources.slice(0, 3).map((resource: any) => (
-                      <Card key={resource.id} className="p-2 md:p-4 hover:shadow-md transition-shadow cursor-pointer">
-                        <Link href={`/dashboard/resources/${resource.id}`}>
-                          <div className="flex items-center gap-4">
-                            <div className="">
-                              <File className="h-12 w-9 md:h-16 md:w-12" />
-                            </div>
-                            <div className="w-full flex flex-col items-start justify-between">
-                              <div className="mb-2">
-                                <h3 className="text-sm md:text-base font-semibold text-foreground mb-1">{resource.title}</h3>
-                                <p className="text-xs text-muted-foreground">
-                                  by {resource.uploader.first_name || "Unknown"} • {resource.downloads || 0} downloads •{" "}
-                                  {new Date(resource.created_at).toLocaleDateString()}
-                                </p>
+                    {conversations.filter((c: any) => c.type === "lexi_ai").slice(0, 3).map((conv: any) => (
+                      <Card key={conv.id} className="p-3 hover:shadow-md transition-shadow">
+                        <Link href={`/dashboard/lexi/${conv.id}`} className="flex items-start gap-3">
+                          <div className="shrink-0">
+                            {conv.participant?.avatar_url ? (
+                              <Image src={conv.participant.avatar_url} alt="Avatar" width={48} height={48} className="rounded-full object-cover" />
+                            ) : (
+                              <div className="h-12 w-12 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
+                                {conv.participant?.first_name?.[0] || 'L'}{conv.participant?.last_name?.[0] || ''}
                               </div>
-                              <Badge className="text-[10px]" variant="secondary">{resource.category}</Badge>
-                            </div>
+                            )}
                           </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm text-foreground">{conv.title || `${conv.participant.first_name} ${conv.participant.last_name}`}</p>
+                            <p className="text-xs text-muted-foreground truncate">{conv.last_message_preview || 'Start a conversation with Lexi'}</p>
+                          </div>
+                          {conv.unread_count ? <Badge className="text-[10px]">{conv.unread_count}</Badge> : null}
                         </Link>
                       </Card>
                     ))}
                   </div>
                 ) : (
-                  <Card className="p-8 text-center text-muted-foreground">
-                    No resources available. Start by exploring or uploading resources.
-                  </Card>
+                  <Card className="p-8 text-center text-muted-foreground">No recent Lexi chats. Start a conversation with Lexi.</Card>
                 )}
-              </div> */}
+              </div>
             </div>
 
             {/* Sidebar */}
