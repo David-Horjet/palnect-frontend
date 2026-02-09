@@ -267,7 +267,7 @@ export default function ProfilePage() {
           </Card>
 
           {/* Resources Uploaded */}
-          <Card>
+          {/* <Card>
             <h2 className="text-base md:text-lg font-bold mb-4 text-foreground flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Resources Uploaded
@@ -275,7 +275,7 @@ export default function ProfilePage() {
             <div className="space-y-3">
               <p className="text-xs md:text-sm text-muted-foreground">Your uploaded resources will appear here</p>
             </div>
-          </Card>
+          </Card> */}
 
           {/* Action Buttons */}
           {isEditing && (
