@@ -273,12 +273,12 @@ export function ChatInput({
           <button
             onClick={() => setMode("video")} 
             className={clsx(
-              "px-3 py-1.5 rounded-full pointer-events-none opacity-80 text-white text-xs relative font-medium flex items-center gap-1 transition",
+              "px-3 py-1.5 rounded-full  opacity-80 text-white text-xs relative font-medium flex items-center gap-1 transition",
               mode === "video"
                 ? "bg-primary"
                 : "bg-muted hover:bg-muted/80"
             )}
-          disabled={true}
+          // disabled={true}
           >
             <Video className="h-3 w-3" />
             Explainer Video
