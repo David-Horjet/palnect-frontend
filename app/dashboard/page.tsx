@@ -10,7 +10,7 @@ import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap, F
 import Link from "next/link"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
-import { listResources } from "@/store/slices/resourcesSlice"
+// import { listResources } from "@/store/slices/resourcesSlice"
 import { fetchMentors } from "@/store/slices/mentorsSlice"
 import { fetchUserStreak } from "@/store/slices/streakSlice"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
@@ -39,9 +39,9 @@ export default function DashboardPage() {
   const streak = useSelector((state: RootState) => state.streak.streak)
   const streakLoading = useSelector((state: RootState) => state.streak.loading)
 
-  const { resources, myResources } = useSelector((state: RootState) => state.resources)
-  console.log("resources:", resources)
-  const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
+  // const { resources, myResources } = useSelector((state: RootState) => state.resources)
+  // console.log("resources:", resources)
+  // const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -53,7 +53,7 @@ export default function DashboardPage() {
         await Promise.all([
           dispatch(fetchBalance({ token })),
           dispatch(fetchStudentSubscriptions({ token, page: 1, limit: 5 })),
-          dispatch(listResources({ page: 1, limit: 3 })),
+          // dispatch(listResources({ page: 1, limit: 3 })),
           dispatch(fetchMentors({ token, page: 1, limit: 2 })),
           dispatch(fetchUserStreak()),
         ])
@@ -66,9 +66,9 @@ export default function DashboardPage() {
   }, [dispatch])
 
   const getStatValue = (label: string): string => {
-    if (label === "Resources Uploaded" && myResources.length > 0) {
-      return myResources.length.toString()
-    }
+    // if (label === "Resources Uploaded" && myResources.length > 0) {
+    //   return myResources.length.toString()
+    // }
     if (label === "Mentors Connected" && studentSubscriptions.length > 0) {
       return studentSubscriptions.length.toString()
     }
@@ -92,7 +92,7 @@ export default function DashboardPage() {
               <div className="flex-1">
                 <h2 className="text-base md:text-lg lg:text-2xl font-bold text-foreground mb-2">Get started with Palnect</h2>
                 <p className="text-xs md:text-sm text-muted-foreground mb-4">
-                  Upload resources, find mentors, and earn credits to grow your academic network.
+                  Find mentors, take exams, and earn credits to grow your academic network.
                 </p>
                 {/* <div className="flex flex-wrap gap-3">
                   <Button variant="primary" size="sm">
@@ -115,7 +115,7 @@ export default function DashboardPage() {
           <div>
             <h3 className="text-base md:text-lg font-bold mb-4">Quick Actions</h3>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <Button
+              {/* <Button
                 variant="outline"
                 className="h-auto justify-start flex-col items-start hover:bg-primary/5 bg-transparent"
 
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                     <span className="text-xs text-muted-foreground">Share notes with peers</span>
                   </div>
                 </Link>
-              </Button>
+              </Button> */}
 
               <Button
                 variant="outline"
@@ -174,14 +174,14 @@ export default function DashboardPage() {
           </div> 
 
           {/* Stats Grid */}
-          <div className="grid md:grid-cols-4 gap-4"> 
-            <StatCard
+          <div className="grid md:grid-cols-4 gap-4">
+            {/* <StatCard
               label="Resources Uploaded"
               value={getStatValue("Resources Uploaded")}
               change={myResources.length > 0 ? `+${myResources.length} available` : "No resource uploaded yet"}
               trend="up" 
               icon={<BookOpen className="h-5 w-5" />}
-            />
+            /> */}
             <StatCard  
               label="Learning Streak"  
               value={getStatValue("Learning Streak")} 
@@ -235,7 +235,7 @@ export default function DashboardPage() {
               </div> */}
 
               {/* Recent Resources */}
-              <div>
+              {/* <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold">Recent Resources</h2>
                   <Link href="/dashboard/resources" className="text-sm text-primary hover:text-primary/80">
@@ -273,7 +273,7 @@ export default function DashboardPage() {
                     No resources available. Start by exploring or uploading resources.
                   </Card>
                 )}
-              </div>
+              </div> */}
             </div>
 
             {/* Sidebar */}
