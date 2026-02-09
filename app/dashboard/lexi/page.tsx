@@ -50,6 +50,8 @@ export default function LexiChatPage() {
   const socket = useSocket()
   const isTyping = useSelector((state: RootState) => state.chat.isTyping)
 
+  console.log("Current Conversation:", currentConversation, messages)
+
   const lexiConversations = allConversations.filter((conv) => conv.type === "lexi_ai")
 
   const scrollToBottom = () => {

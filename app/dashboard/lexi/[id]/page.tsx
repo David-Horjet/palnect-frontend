@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "@/store/store"
 import {
@@ -28,11 +28,12 @@ import { useRouter } from "next/navigation"
 
 const POINT_COST_PER_MESSAGE = 10
 
-export default function LexiConversationPage({ params }: { params: { id: string } }) {
+export default function LexiConversationPage({ params }: { params: Promise<{ id: string }> }) {
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const [isInitialized, setIsInitialized] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const unwrappedParams = React.use(params)
 
   const currentConversation = useSelector((state: RootState) => state.chat.currentConversation)
   const messages = useSelector((state: RootState) => state.chat.messages)
@@ -41,6 +42,8 @@ export default function LexiConversationPage({ params }: { params: { id: string 
   const user = useSelector((state: RootState) => state.auth.user)
   const socket = useSocket()
   const isTyping = useSelector((state: RootState) => state.chat.isTyping)
+
+  console.log("Current Conversation:", currentConversation, messages)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -57,7 +60,7 @@ export default function LexiConversationPage({ params }: { params: { id: string 
     const initialize = async () => {
       try {
         await dispatch(fetchBalance({ token }))
-        await dispatch(getConversation({ token, conversationId: params.id }))
+        await dispatch(getConversation({ token, conversationId: unwrappedParams.id }))
         setIsInitialized(true)
       } catch (error) {
         console.error("Failed to initialize conversation:", error)
@@ -70,7 +73,7 @@ export default function LexiConversationPage({ params }: { params: { id: string 
     return () => {
       dispatch(clearCurrentConversation())
     }
-  }, [dispatch, params.id])
+  }, [dispatch, unwrappedParams.id])
 
   useEffect(() => {
     if (!socket) return
