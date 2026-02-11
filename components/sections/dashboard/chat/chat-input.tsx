@@ -249,7 +249,7 @@ export function ChatInput({
 
   return (
     <div className={clsx(
-      "p-2",
+      "p-3",
       isAtBottom ? "space-y-3 border-t border-border" : "space-y-2"
     )}>
       {/* Mode Selector */}
@@ -273,24 +273,24 @@ export function ChatInput({
           <button
             onClick={() => setMode("video")} 
             className={clsx(
-              "px-3 py-1.5 rounded-full pointer-events-none opacity-80 text-white text-xs relative font-medium flex items-center gap-1 transition",
+              "px-3 py-1.5 rounded-full  opacity-80 text-white text-xs relative font-medium flex items-center gap-1 transition",
               mode === "video"
                 ? "bg-primary"
                 : "bg-muted hover:bg-muted/80"
             )}
-          disabled={true}
+          // disabled={true}
           >
             <Video className="h-3 w-3" />
             Explainer Video
-            <span className="absolute -top-2 -right-8 bg-yellow-500/60 text-white text-[10px] px-2 py-1 rounded-full font-medium">
+            {/* <span className="absolute -top-2 -right-8 bg-yellow-500/60 text-white text-[10px] px-2 py-1 rounded-full font-medium">
               Soon
-            </span>
+            </span> */}
           </button>
         </div>
       )}
 
       {/* Credits Info */}
-      {isAiMessage && (
+      {/* {isAiMessage && (
         <div className={clsx(
           "text-xs",
           isAtBottom ? "flex items-center justify-between" : "flex items-center justify-center"
@@ -314,7 +314,7 @@ export function ChatInput({
             </span>
           )}
         </div>
-      )}
+      )} */}
 
       {selectedFile && (
         <AttachmentPreview

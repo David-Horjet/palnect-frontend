@@ -23,15 +23,17 @@ import { ChatInput } from "@/components/sections/dashboard/chat/chat-input"
 import { ChatSidebar } from "@/components/sections/dashboard/chat/chat-sidebar"
 import { MessageBubble } from "@/components/sections/dashboard/chat/message-bubble"
 import Image from "next/image"
-import robot from "../../../public/gifs/robot.gif";
+import robot from "../../../public/gifs/robot.gif"
 import { jobProgressUpdated, jobCompleted, jobFailed, clearJob as clearGenerationJob } from "@/store/slices/generationSlice"
 import { GenerationProgress } from "@/components/sections/dashboard/chat/generation-progress"
 import { updateMessage } from "@/store/slices/chatSlice"
+import { useRouter } from "next/navigation"
 
 const POINT_COST_PER_MESSAGE = 10
 
 export default function LexiChatPage() {
   const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
   const isMobile = useMediaQuery("(max-width: 768px)")
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -47,6 +49,8 @@ export default function LexiChatPage() {
   const user = useSelector((state: RootState) => state.auth.user)
   const socket = useSocket()
   const isTyping = useSelector((state: RootState) => state.chat.isTyping)
+
+  console.log("Current Conversation:", currentConversation, messages)
 
   const lexiConversations = allConversations.filter((conv) => conv.type === "lexi_ai")
 
@@ -93,7 +97,6 @@ export default function LexiChatPage() {
 
     const onCompleted = (data: any) => {
       dispatch(jobCompleted({ videoUrl: data.videoUrl }))
-      // Clear the UI after a short delay so progress UI disappears
       setTimeout(() => {
         dispatch(clearGenerationJob())
       }, 2500)
@@ -101,7 +104,6 @@ export default function LexiChatPage() {
 
     const onFailed = (data: any) => {
       dispatch(jobFailed({ error: data.error }))
-      // Remove job UI on failure after short delay
       setTimeout(() => {
         dispatch(clearGenerationJob())
       }, 3000)
@@ -128,7 +130,6 @@ export default function LexiChatPage() {
     }
   }, [socket, currentConversation])
 
-
   useEffect(() => {
     if (!socket || !currentConversation) return
 
@@ -148,8 +149,8 @@ export default function LexiChatPage() {
               sender_id: data.senderId,
               attachments: data.attachments || [],
               is_deleted: false,
-            }
-          }),
+            },
+          })
         )
       }
     }
@@ -166,35 +167,27 @@ export default function LexiChatPage() {
       }
     }
 
-    socket.on("ai:message", handleNewMessage)
-    socket.on("ai:typing", handleTyping)
-    socket.on("ai:stopTyping", handleStopTyping)
-
-    // Listen for message updates (e.g., video finished and message attachment updated)
     const handleMessageUpdate = (data: any) => {
       if (data?.message && data.message.conversation_id === currentConversation?.id) {
         dispatch(updateMessage(data.message))
       }
     }
 
-    socket.on('message:update', handleMessageUpdate)
+    socket.on("ai:message", handleNewMessage)
+    socket.on("ai:typing", handleTyping)
+    socket.on("ai:stopTyping", handleStopTyping)
+    socket.on("message:update", handleMessageUpdate)
 
     return () => {
       socket.off("ai:message", handleNewMessage)
       socket.off("ai:typing", handleTyping)
       socket.off("ai:stopTyping", handleStopTyping)
-      socket.off('message:update', handleMessageUpdate)
+      socket.off("message:update", handleMessageUpdate)
     }
   }, [socket, currentConversation, dispatch])
 
   const handleSelectConversation = async (conversationId: string) => {
-    const token = localStorage.getItem("token")
-    if (token) {
-      await dispatch(getConversation({ token, conversationId }))
-      if (isMobile) {
-        setShowSidebarOnly(false)
-      }
-    }
+    router.push(`/dashboard/lexi/${conversationId}`)
   }
 
   const handleNewChat = async () => {
@@ -202,7 +195,7 @@ export default function LexiChatPage() {
     if (token) {
       const result = await dispatch(createConversation({ token, type: "lexi_ai" }))
       if (result.payload) {
-        handleSelectConversation((result.payload as any).id)
+        router.push(`/dashboard/lexi/${(result.payload as any).id}`)
       }
     }
   }
@@ -233,7 +226,7 @@ export default function LexiChatPage() {
             mode,
             attachments,
             clientMessageId,
-            senderId: user?.id!
+            senderId: user?.id!,
           }),
         )
       }
@@ -246,7 +239,7 @@ export default function LexiChatPage() {
           mode,
           attachments,
           clientMessageId,
-          senderId: user?.id!
+          senderId: user?.id!,
         }),
       )
     }
@@ -296,7 +289,7 @@ export default function LexiChatPage() {
                 <div className="flex items-center justify-center h-full">
                   <Card className="max-w-2xl w-full bg-transparent border-none text-center space-y-6">
                     <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
-                      <Image src={robot} alt={"robot"} width={100} height={100} />
+                      <Image src={robot} alt="robot" width={100} height={100} />
                     </div>
                     <div className="space-y-2">
                       <h2 className="text-2xl font-bold text-foreground">Hi, I'm Lexi!</h2>
@@ -370,7 +363,6 @@ export default function LexiChatPage() {
               />
             )}
           </main>
-
         )}
       </div>
 
@@ -390,4 +382,5 @@ export default function LexiChatPage() {
       )}
     </div>
   )
+
 }
