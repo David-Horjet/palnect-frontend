@@ -6,11 +6,12 @@ import type { AppDispatch, RootState } from "@/store/store"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap, File } from "lucide-react"
+import { TrendingUp, Users, BookOpen, Zap, Upload, Gift, Clock, GraduationCap, File, BotMessageSquare } from "lucide-react"
 import Link from "next/link"
 import { fetchBalance } from "@/store/slices/pointsSlice"
 import { fetchStudentSubscriptions } from "@/store/slices/subscriptionsSlice"
-import { listResources } from "@/store/slices/resourcesSlice"
+import { fetchConversations } from "@/store/slices/chatSlice"
+// import { listResources } from "@/store/slices/resourcesSlice"
 import { fetchMentors } from "@/store/slices/mentorsSlice"
 import { fetchUserStreak } from "@/store/slices/streakSlice"
 import { DashboardHeader } from "@/components/layout/dashboard/header"
@@ -39,9 +40,13 @@ export default function DashboardPage() {
   const streak = useSelector((state: RootState) => state.streak.streak)
   const streakLoading = useSelector((state: RootState) => state.streak.loading)
 
-  const { resources, myResources } = useSelector((state: RootState) => state.resources)
-  console.log("resources:", resources)
-  const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
+  // Chat (Lexi) conversations
+  const { conversations } = useSelector((state: RootState) => state.chat)
+  const chatLoading = useSelector((state: RootState) => state.chat.loading)
+
+  // const { resources, myResources } = useSelector((state: RootState) => state.resources)
+  // console.log("resources:", resources)
+  // const resourcesLoading = useSelector((state: RootState) => state.resources.loading)
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -53,7 +58,8 @@ export default function DashboardPage() {
         await Promise.all([
           dispatch(fetchBalance({ token })),
           dispatch(fetchStudentSubscriptions({ token, page: 1, limit: 5 })),
-          dispatch(listResources({ page: 1, limit: 3 })),
+          dispatch(fetchConversations({ token, page: 1, limit: 3 })),
+          // dispatch(listResources({ page: 1, limit: 3 })),
           dispatch(fetchMentors({ token, page: 1, limit: 2 })),
           dispatch(fetchUserStreak()),
         ])
@@ -66,9 +72,9 @@ export default function DashboardPage() {
   }, [dispatch])
 
   const getStatValue = (label: string): string => {
-    if (label === "Resources Uploaded" && myResources.length > 0) {
-      return myResources.length.toString()
-    }
+    // if (label === "Resources Uploaded" && myResources.length > 0) {
+    //   return myResources.length.toString()
+    // }
     if (label === "Mentors Connected" && studentSubscriptions.length > 0) {
       return studentSubscriptions.length.toString()
     }
@@ -77,6 +83,8 @@ export default function DashboardPage() {
     }
     return "0"
   }
+
+  const unreadCount = conversations ? conversations.reduce((acc: number, c: any) => acc + (c.unread_count || 0), 0) : 0
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -92,7 +100,7 @@ export default function DashboardPage() {
               <div className="flex-1">
                 <h2 className="text-base md:text-lg lg:text-2xl font-bold text-foreground mb-2">Get started with Palnect</h2>
                 <p className="text-xs md:text-sm text-muted-foreground mb-4">
-                  Upload resources, find mentors, and earn credits to grow your academic network.
+                  Find mentors, take exams, and earn credits to grow your academic network.
                 </p>
                 {/* <div className="flex flex-wrap gap-3">
                   <Button variant="primary" size="sm">
@@ -115,7 +123,7 @@ export default function DashboardPage() {
           <div>
             <h3 className="text-base md:text-lg font-bold mb-4">Quick Actions</h3>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              <Button
+              {/* <Button
                 variant="outline"
                 className="h-auto justify-start flex-col items-start hover:bg-primary/5 bg-transparent"
 
@@ -125,6 +133,20 @@ export default function DashboardPage() {
                   <div className="flex flex-col gap-1 items-start">
                     <span className="font-semibold">Upload Resource</span>
                     <span className="text-xs text-muted-foreground">Share notes with peers</span>
+                  </div>
+                </Link>
+              </Button> */}
+
+              <Button
+                variant="outline"
+                className="h-auto p-5 justify-center flex-col items-start hover:bg-accent/5 bg-transparent"
+
+              >
+                <Link className="w-full flex items-center justify-start gap-2" href="/dashboard/mentors">
+                  <BotMessageSquare className="h-5 w-5" />
+                  <div className="flex flex-col gap-1 items-start">
+                    <span className="font-semibold">Chat Lexi</span>
+                    <span className="text-xs text-muted-foreground">Get personalized guidance</span>
                   </div>
                 </Link>
               </Button>
@@ -174,14 +196,14 @@ export default function DashboardPage() {
           </div> 
 
           {/* Stats Grid */}
-          <div className="grid md:grid-cols-4 gap-4"> 
-            <StatCard
+          <div className="grid md:grid-cols-4 gap-4">
+            {/* <StatCard
               label="Resources Uploaded"
               value={getStatValue("Resources Uploaded")}
               change={myResources.length > 0 ? `+${myResources.length} available` : "No resource uploaded yet"}
               trend="up" 
               icon={<BookOpen className="h-5 w-5" />}
-            />
+            /> */}
             <StatCard  
               label="Learning Streak"  
               value={getStatValue("Learning Streak")} 
@@ -217,6 +239,13 @@ export default function DashboardPage() {
               trend={pointsBalance > 0 ? "up" : "neutral"}
               icon={<Zap className="h-5 w-5" />}
             />
+            <StatCard
+              label="Unread Messages"
+              value={unreadCount.toString()}
+              change={unreadCount > 0 ? `${unreadCount} new` : "No unread messages"}
+              trend={unreadCount > 0 ? "up" : "neutral"}
+              icon={<BotMessageSquare className="h-5 w-5" />}
+            />
           </div>
 
           {/* Two Column Layout */}
@@ -234,44 +263,41 @@ export default function DashboardPage() {
                 <ActivityFeed />
               </div> */}
 
-              {/* Recent Resources */}
+              {/* Recent Lexi Chats */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold">Recent Resources</h2>
-                  <Link href="/dashboard/resources" className="text-sm text-primary hover:text-primary/80">
+                  <h2 className="text-lg font-bold">Recent Lexi Chats</h2>
+                  <Link href="/dashboard/lexi" className="text-sm text-primary hover:text-primary/80">
                     View All
                   </Link>
                 </div>
-                {resourcesLoading ? (
-                  <Card className="p-8 text-center text-muted-foreground">Loading resources...</Card>
-                ) : resources.length > 0 ? (
+                {chatLoading ? (
+                  <Card className="p-8 text-center text-muted-foreground">Loading chats...</Card>
+                ) : conversations && conversations.filter((c: any) => c.type === "lexi_ai").length > 0 ? (
                   <div className="space-y-3">
-                    {resources.slice(0, 3).map((resource: any) => (
-                      <Card key={resource.id} className="p-2 md:p-4 hover:shadow-md transition-shadow cursor-pointer">
-                        <Link href={`/dashboard/resources/${resource.id}`}>
-                          <div className="flex items-center gap-4">
-                            <div className="">
-                              <File className="h-12 w-9 md:h-16 md:w-12" />
-                            </div>
-                            <div className="w-full flex flex-col items-start justify-between">
-                              <div className="mb-2">
-                                <h3 className="text-sm md:text-base font-semibold text-foreground mb-1">{resource.title}</h3>
-                                <p className="text-xs text-muted-foreground">
-                                  by {resource.uploader.first_name || "Unknown"} • {resource.downloads || 0} downloads •{" "}
-                                  {new Date(resource.created_at).toLocaleDateString()}
-                                </p>
+                    {conversations.filter((c: any) => c.type === "lexi_ai").slice(0, 3).map((conv: any) => (
+                      <Card key={conv.id} className="hover:shadow-md transition-shadow">
+                        <Link href={`/dashboard/lexi/${conv.id}`} className="flex gap-2 w-full">
+                          <div className="w-fit">
+                            {conv.participant?.avatar_url ? (
+                              <Image src={conv.participant.avatar_url} alt="Avatar" width={48} height={48} className="rounded-full object-cover" />
+                            ) : (
+                              <div className="p-3 rounded-full bg-transparent border border-border flex items-center justify-center text-white font-bold">
+                                <BotMessageSquare className="h-5 w-5" />
                               </div>
-                              <Badge className="text-[10px]" variant="secondary">{resource.category}</Badge>
-                            </div>
+                            )}
                           </div>
+                          <div className="w-fit">
+                            <p className="font-semibold text-sm text-foreground mb-2">{conv.title || `${conv.participant.first_name} ${conv.participant.last_name}`}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-1">{conv.last_message_preview || 'Start a conversation with Lexi'}</p>
+                          </div>
+                          {conv.unread_count ? <Badge className="text-[10px]">{conv.unread_count}</Badge> : null}
                         </Link>
                       </Card>
                     ))}
                   </div>
                 ) : (
-                  <Card className="p-8 text-center text-muted-foreground">
-                    No resources available. Start by exploring or uploading resources.
-                  </Card>
+                  <Card className="p-8 text-center text-muted-foreground">No recent Lexi chats. Start a conversation with Lexi.</Card>
                 )}
               </div>
             </div>
