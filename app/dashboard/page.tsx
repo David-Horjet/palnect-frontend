@@ -84,6 +84,8 @@ export default function DashboardPage() {
     return "0"
   }
 
+  const unreadCount = conversations ? conversations.reduce((acc: number, c: any) => acc + (c.unread_count || 0), 0) : 0
+
   return (
     <div className="flex h-screen overflow-hidden">
       <DashboardSidebar activeTab="home" />
@@ -236,6 +238,13 @@ export default function DashboardPage() {
               change={pointsBalance > 0 ? "Ready to use" : "Buy more credits"}
               trend={pointsBalance > 0 ? "up" : "neutral"}
               icon={<Zap className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Unread Messages"
+              value={unreadCount.toString()}
+              change={unreadCount > 0 ? `${unreadCount} new` : "No unread messages"}
+              trend={unreadCount > 0 ? "up" : "neutral"}
+              icon={<BotMessageSquare className="h-5 w-5" />}
             />
           </div>
 
